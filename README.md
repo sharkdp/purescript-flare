@@ -3,8 +3,8 @@
 Flare is a special-purpose UI library for
 [Purescript](https://github.com/purescript/purescript). It is built on top
 of [purescript-signal](https://github.com/bodil/purescript-signal) and uses
-Applicative style to combine predefined input fields to a reactive user
-interface. Flare is inspired by the Haskell library
+Applicative-style programming to combine predefined input fields to a reactive
+user interface. Flare is inspired by the Haskell library
 [typed-spreadsheet](https://github.com/Gabriel439/Haskell-Typed-Spreadsheet-Library).
 
 The main design-criterion of this library is ease of use.
@@ -21,7 +21,7 @@ pulp test -r cat > html/main.js
 
 ## Example 1
 
-A very basic Flare UI with two input fields:
+A basic Flare UI with two input fields can be created with just a few lines:
 
 ``` purescript
 module Main where
