@@ -7,9 +7,10 @@ Applicative style to combine predefined input fields to a reactive user
 interface. Flare is inspired by the Haskell library
 [typed-spreadsheet](https://github.com/Gabriel439/Haskell-Typed-Spreadsheet-Library).
 
-The main criterion in the design of Flare is ease of use
+The main design-criterion of this library is ease of use.
 
 - [Module documentation](docs/Flare.md)
+- [Demo](http://sharkdp.github.io/purescript-flare/)
 
 ## Building
 ```
