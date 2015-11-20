@@ -75,5 +75,5 @@ runFlare :: forall a. (Show a)
          -> UI a
          -> Eff (dom :: DOM) Unit
 runFlare controls target (UI setupUI) = do
-    sig <- setupUI controls
-    runSignal (sig ~> show >>> render target)
+  sig <- setupUI controls
+  runSignal (sig ~> show >>> render target)
