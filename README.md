@@ -18,7 +18,9 @@ pulp build
 pulp test -r cat > html/main.js
 ```
 
-## Example
+## Example 1
+
+A very basic Flare UI with two input fields:
 
 ``` purescript
 module Main where
@@ -30,4 +32,22 @@ import Math (pow)
 main = runFlare "controls" "target" $
          pow <$> number "Base" 2.0
              <*> number "Exponent" 10.0
+```
+
+Here, `controls` and `target` are IDs of two `<div>` elements in the
+corresponding HTML file. The input fields will be appended to `controls` while
+the current output will be rendered to the `target` element.
+
+## Example 2
+
+Another simple UI with a text field and a checkbox:
+
+``` purescript
+greetUI :: UI String
+greetUI = greet <$> string "Name" "Pierre"
+                <*> boolean "French greeting" true
+    where greet name french | french    = "Salut " ++ name ++ "!"
+                            | otherwise = "Hello " ++ name ++ "!"
+
+main = runFlare "controls" "target" greetUI
 ```
