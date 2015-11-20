@@ -1,0 +1,18 @@
+{
+  "name": "purescript-flare",
+  "authors": [
+    "David Peter <mail@david-peter.de>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "output",
+    "test",
+    "html"
+  ],
+  "dependencies": {
+    "purescript-dom": "^0.2.6",
+    "purescript-signal": "^4.2.0"
+  }
+}
