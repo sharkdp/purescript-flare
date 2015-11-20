@@ -20,34 +20,38 @@ Applicative UI
 #### `number`
 
 ``` purescript
-number :: UIField Number
+number :: ElementId -> Number -> UI Number
 ```
 
-Creates a text field for a `Number` from a given label and default value.
+Creates a text field for a `Number` input from a given label and default
+value.
 
 #### `int`
 
 ``` purescript
-int :: UIField Int
+int :: ElementId -> Int -> UI Int
 ```
 
-Creates a text field for an `Int` from a given label and default value.
+Creates a text field for an `Int` input from a given label and default
+value.
 
 #### `string`
 
 ``` purescript
-string :: UIField String
+string :: ElementId -> String -> UI String
 ```
 
-Creates an input field for a `String` from a given label and default value.
+Creates a text field for a `String` input from a given label and default
+value.
 
 #### `boolean`
 
 ``` purescript
-boolean :: UIField Boolean
+boolean :: ElementId -> Boolean -> UI Boolean
 ```
 
-Creates a checkbox for a `Boolean` value from a given label and default value.
+Creates a checkbox for a `Boolean` input from a given label and default
+value.
 
 #### `runFlare`
 

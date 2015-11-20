@@ -48,22 +48,24 @@ foreign import iInt :: InputSignal Int
 foreign import iString :: InputSignal String
 foreign import iBoolean :: InputSignal Boolean
 
-type UIField a = ElementId -> a -> UI a
-
--- | Creates a text field for a `Number` from a given label and default value.
-number :: UIField Number
+-- | Creates a text field for a `Number` input from a given label and default
+-- | value.
+number :: ElementId -> Number -> UI Number
 number id default = UI (iNumber constant id default)
 
--- | Creates a text field for an `Int` from a given label and default value.
-int :: UIField Int
+-- | Creates a text field for an `Int` input from a given label and default
+-- | value.
+int :: ElementId -> Int -> UI Int
 int id default = UI (iInt constant id default)
 
--- | Creates an input field for a `String` from a given label and default value.
-string :: UIField String
+-- | Creates a text field for a `String` input from a given label and default
+-- | value.
+string :: ElementId -> String -> UI String
 string id default = UI (iString constant id default)
 
--- | Creates a checkbox for a `Boolean` value from a given label and default value.
-boolean :: UIField Boolean
+-- | Creates a checkbox for a `Boolean` input from a given label and default
+-- | value.
+boolean :: ElementId -> Boolean -> UI Boolean
 boolean id default = UI (iBoolean constant id default)
 
 -- | Create the Flare UI and run the corresponding signals.
