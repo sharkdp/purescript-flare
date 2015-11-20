@@ -1,0 +1,25 @@
+html, body, input {
+    font-size: 17px;
+}
+
+#container {
+    margin: 20px;
+}
+
+.flare-input {
+    margin-bottom: 5px;
+}
+
+.flare-input-number {
+    width: 80px;
+}
+
+label {
+    width: 150px;
+    display: inline-block;
+    float: left;
+}
+
+#output {
+    margin-top: 10px;
+}
