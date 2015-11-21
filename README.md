@@ -9,7 +9,9 @@ user interface. Flare is inspired by the Haskell library
 
 The main design-criterion of this library is ease of use.
 
-- [Module documentation](docs/Flare.md)
+- Module documentation:
+    - [Flare](docs/Flare.md)
+    - [Flare.Drawing](docs/Flare/Drawing.md)
 - [Demo](http://sharkdp.github.io/purescript-flare/)
 
 ## Building

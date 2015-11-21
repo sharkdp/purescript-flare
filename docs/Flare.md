@@ -1,9 +1,16 @@
 ## Module Flare
 
+#### `ElementId`
+
+``` purescript
+type ElementId = String
+```
+
 #### `Flare`
 
 ``` purescript
 data Flare a
+  = Flare (Array Element) (Signal a)
 ```
 
 A `Flare` is a `Signal` with a corresponding list of HTML elements
@@ -12,7 +19,8 @@ for the user interface components.
 #### `UI`
 
 ``` purescript
-newtype UI a
+newtype UI e a
+  = UI (Eff (dom :: DOM, chan :: Chan | e) (Flare a))
 ```
 
 The main data type for a Flare UI. It encapsulates the `Eff` action
@@ -21,22 +29,22 @@ signals.
 
 ##### Instances
 ``` purescript
-Functor UI
-Apply UI
-Applicative UI
-(Semigroup a) => Semigroup (UI a)
-(Monoid a) => Monoid (UI a)
-(Semiring a) => Semiring (UI a)
-(Ring a) => Ring (UI a)
-(ModuloSemiring a) => ModuloSemiring (UI a)
-(DivisionRing a) => DivisionRing (UI a)
-(Num a) => Num (UI a)
+Functor (UI e)
+Apply (UI e)
+Applicative (UI e)
+(Semigroup a) => Semigroup (UI e a)
+(Monoid a) => Monoid (UI e a)
+(Semiring a) => Semiring (UI e a)
+(Ring a) => Ring (UI e a)
+(ModuloSemiring a) => ModuloSemiring (UI e a)
+(DivisionRing a) => DivisionRing (UI e a)
+(Num a) => Num (UI e a)
 ```
 
 #### `number`
 
 ``` purescript
-number :: Label -> Number -> UI Number
+number :: forall e. Label -> Number -> UI e Number
 ```
 
 Creates a text field for a `Number` input from a given label and default
@@ -45,7 +53,7 @@ value.
 #### `number_`
 
 ``` purescript
-number_ :: Number -> UI Number
+number_ :: forall e. Number -> UI e Number
 ```
 
 Creates a text field for a `Number` input with a default value.
@@ -53,7 +61,7 @@ Creates a text field for a `Number` input with a default value.
 #### `int`
 
 ``` purescript
-int :: Label -> Int -> UI Int
+int :: forall e. Label -> Int -> UI e Int
 ```
 
 Creates a text field for an `Int` input from a given label and default
@@ -62,7 +70,7 @@ value.
 #### `int_`
 
 ``` purescript
-int_ :: Int -> UI Int
+int_ :: forall e. Int -> UI e Int
 ```
 
 Creates a text field for an `Int` input with a default value.
@@ -70,7 +78,7 @@ Creates a text field for an `Int` input with a default value.
 #### `string`
 
 ``` purescript
-string :: Label -> String -> UI String
+string :: forall e. Label -> String -> UI e String
 ```
 
 Creates a text field for a `String` input from a given label and default
@@ -79,7 +87,7 @@ value.
 #### `string_`
 
 ``` purescript
-string_ :: String -> UI String
+string_ :: forall e. String -> UI e String
 ```
 
 Creates a text field for a `String` input with a default value.
@@ -87,7 +95,7 @@ Creates a text field for a `String` input with a default value.
 #### `boolean`
 
 ``` purescript
-boolean :: Label -> Boolean -> UI Boolean
+boolean :: forall e. Label -> Boolean -> UI e Boolean
 ```
 
 Creates a checkbox for a `Boolean` input from a given label and default
@@ -96,17 +104,27 @@ value.
 #### `boolean_`
 
 ``` purescript
-boolean_ :: Boolean -> UI Boolean
+boolean_ :: forall e. Boolean -> UI e Boolean
 ```
 
 Creates a checkbox for a `Boolean` input with a default value.
 
+#### `appendComponents`
+
+``` purescript
+appendComponents :: forall e. ElementId -> Array Element -> Eff (dom :: DOM | e) Unit
+```
+
+Attach all elements in the array to the specified parent element.
+
 #### `runFlare`
 
 ``` purescript
-runFlare :: forall a. (Show a) => ElementId -> ElementId -> UI a -> Eff (dom :: DOM, chan :: Chan) Unit
+runFlare :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff (dom :: DOM, chan :: Chan | e) Unit
 ```
 
-Render a Flare UI to the DOM and set up all event handlers.
+Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
+specify the DOM elements to which the controls and the output will be
+attached, respectively.
 
 

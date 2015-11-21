@@ -18,6 +18,8 @@
   "dependencies": {
     "purescript-dom": "^0.2.6",
     "purescript-signal": "^4.2.0",
-    "purescript-foldable-traversable": "^0.4.1"
+    "purescript-foldable-traversable": "^0.4.1",
+    "purescript-canvas": "^0.3.4",
+    "purescript-drawing": "^0.3.6"
   }
 }
