@@ -4,7 +4,9 @@ import Prelude
 
 import Data.Array
 import Data.Foldable
-import Math (pow)
+import Math (pow, cos)
+
+import Signal.DOM
 
 import Flare
 import Flare.Drawing
@@ -45,3 +47,13 @@ main = do
   runFlare "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
     <> pure " " <> string "Name" "Pierre" <> pure "!"
+
+  let animate time enabled = if enabled then shaded rect else rect
+        where s = 50.0 + 25.0 * cos (0.002 * time)
+              w = 50.0 - s / 2.0
+              o = s / 10.0
+              rect = filled (fillColor gray) (rectangle w w s s)
+              shaded = shadow (shadowColor black <> shadowOffset o o)
+
+  runFlareDrawing "controls7" "output7" $
+    animate <$> lift animationFrame <*> boolean "Shadow" false

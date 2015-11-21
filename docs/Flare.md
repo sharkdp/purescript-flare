@@ -41,6 +41,22 @@ Applicative (UI e)
 (Num a) => Num (UI e a)
 ```
 
+#### `lift`
+
+``` purescript
+lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
+```
+
+Lift a `Signal` inside the `Eff` monad to a `UI` component.
+
+#### `wrap`
+
+``` purescript
+wrap :: forall e a. Signal a -> UI e a
+```
+
+Encapsulte a `Signal` within a `UI` component.
+
 #### `number`
 
 ``` purescript

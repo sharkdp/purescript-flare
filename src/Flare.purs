@@ -2,6 +2,8 @@ module Flare
   ( Flare(..)
   , UI(..)
   , ElementId()
+  , lift
+  , wrap
   , number
   , number_
   , numberRange
@@ -82,6 +84,16 @@ instance moduloSemiringUI :: (ModuloSemiring a) => ModuloSemiring (UI e a) where
 instance divisionRingUI :: (DivisionRing a) => DivisionRing (UI e a)
 
 instance numUI :: (Num a) => Num (UI e a)
+
+-- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
+lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
+lift msig = UI $ do
+  sig <- msig
+  return $ Flare [] sig
+
+-- | Encapsulte a `Signal` within a `UI` component.
+wrap :: forall e a. (Signal a) -> UI e a
+wrap sig = UI $ return $ Flare [] sig
 
 -- | Append a child element to the parent with the specified ID
 foreign import appendComponent :: forall e. ElementId
