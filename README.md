@@ -24,6 +24,8 @@ pulp test -r cat > html/main.js
 
 ## Example 1
 
+![](http://i.imgur.com/YTQjTG8.png)
+
 A basic Flare UI with two input fields can be created with just a few lines:
 
 ``` purescript
