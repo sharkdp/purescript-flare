@@ -8,33 +8,62 @@
         <link href="main.css" rel="stylesheet">
     </head>
     <body>
-        <h3>Example 1</h3>
+        <h1>Flare examples</h1>
+        <h3>Example 1: two number inputs</h3>
+<pre>
+pow <$> number "Base" 2.0
+    <*> number "Exponent" 10.0
+</pre>
         <div id="controls1"></div>
         <div id="output1"></div>
 
-        <h3>Example 2</h3>
+        <h3>Example 2: Semigroup instance</h3>
+<pre>
+string_ "Hello" <> pure " " <> string_ "World"
+</pre>
         <div id="controls2"></div>
         <div id="output2"></div>
 
-        <h3>Example 3</h3>
+        <h3>Example 3: Semiring instance</h3>
+<pre>
+sum (int_ <$> [2, 13, 27, 42])
+</pre>
         <div id="controls3"></div>
         <div id="output3"></div>
 
-        <h3>Example 4</h3>
+        <h3>Example 4: calculations</h3>
+<pre>
+number_ 5.0 / number_ 2.0
+</pre>
         <div id="controls4"></div>
         <div id="output4"></div>
 
-        <h3>Example 5</h3>
+        <h3>Example 5: Drawing output</h3>
+<pre>
+filled (fillColor red) <$> (circle 50.0 50.0 <$> number "Radius" 25.0)
+</pre>
         <div id="controls5"></div>
-        <div id="output5"></div>
+        <canvas id="output5" width="100" height="100"></canvas>
 
-        <h3>Example 6</h3>
+        <h3>Example 6: Select box</h3>
+<pre>
+data Language = English | French | German
+
+instance showLanguage :: Show Language where
+  show English = "english"
+  show French = "french"
+  show German = "german"
+
+greet :: Language -> String
+greet English = "Hello"
+greet French =  "Salut"
+greet German =  "Hallo"
+
+ui = (greet <$> (select "Language" English [French, German]))
+     <> pure " " <> string "Name" "Pierre" <> pure "!"
+</pre>
         <div id="controls6"></div>
         <div id="output6"></div>
-
-        <h3>Example 7</h3>
-        <div id="controls7"></div>
-        <canvas id="output7" width="100" height="100">
 
         <script type="text/javascript" src="main.js"></script>
     </body>
