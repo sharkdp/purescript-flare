@@ -58,6 +58,23 @@ number_ :: forall e. Number -> UI e Number
 
 Creates a text field for a `Number` input with a default value.
 
+#### `numberRange`
+
+``` purescript
+numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
+```
+
+Creates a slider for a `Number` input from a given label, default
+value as well as minimum value, maximum value and a step size.
+
+#### `numberRange_`
+
+``` purescript
+numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
+```
+
+Creates a slider for a `Number` input without a label.
+
 #### `int`
 
 ``` purescript
@@ -74,6 +91,23 @@ int_ :: forall e. Int -> UI e Int
 ```
 
 Creates a text field for an `Int` input with a default value.
+
+#### `intRange`
+
+``` purescript
+intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
+```
+
+Creates a slider for an `Int` input from a given label, default
+value as well as minimum and maximum values.
+
+#### `intRange_`
+
+``` purescript
+intRange_ :: forall e. Int -> Int -> Int -> UI e Int
+```
+
+Creates a slider for an `Int` input without a label.
 
 #### `string`
 

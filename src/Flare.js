@@ -65,6 +65,28 @@ exports.cNumber = createComponent("number",
   }
 );
 
+exports.cNumberRange = function(min) {
+  return function(max) {
+    return function(step) {
+      return createComponent("number-range",
+        function(initial) {
+          var input = document.createElement("input");
+          input.type = "range";
+          input.min = min.toString();
+          input.max = max.toString();
+          input.step = step.toString();
+          input.value = initial.toString();
+          return input;
+        },
+        "input",
+        function(t, initial) {
+          return parseFloat(t.value);
+        }
+      );
+    };
+  };
+};
+
 exports.cInt = createComponent("int",
   function(initial) {
     var input = document.createElement("input");
@@ -75,10 +97,30 @@ exports.cInt = createComponent("int",
   },
   "input",
   function(t, initial) {
-    var val = parseInt(t.value);
+    var val = parseInt(t.value, 10);
     return (isNaN(val) ? initial : val);
   }
 );
+
+exports.cIntRange = function(min) {
+  return function(max) {
+    return createComponent("int-range",
+      function(initial) {
+        var input = document.createElement("input");
+        input.type = "range";
+        input.min = min.toString();
+        input.max = max.toString();
+        input.step = "1";
+        input.value = initial.toString();
+        return input;
+      },
+      "input",
+      function(t, initial) {
+        return parseInt(t.value, 10);
+      }
+    );
+  };
+};
 
 exports.cString = createComponent("string",
   function(initial) {

@@ -4,8 +4,12 @@ module Flare
   , ElementId()
   , number
   , number_
+  , numberRange
+  , numberRange_
   , int
   , int_
+  , intRange
+  , intRange_
   , string
   , string_
   , boolean
@@ -94,7 +98,9 @@ type CreateComponent a = forall e. Label
                          -> Eff (dom :: DOM, chan :: Chan | e) Element
 
 foreign import cNumber :: CreateComponent Number
+foreign import cNumberRange :: Number -> Number -> Number -> CreateComponent Number
 foreign import cInt :: CreateComponent Int
+foreign import cIntRange :: Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
 foreign import cSelect :: forall a. (Show a) => Array a -> CreateComponent a
@@ -117,6 +123,15 @@ number = createUI cNumber
 number_ :: forall e. Number -> UI e Number
 number_ = number ""
 
+-- | Creates a slider for a `Number` input from a given label, default
+-- | value as well as minimum value, maximum value and a step size.
+numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
+numberRange id default min max step = createUI (cNumberRange min max step) id default
+
+-- | Creates a slider for a `Number` input without a label.
+numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
+numberRange_ = numberRange ""
+
 -- | Creates a text field for an `Int` input from a given label and default
 -- | value.
 int :: forall e. Label -> Int -> UI e Int
@@ -125,6 +140,15 @@ int = createUI cInt
 -- | Creates a text field for an `Int` input with a default value.
 int_ :: forall e. Int -> UI e Int
 int_ = int ""
+
+-- | Creates a slider for an `Int` input from a given label, default
+-- | value as well as minimum and maximum values.
+intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
+intRange id default min max = createUI (cIntRange min max) id default
+
+-- | Creates a slider for an `Int` input without a label.
+intRange_ :: forall e. Int -> Int -> Int -> UI e Int
+intRange_ = intRange ""
 
 -- | Creates a text field for a `String` input from a given label and default
 -- | value.
@@ -151,11 +175,7 @@ select :: forall e a. (Show a)
        -> a
        -> Array a
        -> UI e a
-select id x xs = UI $ do
-  chan <- channel x
-  comp <- cSelect xs id x (send chan)
-  let signal = subscribe chan
-  return $ Flare [comp] signal
+select id default xs = createUI (cSelect xs) id default
 
 -- | Create a select box without a label.
 select_ :: forall e a. (Show a)

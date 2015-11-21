@@ -35,8 +35,12 @@ main = do
   runFlare "controls4" "output4" $
     number_ 5.0 / number_ 2.0
 
+  let coloredCircle hue radius =
+    filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
+
   runFlareDrawing "controls5" "output5" $
-    filled (fillColor red) <$> (circle 50.0 50.0 <$> number "Radius" 25.0)
+    coloredCircle <$> (numberRange "Hue" 140.0 0.0 360.0 1.0)
+                  <*> (numberRange "Radius" 25.0 2.0 45.0 0.1)
 
   runFlare "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
