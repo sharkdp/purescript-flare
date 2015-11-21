@@ -2,15 +2,20 @@ html, body, input {
     font-size: 17px;
 }
 
-#container {
-    margin: 20px;
+body {
+    margin-left: 40px;
 }
 
-.flare-input {
+h3 {
+    margin-top: 30px;
     margin-bottom: 5px;
 }
 
-.flare-input-number {
+.flare-input {
+    margin-bottom: 2px;
+}
+
+.flare-input-number, .flare-input-int {
     width: 80px;
 }
 
@@ -18,8 +23,4 @@ label {
     width: 150px;
     display: inline-block;
     float: left;
-}
-
-#output {
-    margin-top: 10px;
 }
