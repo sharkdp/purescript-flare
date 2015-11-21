@@ -156,7 +156,8 @@ var PS = { };
   };
   var $$return = function (__dict_Applicative_2) {
       return pure(__dict_Applicative_2);
-  };                   
+  };
+  var otherwise = true;
   var one = function (dict) {
       return dict.one;
   };
@@ -291,6 +292,7 @@ var PS = { };
   exports["id"] = id;
   exports[">>>"] = $greater$greater$greater;
   exports["compose"] = compose;
+  exports["otherwise"] = otherwise;
   exports["const"] = $$const;
   exports["flip"] = flip;
   exports["unit"] = unit;
@@ -784,6 +786,28 @@ var PS = { };
     }
   );
 
+  exports.cNumberRange = function(min) {
+    return function(max) {
+      return function(step) {
+        return createComponent("number-range",
+          function(initial) {
+            var input = document.createElement("input");
+            input.type = "range";
+            input.min = min.toString();
+            input.max = max.toString();
+            input.step = step.toString();
+            input.value = initial.toString();
+            return input;
+          },
+          "input",
+          function(t, initial) {
+            return parseFloat(t.value);
+          }
+        );
+      };
+    };
+  };
+
   exports.cInt = createComponent("int",
     function(initial) {
       var input = document.createElement("input");
@@ -794,7 +818,7 @@ var PS = { };
     },
     "input",
     function(t, initial) {
-      var val = parseInt(t.value);
+      var val = parseInt(t.value, 10);
       return (isNaN(val) ? initial : val);
     }
   );
@@ -997,26 +1021,10 @@ var PS = { };
   var UI = function (x) {
       return x;
   };
-  var select = function (__dict_Show_2) {
-      return function (id) {
-          return function (x) {
-              return function (xs) {
-                  return UI(function __do() {
-                      var _6 = Signal_Channel.channel(x)();
-                      var _5 = $foreign.cSelect(__dict_Show_2)(xs)(id)(x)(Signal_Channel.send(_6))();
-                      return (function () {
-                          var signal = Signal_Channel.subscribe(_6);
-                          return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ _5 ], signal));
-                      })()();
-                  });
-              };
-          };
-      };
-  };
   var functorUI = new Prelude.Functor(function (f) {
-      return function (_9) {
+      return function (_7) {
           return UI(function __do() {
-              var _0 = _9();
+              var _0 = _7();
               return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(_0.value0, Prelude.map(Signal.functorSignal)(f)(_0.value1)))();
           });
       };
@@ -1036,18 +1044,38 @@ var PS = { };
       };
   };
   var $$int = createUI($foreign.cInt);
-  var int_ = $$int("");
+  var int_ = $$int("");        
   var number = createUI($foreign.cNumber);
   var number_ = number("");
+  var numberRange = function (id) {
+      return function ($$default) {
+          return function (min) {
+              return function (max) {
+                  return function (step) {
+                      return createUI($foreign.cNumberRange(min)(max)(step))(id)($$default);
+                  };
+              };
+          };
+      };
+  };                                 
+  var select = function (__dict_Show_7) {
+      return function (id) {
+          return function ($$default) {
+              return function (xs) {
+                  return createUI($foreign.cSelect(__dict_Show_7)(xs))(id)($$default);
+              };
+          };
+      };
+  };
   var string = createUI($foreign.cString);
   var string_ = string("");    
   var applyUI = new Prelude.Apply(function () {
       return functorUI;
-  }, function (_10) {
-      return function (_11) {
+  }, function (_8) {
+      return function (_9) {
           return UI(function __do() {
-              var _2 = _10();
-              var _1 = _11();
+              var _2 = _8();
+              var _1 = _9();
               return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(Prelude["<>"](Prelude.semigroupArray)(_2.value0)(_1.value0), Prelude.apply(Signal.applySignal)(_2.value1)(_1.value1)))();
           });
       };
@@ -1063,22 +1091,22 @@ var PS = { };
   var semiringUI = function (__dict_Semiring_0) {
       return new Prelude.Semiring(Control_Apply.lift2(applyUI)(Prelude.add(__dict_Semiring_0)), Control_Apply.lift2(applyUI)(Prelude.mul(__dict_Semiring_0)), Prelude.pure(applicativeUI)(Prelude.one(__dict_Semiring_0)), Prelude.pure(applicativeUI)(Prelude.zero(__dict_Semiring_0)));
   };
-  var moduloSemiringUI = function (__dict_ModuloSemiring_7) {
+  var moduloSemiringUI = function (__dict_ModuloSemiring_5) {
       return new Prelude.ModuloSemiring(function () {
-          return semiringUI(__dict_ModuloSemiring_7["__superclass_Prelude.Semiring_0"]());
-      }, Control_Apply.lift2(applyUI)(Prelude.div(__dict_ModuloSemiring_7)), Control_Apply.lift2(applyUI)(Prelude.mod(__dict_ModuloSemiring_7)));
+          return semiringUI(__dict_ModuloSemiring_5["__superclass_Prelude.Semiring_0"]());
+      }, Control_Apply.lift2(applyUI)(Prelude.div(__dict_ModuloSemiring_5)), Control_Apply.lift2(applyUI)(Prelude.mod(__dict_ModuloSemiring_5)));
   };
-  var appendComponents = function (_35) {
-      return Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(_35));
+  var appendComponents = function (_31) {
+      return Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(_31));
   };
   var runFlare = function (__dict_Show_9) {
       return function (controls) {
           return function (target) {
-              return function (_8) {
+              return function (_6) {
                   return function __do() {
-                      var _7 = _8();
-                      appendComponents(controls)(_7.value0)();
-                      return Signal.runSignal(Signal["~>"](Signal.functorSignal)(_7.value1)(Prelude[">>>"](Prelude.semigroupoidFn)(Prelude.show(__dict_Show_9))($foreign.renderString(target))))();
+                      var _5 = _6();
+                      appendComponents(controls)(_5.value0)();
+                      return Signal.runSignal(Signal["~>"](Signal.functorSignal)(_5.value1)(Prelude[">>>"](Prelude.semigroupoidFn)(Prelude.show(__dict_Show_9))($foreign.renderString(target))))();
                   };
               };
           };
@@ -1092,6 +1120,7 @@ var PS = { };
   exports["string_"] = string_;
   exports["string"] = string;
   exports["int_"] = int_;
+  exports["numberRange"] = numberRange;
   exports["number_"] = number_;
   exports["number"] = number;
   exports["functorUI"] = functorUI;
@@ -1106,9 +1135,19 @@ var PS = { };
   /* global exports */
   "use strict";
 
+  // module Math
+
+  exports.abs = Math.abs;
+
   exports.pow = function (n) {
     return function (p) {
       return Math.pow(n, p);
+    };
+  };
+
+  exports["%"] = function(n) {
+    return function(m) {
+      return n % m;
     };
   };                           
 
@@ -1120,7 +1159,9 @@ var PS = { };
   "use strict";
   var $foreign = PS["Math"];
   exports["pi"] = $foreign.pi;
-  exports["pow"] = $foreign.pow;;
+  exports["%"] = $foreign["%"];
+  exports["pow"] = $foreign.pow;
+  exports["abs"] = $foreign.abs;;
  
 })(PS["Math"] = PS["Math"] || {});
 (function(exports) {
@@ -1475,12 +1516,67 @@ var PS = { };
       };
       return Color;
   })();
-  var rgb = Color.create;             
-  var red = rgb(255.0)(0.0)(0.0);
+  var rgb = Color.create;
+  var hsl = function (h) {
+      return function (s) {
+          return function (l) {
+              var h$prime = h / 60.0;
+              var chr = (1.0 - $$Math.abs(2.0 * l - 1.0)) * s;
+              var m = l - chr / 2.0;
+              var x = chr * (1.0 - $$Math.abs($$Math["%"](h$prime)(2.0) - 1.0));
+              var rgb1 = (function () {
+                  if (h$prime < 1.0) {
+                      return {
+                          r: chr, 
+                          g: x, 
+                          b: 0.0
+                      };
+                  };
+                  if (1.0 <= h$prime && h$prime < 2.0) {
+                      return {
+                          r: x, 
+                          g: chr, 
+                          b: 0.0
+                      };
+                  };
+                  if (2.0 <= h$prime && h$prime < 3.0) {
+                      return {
+                          r: 0.0, 
+                          g: chr, 
+                          b: x
+                      };
+                  };
+                  if (3.0 <= h$prime && h$prime < 4.0) {
+                      return {
+                          r: 0.0, 
+                          g: x, 
+                          b: chr
+                      };
+                  };
+                  if (4.0 <= h$prime && h$prime < 5.0) {
+                      return {
+                          r: x, 
+                          g: 0.0, 
+                          b: chr
+                      };
+                  };
+                  if (Prelude.otherwise) {
+                      return {
+                          r: chr, 
+                          g: 0.0, 
+                          b: x
+                      };
+                  };
+                  throw new Error("Failed pattern match at Graphics.Drawing.Color line 49, column 1 - line 50, column 1: " + [  ]);
+              })();
+              return rgb(rgb1.r + m)(rgb1.g + m)(rgb1.b + m);
+          };
+      };
+  };
   var colorString = function (_2) {
       return "#" + ($foreign.byteToHex(_2.value0) + ($foreign.byteToHex(_2.value1) + $foreign.byteToHex(_2.value2)));
   };
-  exports["red"] = red;
+  exports["hsl"] = hsl;
   exports["rgb"] = rgb;
   exports["colorString"] = colorString;;
  
@@ -1948,7 +2044,12 @@ var PS = { };
       Flare.runFlare(Prelude.showString)("controls2")("output2")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string_("Hello"))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Flare.string_("World"))))();
       Flare.runFlare(Prelude.showInt)("controls3")("output3")(Data_Foldable.sum(Data_Foldable.foldableArray)(Flare.semiringUI(Prelude.semiringInt))(Prelude["<$>"](Prelude.functorArray)(Flare.int_)([ 2, 13, 27, 42 ])))();
       Flare.runFlare(Prelude.showNumber)("controls4")("output4")(Prelude["/"](Flare.moduloSemiringUI(Prelude.moduloSemiringNumber))(Flare.number_(5.0))(Flare.number_(2.0)))();
-      Flare_Drawing.runFlareDrawing("controls5")("output5")(Prelude["<$>"](Flare.functorUI)(Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.red)))(Prelude["<$>"](Flare.functorUI)(Graphics_Drawing.circle(50.0)(50.0))(Flare.number("Radius")(25.0))))();
+      var coloredCircle = function (hue) {
+          return function (radius) {
+              return Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.hsl(hue)(0.8)(100.0)))(Graphics_Drawing.circle(50.0)(50.0)(radius));
+          };
+      };
+      Flare_Drawing.runFlareDrawing("controls5")("output5")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(coloredCircle)(Flare.numberRange("Hue")(140.0)(0.0)(360.0)(1.0)))(Flare.numberRange("Radius")(25.0)(2.0)(45.0)(0.1)))();
       return Flare.runFlare(Prelude.showString)("controls6")("output6")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select(showLanguage)("Language")(English.value)([ French.value, German.value ])))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!")))))();
   };
   exports["English"] = English;
