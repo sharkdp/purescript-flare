@@ -13,16 +13,10 @@ Module documentation:
 - [Flare](docs/Flare.md)
 - [Flare.Drawing](docs/Flare/Drawing.md)
 
-[**Live demo**](http://sharkdp.github.io/purescript-flare/)
+[**Live demo with many examples**](http://sharkdp.github.io/purescript-flare/)
 
-## Building
-```
-bower install
-pulp build
-pulp test -r cat > html/main.js
-```
 
-## Example 1
+## Example
 
 ![](http://i.imgur.com/YTQjTG8.png)
 
@@ -44,15 +38,9 @@ Here, `controls` and `output` are IDs of two `<div>` elements in the
 corresponding HTML file. The input fields will be appended to `controls` while
 the current output will be rendered to the `output` element.
 
-## Example 2
-
-Another simple UI with a text field and a checkbox:
-
-``` purescript
-greetUI = greet <$> string "Name" "Pierre"
-                <*> boolean "French greeting" true
-    where greet name french | french    = "Salut " ++ name ++ "!"
-                            | otherwise = "Hello " ++ name ++ "!"
-
-main = runFlare "controls" "output" greetUI
+## Building
+```
+bower install
+pulp build
+pulp test -r cat > html/main.js
 ```
