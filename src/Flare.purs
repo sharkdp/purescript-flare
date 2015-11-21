@@ -10,6 +10,8 @@ module Flare
   , string_
   , boolean
   , boolean_
+  , select
+  , select_
   , appendComponents
   , runFlare
   ) where
@@ -95,6 +97,7 @@ foreign import cNumber :: CreateComponent Number
 foreign import cInt :: CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
+foreign import cSelect :: forall a. (Show a) => Array a -> CreateComponent a
 
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
@@ -140,6 +143,26 @@ boolean = createUI cBoolean
 -- | Creates a checkbox for a `Boolean` input with a default value.
 boolean_ :: forall e. Boolean -> UI e Boolean
 boolean_ = boolean ""
+
+-- | Creates a select box to choose from a list of options. The first option
+-- | is selected by default. The rest of the options is given as an array.
+select :: forall e a. (Show a)
+       => Label
+       -> a
+       -> Array a
+       -> UI e a
+select id x xs = UI $ do
+  chan <- channel x
+  comp <- cSelect xs id x (send chan)
+  let signal = subscribe chan
+  return $ Flare [comp] signal
+
+-- | Create a select box without a label.
+select_ :: forall e a. (Show a)
+        => a
+        -> Array a
+        -> UI e a
+select_ = select ""
 
 -- | Attach all elements in the array to the specified parent element.
 appendComponents :: forall e. ElementId

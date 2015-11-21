@@ -109,6 +109,23 @@ boolean_ :: forall e. Boolean -> UI e Boolean
 
 Creates a checkbox for a `Boolean` input with a default value.
 
+#### `select`
+
+``` purescript
+select :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
+```
+
+Creates a select box to choose from a list of options. The first option
+is selected by default. The rest of the options is given as an array.
+
+#### `select_`
+
+``` purescript
+select_ :: forall e a. (Show a) => a -> Array a -> UI e a
+```
+
+Create a select box without a label.
+
 #### `appendComponents`
 
 ``` purescript

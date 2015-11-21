@@ -106,4 +106,32 @@ exports.cBoolean = createComponent("boolean",
   }
 );
 
+exports.cSelect = function(showX) {
+  return function(xs) {
+    return createComponent("select",
+      function(initial) {
+        var select = document.createElement("select");
+
+        var x, op;
+        for (var i = 0; i < xs.length + 1; i++) {
+          x = (i === 0) ? initial : xs[i - 1];
+          op = document.createElement("option");
+          op.appendChild(document.createTextNode(showX.show(x)));
+          select.appendChild(op);
+        }
+
+        return select;
+      },
+      "change",
+      function(t, initial) {
+        var ix = t.selectedIndex;
+        if (ix === 0) {
+          return initial;
+        }
+        return xs[ix - 1];
+      }
+    );
+  };
+};
+
 // vim: ts=2:sw=2
