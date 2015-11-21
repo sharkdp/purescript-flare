@@ -6,7 +6,6 @@ of [purescript-signal](https://github.com/bodil/purescript-signal) and uses
 Applicative-style programming to combine predefined input fields to a reactive
 user interface. Flare is inspired by the Haskell library
 [typed-spreadsheet](https://github.com/Gabriel439/Haskell-Typed-Spreadsheet-Library).
-
 The main design-criterion of this library is ease of use.
 
 Module documentation:
