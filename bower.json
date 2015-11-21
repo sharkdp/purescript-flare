@@ -12,11 +12,12 @@
     "html"
   ],
   "repository": {
-      "type": "git",
-      "url": "git://github.com/sharkdp/purescript-flare.git"
+    "type": "git",
+    "url": "git://github.com/sharkdp/purescript-flare.git"
   },
   "dependencies": {
     "purescript-dom": "^0.2.6",
-    "purescript-signal": "^4.2.0"
+    "purescript-signal": "^4.2.0",
+    "purescript-foldable-traversable": "^0.4.1"
   }
 }

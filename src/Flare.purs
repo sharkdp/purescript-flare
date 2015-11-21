@@ -1,5 +1,6 @@
 module Flare
-  ( UI()
+  ( Flare()
+  , UI()
   , number
   , int
   , string
@@ -7,73 +8,102 @@ module Flare
   , runFlare
   , module Control.Monad.Eff
   , module DOM
+  , module Signal.Channel
   ) where
 
 import Prelude
 
-import Control.Apply
+import Data.Foldable (traverse_)
+
 import Control.Monad.Eff
 
 import DOM
+import DOM.Node.Types (Element())
 
 import Signal
+import Signal.Channel
 
 type ElementId = String
+type Label = String
 
--- | The main data type for a Flare UI. It encapsulates the `Eff` actions
--- | which are to be run when setting up the input elements and corresponding
+-- | A `Flare` is a `Signal` with a corresponding list of HTML elements
+-- | for the user interface components.
+data Flare a = Flare (Array Element) (Signal a)
+
+-- | The main data type for a Flare UI. It encapsulates the `Eff` action
+-- | which is to be run when setting up the input elements and corresponding
 -- | signals.
-data UI a = UI (ElementId -> Eff (dom :: DOM) (Signal a))
+newtype UI a = UI (Eff (dom :: DOM, chan :: Chan) (Flare a))
 
 instance functorUI :: Functor UI where
-  map f (UI a) = UI (\id -> a id >>= map f >>> pure)
+  map f (UI a) = UI $ do
+    (Flare cs sig) <- a
+    return $ Flare cs (map f sig)
 
 instance applyUI :: Apply UI where
-  apply (UI a1) (UI a2) = UI (\id -> lift2 apply (a1 id) (a2 id))
+  apply (UI a1) (UI a2) = UI $ do
+    (Flare cs1 sig1) <- a1
+    (Flare cs2 sig2) <- a2
+    return $ Flare (cs1 <> cs2) (apply sig1 sig2)
 
 instance applicativeUI :: Applicative UI where
-  pure x = UI (const (pure (pure x)))
+  pure x = UI $ return (Flare [] (pure x))
 
-foreign import render :: forall e. ElementId
-                      -> String
-                      -> Eff (dom :: DOM | e) Unit
+-- | Append a child element to the parent with the specified ID
+foreign import appendComponent :: forall e. ElementId
+                               -> Element -> Eff (dom :: DOM | e) Unit
 
-type InputSignal a = forall e c. (c -> Signal c)
-                     -> ElementId
-                     -> a
-                     -> (ElementId -> Eff (dom :: DOM | e) (Signal a))
+-- | Set the inner HTML of the specified element to the given value
+foreign import renderString :: forall e. ElementId
+                            -> String
+                            -> Eff (dom :: DOM | e) Unit
 
-foreign import iNumber :: InputSignal Number
-foreign import iInt :: InputSignal Int
-foreign import iString :: InputSignal String
-foreign import iBoolean :: InputSignal Boolean
+type CreateComponent a = forall e. Label
+                         -> a
+                         -> (a -> Eff (chan :: Chan) Unit)
+                         -> Eff (dom :: DOM, chan :: Chan | e) Element
+
+foreign import cNumber :: CreateComponent Number
+foreign import cInt :: CreateComponent Int
+foreign import cString :: CreateComponent String
+foreign import cBoolean :: CreateComponent Boolean
+
+-- | Set up the HTML element for a given component and create the corresponding
+-- | signal channel.
+createUI :: forall a. (CreateComponent a) -> Label -> a -> UI a
+createUI createComp id default = UI $ do
+  chan <- channel default
+  comp <- createComp id default (send chan)
+  let signal = subscribe chan
+  return $ Flare [comp] signal
 
 -- | Creates a text field for a `Number` input from a given label and default
 -- | value.
-number :: ElementId -> Number -> UI Number
-number id default = UI (iNumber constant id default)
+number :: Label -> Number -> UI Number
+number = createUI cNumber
 
 -- | Creates a text field for an `Int` input from a given label and default
 -- | value.
-int :: ElementId -> Int -> UI Int
-int id default = UI (iInt constant id default)
+int :: Label -> Int -> UI Int
+int = createUI cInt
 
 -- | Creates a text field for a `String` input from a given label and default
 -- | value.
-string :: ElementId -> String -> UI String
-string id default = UI (iString constant id default)
+string :: Label -> String -> UI String
+string = createUI cString
 
 -- | Creates a checkbox for a `Boolean` input from a given label and default
 -- | value.
-boolean :: ElementId -> Boolean -> UI Boolean
-boolean id default = UI (iBoolean constant id default)
+boolean :: Label -> Boolean -> UI Boolean
+boolean = createUI cBoolean
 
--- | Create the Flare UI and run the corresponding signals.
+-- | Render a Flare UI to the DOM and set up all event handlers.
 runFlare :: forall a. (Show a)
          => ElementId
          -> ElementId
          -> UI a
-         -> Eff (dom :: DOM) Unit
+         -> Eff (dom :: DOM, chan :: Chan) Unit
 runFlare controls target (UI setupUI) = do
-  sig <- setupUI controls
-  runSignal (sig ~> show >>> render target)
+  (Flare components signal) <- setupUI
+  traverse_ (appendComponent controls) components
+  runSignal (signal ~> show >>> renderString target)

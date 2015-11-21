@@ -14,7 +14,7 @@ greetUI = greet <$> string "Name" "Pierre"
     where greet name french | french    = "Salut " ++ name ++ "!"
                             | otherwise = "Hello " ++ name ++ "!"
 
-main :: Eff (dom :: DOM) Unit
+main :: Eff (dom :: DOM, chan :: Chan) Unit
 main = do
   runFlare "controls1" "target1" powUI
   runFlare "controls2" "target2" greetUI

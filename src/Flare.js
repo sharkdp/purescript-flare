@@ -4,7 +4,7 @@
 
 "use strict";
 
-exports.render = function(target) {
+exports.renderString = function(target) {
   return function(content) {
     return function() {
       document.getElementById(target).innerHTML = content;
@@ -12,43 +12,45 @@ exports.render = function(target) {
   };
 };
 
-function createInputField(inputType, elementCallback, eventType, eventListener) {
-  return function(constant) {
-    return function(id) {
-      return function(initial) {
-        return function(container) {
-          var out = constant(initial);
-          return function() {
-            var el = elementCallback(initial);
-            el.id = id;
-            el.className = "flare-input-" + inputType;
+exports.appendComponent = function(target) {
+  return function(el) {
+    return function() {
+      document.getElementById(target).appendChild(el);
+    };
+  };
+};
 
-            var label = document.createElement("label");
-            label.htmlFor = id;
-            label.appendChild(document.createTextNode(id));
+function createComponent(inputType, elementCallback, eventType, eventListener) {
+  return function(id) {
+    return function(initial) {
+      return function(send) {
+        return function() {
+          var el = elementCallback(initial);
+          el.id = id;
+          el.className = "flare-input-" + inputType;
 
-            var div = document.createElement("div");
-            div.className = "flare-input";
-            div.appendChild(label);
-            div.appendChild(el);
+          var label = document.createElement("label");
+          label.htmlFor = id;
+          label.appendChild(document.createTextNode(id));
 
-            var ctrls = document.getElementById(container);
-            ctrls.appendChild(div);
+          var div = document.createElement("div");
+          div.className = "flare-input";
+          div.appendChild(label);
+          div.appendChild(el);
 
-            el.addEventListener(eventType, function(e) {
-              var value = eventListener(e.target, initial);
-              out.set(value);
-            });
+          el.addEventListener(eventType, function(e) {
+            var value = eventListener(e.target, initial);
+            send(value)();
+          });
 
-            return out;
-          };
+          return div;
         };
       };
     };
   };
 }
 
-exports.iNumber = createInputField("number",
+exports.cNumber = createComponent("number",
   function(initial) {
     var input = document.createElement("input");
     input.type = "number";
@@ -59,11 +61,11 @@ exports.iNumber = createInputField("number",
   "input",
   function(t, initial) {
     var val = parseFloat(t.value);
-    return (isNaN(val) ? initial : val).toString();
+    return (isNaN(val) ? initial : val);
   }
 );
 
-exports.iInt = createInputField("int",
+exports.cInt = createComponent("int",
   function(initial) {
     var input = document.createElement("input");
     input.type = "number";
@@ -74,11 +76,11 @@ exports.iInt = createInputField("int",
   "input",
   function(t, initial) {
     var val = parseInt(t.value);
-    return (isNaN(val) ? initial : val).toString();
+    return (isNaN(val) ? initial : val);
   }
 );
 
-exports.iString = createInputField("string",
+exports.cString = createComponent("string",
   function(initial) {
     var input = document.createElement("input");
     input.type = "text";
@@ -91,7 +93,7 @@ exports.iString = createInputField("string",
   }
 );
 
-exports.iBoolean = createInputField("boolean",
+exports.cBoolean = createComponent("boolean",
   function(initial) {
     var input = document.createElement("input");
     input.type = "checkbox";
