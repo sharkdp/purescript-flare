@@ -9,10 +9,11 @@ user interface. Flare is inspired by the Haskell library
 
 The main design-criterion of this library is ease of use.
 
-- Module documentation:
-    - [Flare](docs/Flare.md)
-    - [Flare.Drawing](docs/Flare/Drawing.md)
-- [Demo](http://sharkdp.github.io/purescript-flare/)
+Module documentation:
+- [Flare](docs/Flare.md)
+- [Flare.Drawing](docs/Flare/Drawing.md)
+
+[**Live demo**](http://sharkdp.github.io/purescript-flare/)
 
 ## Building
 ```
@@ -32,25 +33,24 @@ import Prelude
 import Flare
 import Math (pow)
 
-main = runFlare "controls" "target" $
+main = runFlare "controls" "output" $
          pow <$> number "Base" 2.0
              <*> number "Exponent" 10.0
 ```
 
-Here, `controls` and `target` are IDs of two `<div>` elements in the
+Here, `controls` and `output` are IDs of two `<div>` elements in the
 corresponding HTML file. The input fields will be appended to `controls` while
-the current output will be rendered to the `target` element.
+the current output will be rendered to the `output` element.
 
 ## Example 2
 
 Another simple UI with a text field and a checkbox:
 
 ``` purescript
-greetUI :: UI String
 greetUI = greet <$> string "Name" "Pierre"
                 <*> boolean "French greeting" true
     where greet name french | french    = "Salut " ++ name ++ "!"
                             | otherwise = "Hello " ++ name ++ "!"
 
-main = runFlare "controls" "target" greetUI
+main = runFlare "controls" "output" greetUI
 ```
