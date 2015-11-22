@@ -22,6 +22,10 @@ h3 {
     margin-bottom: 2px;
 }
 
+.flare-input > input:invalid {
+    background-color: #ff5050;
+}
+
 .flare-input-number, .flare-input-int {
     width: 80px;
 }
