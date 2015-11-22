@@ -182,18 +182,11 @@ boolean_ = boolean ""
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
-select :: forall e a. (Show a)
-       => Label
-       -> a
-       -> Array a
-       -> UI e a
+select :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
 select id default xs = createUI (cSelect xs) id default
 
 -- | Create a select box without a label.
-select_ :: forall e a. (Show a)
-        => a
-        -> Array a
-        -> UI e a
+select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 select_ = select ""
 
 -- | Attach all elements in the array to the specified parent element.

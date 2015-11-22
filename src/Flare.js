@@ -26,16 +26,19 @@ function createComponent(inputType, elementCallback, eventType, eventListener) {
       return function(send) {
         return function() {
           var el = elementCallback(initial);
-          el.id = id;
           el.className = "flare-input-" + inputType;
-
-          var label = document.createElement("label");
-          label.htmlFor = id;
-          label.appendChild(document.createTextNode(id));
 
           var div = document.createElement("div");
           div.className = "flare-input";
-          div.appendChild(label);
+
+          if (id !== "") {
+            el.id = id;
+            var label = document.createElement("label");
+            label.htmlFor = id;
+            label.appendChild(document.createTextNode(id));
+            div.appendChild(label);
+          }
+
           div.appendChild(el);
 
           el.addEventListener(eventType, function(e) {
