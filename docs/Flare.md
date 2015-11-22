@@ -80,8 +80,8 @@ Creates a text field for a `Number` input with a default value.
 numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
 ```
 
-Creates a slider for a `Number` input from a given label, default
-value as well as minimum value, maximum value and a step size.
+Creates a slider for a `Number` input from a given label,
+minimum value, maximum value, step size as well as default value.
 
 #### `numberRange_`
 
@@ -114,8 +114,8 @@ Creates a text field for an `Int` input with a default value.
 intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
 ```
 
-Creates a slider for an `Int` input from a given label, default
-value as well as minimum and maximum values.
+Creates a slider for an `Int` input from a given label, minimum and
+maximum values as well as a default value.
 
 #### `intRange_`
 

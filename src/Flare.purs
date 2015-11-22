@@ -135,10 +135,10 @@ number = createUI cNumber
 number_ :: forall e. Number -> UI e Number
 number_ = number ""
 
--- | Creates a slider for a `Number` input from a given label, default
--- | value as well as minimum value, maximum value and a step size.
+-- | Creates a slider for a `Number` input from a given label,
+-- | minimum value, maximum value, step size as well as default value.
 numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
-numberRange id default min max step = createUI (cNumberRange min max step) id default
+numberRange id min max step default = createUI (cNumberRange min max step) id default
 
 -- | Creates a slider for a `Number` input without a label.
 numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
@@ -153,10 +153,10 @@ int = createUI cInt
 int_ :: forall e. Int -> UI e Int
 int_ = int ""
 
--- | Creates a slider for an `Int` input from a given label, default
--- | value as well as minimum and maximum values.
+-- | Creates a slider for an `Int` input from a given label, minimum and
+-- | maximum values as well as a default value.
 intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
-intRange id default min max = createUI (cIntRange min max) id default
+intRange id min max default = createUI (cIntRange min max) id default
 
 -- | Creates a slider for an `Int` input without a label.
 intRange_ :: forall e. Int -> Int -> Int -> UI e Int

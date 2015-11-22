@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Array
 import Data.Foldable
+import Data.Traversable
 import Math (pow, cos)
 
 import Signal.DOM
@@ -41,8 +42,8 @@ main = do
     filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
 
   runFlareDrawing "controls5" "output5" $
-    coloredCircle <$> (numberRange "Hue" 140.0 0.0 360.0 1.0)
-                  <*> (numberRange "Radius" 25.0 2.0 45.0 0.1)
+    coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)
+                  <*> (numberRange "Radius" 2.0 45.0 0.1 25.0)
 
   runFlare "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
@@ -57,3 +58,6 @@ main = do
 
   runFlareDrawing "controls7" "output7" $
     animate <$> lift animationFrame <*> boolean "Shadow" false
+
+  runFlare "controls8" "output8" $
+    traverse (intRange_ 1 5) (1..5)
