@@ -45,8 +45,8 @@ number_ 5.0 / number_ 2.0
 coloredCircle hue radius =
   filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
 
-ui = coloredCircle <$> (numberRange "Hue" 140.0 0.0 360.0 1.0)
-                   <*> (numberRange "Radius" 25.0 2.0 45.0 0.1)
+ui = coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)
+                   <*> (numberRange "Radius" 2.0 45.0 0.1 25.0)
 </pre>
         <div id="controls5"></div>
         <canvas id="output5" width="100" height="100"></canvas>
