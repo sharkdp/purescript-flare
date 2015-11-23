@@ -16,6 +16,13 @@ data Flare a
 A `Flare` is a `Signal` with a corresponding list of HTML elements
 for the user interface components.
 
+##### Instances
+``` purescript
+Functor Flare
+Apply Flare
+Applicative Flare
+```
+
 #### `UI`
 
 ``` purescript

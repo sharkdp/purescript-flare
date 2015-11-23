@@ -43,24 +43,28 @@ type Label = String
 -- | for the user interface components.
 data Flare a = Flare (Array Element) (Signal a)
 
+instance functorFlare :: Functor Flare where
+  map f (Flare cs sig) = Flare cs (map f sig)
+
+instance applyFlare :: Apply Flare where
+  apply (Flare cs1 sig1) (Flare cs2 sig2) = Flare (cs1 <> cs2) (sig1 <*> sig2)
+
+instance applicativeFlare :: Applicative Flare where
+  pure x = Flare [] (pure x)
+
 -- | The main data type for a Flare UI. It encapsulates the `Eff` action
 -- | which is to be run when setting up the input elements and corresponding
 -- | signals.
 newtype UI e a = UI (Eff (dom :: DOM, chan :: Chan | e) (Flare a))
 
 instance functorUI :: Functor (UI e) where
-  map f (UI a) = UI $ do
-    (Flare cs sig) <- a
-    return $ Flare cs (map f sig)
+  map f (UI a) = UI $ map (map f) a
 
 instance applyUI :: Apply (UI e) where
-  apply (UI a1) (UI a2) = UI $ do
-    (Flare cs1 sig1) <- a1
-    (Flare cs2 sig2) <- a2
-    return $ Flare (cs1 <> cs2) (apply sig1 sig2)
+  apply (UI a1) (UI a2) = UI $ lift2 apply a1 a2
 
 instance applicativeUI :: Applicative (UI e) where
-  pure x = UI $ return (Flare [] (pure x))
+  pure x = UI $ return (pure x)
 
 instance semigroupUI :: (Semigroup a) => Semigroup (UI e a) where
   append = lift2 append
