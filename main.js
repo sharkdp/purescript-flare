@@ -2745,16 +2745,16 @@ var PS = { };
           };
       };
       Flare_Drawing.runFlareDrawing("controls10")("output10")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(graph)(Flare.foldp(Data_Array.cons)([  ])(Flare.numberRange("Position")(0.0)(150.0)(1.0)(75.0))))(Flare.numberRange("Width")(1.0)(5.0)(0.1)(1.0)))();
-      var count = function (_2) {
+      var $$int = function (_2) {
           if (_2) {
-              return Prelude.add(Prelude.semiringInt)(1);
+              return 1;
           };
           if (!_2) {
-              return Prelude.id(Prelude.categoryFn);
+              return 0;
           };
           throw new Error("Failed pattern match at Test.Main line 78, column 7 - line 79, column 7: " + [ _2.constructor.name ]);
       };
-      return Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(count)(0)(Flare.button("Increment")))();
+      return Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)($$int)(Flare.button("Increment"))))();
   };
   exports["English"] = English;
   exports["French"] = French;

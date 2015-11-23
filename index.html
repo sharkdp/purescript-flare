@@ -115,10 +115,10 @@ ui = graph <$> foldp cons [] (numberRange "Position" 0.0 150.0 1.0 75.0)
 
         <h3>Example 11: Buttons</h3>
 <pre>
-count true  = add 1
-count false = id
+int true  = 1
+int false = 0
 
-ui = foldp count 0 (button "Increment")
+ui = foldp (+) 0 (int <$> button "Increment")
 </pre>
         <div id="controls11"></div>
         <div id="output11"></div>
