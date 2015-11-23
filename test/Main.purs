@@ -74,3 +74,9 @@ main = do
   runFlareDrawing "controls10" "output10" $
     graph <$> foldp cons [] (numberRange "Position" 0.0 150.0 1.0 75.0)
           <*> numberRange "Width" 1.0 5.0 0.1 1.0
+
+  let count true  = add 1
+      count false = id
+
+  runFlare "controls11" "output11" $
+    foldp count 0 (button "Increment")

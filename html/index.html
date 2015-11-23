@@ -113,6 +113,16 @@ ui = graph <$> foldp cons [] (numberRange "Position" 0.0 150.0 1.0 75.0)
         <canvas id="output10" width="150" height="100"
                 style="border: 1px solid black; margin-left: 150px"></canvas>
 
+        <h3>Example 11: Buttons</h3>
+<pre>
+count true  = add 1
+count false = id
+
+ui = foldp count 0 (button "Increment")
+</pre>
+        <div id="controls11"></div>
+        <div id="output11"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>

@@ -178,6 +178,14 @@ boolean_ :: forall e. Boolean -> UI e Boolean
 
 Creates a checkbox for a `Boolean` input with a default value.
 
+#### `button`
+
+``` purescript
+button :: forall e. Label -> UI e Boolean
+```
+
+Creates a button which yields `true` if is pressed and `false` otherwise.
+
 #### `select`
 
 ``` purescript

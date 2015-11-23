@@ -17,6 +17,7 @@ module Flare
   , string_
   , boolean
   , boolean_
+  , button
   , select
   , select_
   , appendComponents
@@ -137,6 +138,7 @@ foreign import cInt :: CreateComponent Int
 foreign import cIntRange :: Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
+foreign import cButton :: CreateComponent Boolean
 foreign import cSelect :: forall a. (Show a) => Array a -> CreateComponent a
 
 -- | Set up the HTML element for a given component and create the corresponding
@@ -201,6 +203,10 @@ boolean = createUI cBoolean
 -- | Creates a checkbox for a `Boolean` input with a default value.
 boolean_ :: forall e. Boolean -> UI e Boolean
 boolean_ = boolean ""
+
+-- | Creates a button which yields `true` if is pressed and `false` otherwise.
+button :: forall e. Label -> UI e Boolean
+button id = createUI cButton id false
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.

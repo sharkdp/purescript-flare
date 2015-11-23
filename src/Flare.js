@@ -151,6 +151,33 @@ exports.cBoolean = createComponent("boolean",
   }
 );
 
+exports.cButton = function(label) {
+  return function(initial) {
+    return function(send) {
+      return function() {
+        var div = document.createElement("div");
+        div.className = "flare-input";
+
+        var button = document.createElement("button");
+        button.id = label;
+        button.className = "flare-input-button";
+        button.appendChild(document.createTextNode(label));
+
+        button.addEventListener('mousedown', function() {
+          send(true)();
+        });
+        button.addEventListener('mouseup', function() {
+          send(false)();
+        });
+
+        div.appendChild(button);
+        return div;
+
+      };
+    };
+  };
+};
+
 exports.cSelect = function(showX) {
   return function(xs) {
     return createComponent("select",
