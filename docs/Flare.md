@@ -50,6 +50,14 @@ Applicative (UI e)
 (BooleanAlgebra a) => BooleanAlgebra (UI e a)
 ```
 
+#### `wrap`
+
+``` purescript
+wrap :: forall e a. Signal a -> UI e a
+```
+
+Encapsulate a `Signal` within a `UI` component.
+
 #### `lift`
 
 ``` purescript
@@ -58,13 +66,15 @@ lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
 
 Lift a `Signal` inside the `Eff` monad to a `UI` component.
 
-#### `wrap`
+#### `foldp`
 
 ``` purescript
-wrap :: forall e a. Signal a -> UI e a
+foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
 ```
 
-Encapsulte a `Signal` within a `UI` component.
+Create a past dependent component. The fold-function takes the current
+value of the component and the previous value of the output to produce
+the new value of the output.
 
 #### `number`
 

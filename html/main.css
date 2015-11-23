@@ -30,6 +30,12 @@ h3 {
     width: 80px;
 }
 
+.flare-input-number-range {
+    width: 150px;
+    padding: 0px;
+    margin: 0px;
+}
+
 label {
     width: 150px;
     display: inline-block;

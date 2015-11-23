@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Array
 import Data.Foldable
+import Data.Int
 import Data.Traversable
 import Math (pow, cos)
 
@@ -63,4 +64,13 @@ main = do
     traverse (intRange_ 1 5) (1..5)
 
   runFlare "controls9" "output9" $
-    and (boolean_ <$> [true, false, true])
+    boolean_ false && boolean_ true
+
+  let graph xs width = outlined (outlineColor black <> lineWidth width)
+                                (path points)
+        where points = zipWith point xs (1 .. length xs)
+              point x y = { x, y: toNumber y }
+
+  runFlareDrawing "controls10" "output10" $
+    graph <$> foldp cons [] (numberRange "Position" 0.0 150.0 1.0 75.0)
+          <*> numberRange "Width" 1.0 5.0 0.1 1.0

@@ -2,8 +2,9 @@ module Flare
   ( Flare(..)
   , UI(..)
   , ElementId()
-  , lift
   , wrap
+  , lift
+  , foldp
   , number
   , number_
   , numberRange
@@ -33,7 +34,7 @@ import Control.Monad.Eff
 import DOM
 import DOM.Node.Types (Element())
 
-import Signal
+import qualified Signal as S
 import Signal.Channel
 
 type ElementId = String
@@ -41,7 +42,7 @@ type Label = String
 
 -- | A `Flare` is a `Signal` with a corresponding list of HTML elements
 -- | for the user interface components.
-data Flare a = Flare (Array Element) (Signal a)
+data Flare a = Flare (Array Element) (S.Signal a)
 
 instance functorFlare :: Functor Flare where
   map f (Flare cs sig) = Flare cs (map f sig)
@@ -98,15 +99,23 @@ instance booleanAlgebraUI :: (BooleanAlgebra a) => BooleanAlgebra (UI e a) where
   disj = lift2 disj
   not = map not
 
+-- | Encapsulate a `Signal` within a `UI` component.
+wrap :: forall e a. (S.Signal a) -> UI e a
+wrap sig = UI $ return $ Flare [] sig
+
 -- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
-lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
+lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (S.Signal a) -> UI e a
 lift msig = UI $ do
   sig <- msig
   return $ Flare [] sig
 
--- | Encapsulte a `Signal` within a `UI` component.
-wrap :: forall e a. (Signal a) -> UI e a
-wrap sig = UI $ return $ Flare [] sig
+-- | Create a past dependent component. The fold-function takes the current
+-- | value of the component and the previous value of the output to produce
+-- | the new value of the output.
+foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
+foldp f x0 (UI setup) = UI $ do
+  (Flare comp sig) <- setup
+  return $ Flare comp (S.foldp f x0 sig)
 
 -- | Append a child element to the parent with the specified ID
 foreign import appendComponent :: forall e. ElementId
@@ -219,4 +228,4 @@ runFlare :: forall e a. (Show a)
 runFlare controls target (UI setupUI) = do
   (Flare components signal) <- setupUI
   appendComponents controls components
-  runSignal (signal ~> show >>> renderString target)
+  S.runSignal (map (show >>> renderString target) signal)

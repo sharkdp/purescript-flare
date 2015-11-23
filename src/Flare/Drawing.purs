@@ -15,7 +15,7 @@ import Graphics.Canvas (getCanvasElementById, getContext2D, Canvas(),
 
 import DOM
 
-import Signal
+import qualified Signal as S
 import Signal.Channel
 
 import Flare
@@ -41,4 +41,4 @@ runFlareDrawing controls canvasID (UI setupUI) = do
         clearRect ctx { x: 0.0, y: 0.0, w, h }
         render ctx drawing
 
-  runSignal (signal ~> render')
+  S.runSignal (map render' signal)
