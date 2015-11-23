@@ -1267,6 +1267,33 @@ var PS = { };
     }
   );
 
+  exports.cButton = function(label) {
+    return function(initial) {
+      return function(send) {
+        return function() {
+          var div = document.createElement("div");
+          div.className = "flare-input";
+
+          var button = document.createElement("button");
+          button.id = label;
+          button.className = "flare-input-button";
+          button.appendChild(document.createTextNode(label));
+
+          button.addEventListener('mousedown', function() {
+            send(true)();
+          });
+          button.addEventListener('mouseup', function() {
+            send(false)();
+          });
+
+          div.appendChild(button);
+          return div;
+
+        };
+      };
+    };
+  };
+
   exports.cSelect = function(showX) {
     return function(xs) {
       return createComponent("select",
@@ -1543,6 +1570,9 @@ var PS = { };
   };
   var string = createUI($foreign.cString);
   var string_ = string("");
+  var button = function (id) {
+      return createUI($foreign.cButton)(id)(false);
+  };
   var $$boolean = createUI($foreign.cBoolean);
   var boolean_ = $$boolean("");
   var applyFlare = new Prelude.Apply(function () {
@@ -1609,6 +1639,7 @@ var PS = { };
   exports["runFlare"] = runFlare;
   exports["appendComponents"] = appendComponents;
   exports["select"] = select;
+  exports["button"] = button;
   exports["boolean_"] = boolean_;
   exports["boolean"] = $$boolean;
   exports["string_"] = string_;
@@ -2713,7 +2744,17 @@ var PS = { };
               return Graphics_Drawing.outlined(Prelude["<>"](Graphics_Drawing.semigroupOutlineStyle)(Graphics_Drawing.outlineColor(Graphics_Drawing_Color.black))(Graphics_Drawing.lineWidth(width)))(Graphics_Drawing.path(Data_Foldable.foldableArray)(points));
           };
       };
-      return Flare_Drawing.runFlareDrawing("controls10")("output10")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(graph)(Flare.foldp(Data_Array.cons)([  ])(Flare.numberRange("Position")(0.0)(150.0)(1.0)(75.0))))(Flare.numberRange("Width")(1.0)(5.0)(0.1)(1.0)))();
+      Flare_Drawing.runFlareDrawing("controls10")("output10")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(graph)(Flare.foldp(Data_Array.cons)([  ])(Flare.numberRange("Position")(0.0)(150.0)(1.0)(75.0))))(Flare.numberRange("Width")(1.0)(5.0)(0.1)(1.0)))();
+      var count = function (_2) {
+          if (_2) {
+              return Prelude.add(Prelude.semiringInt)(1);
+          };
+          if (!_2) {
+              return Prelude.id(Prelude.categoryFn);
+          };
+          throw new Error("Failed pattern match at Test.Main line 78, column 7 - line 79, column 7: " + [ _2.constructor.name ]);
+      };
+      return Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(count)(0)(Flare.button("Increment")))();
   };
   exports["English"] = English;
   exports["French"] = French;
