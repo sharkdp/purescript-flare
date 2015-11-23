@@ -61,3 +61,6 @@ main = do
 
   runFlare "controls8" "output8" $
     traverse (intRange_ 1 5) (1..5)
+
+  runFlare "controls9" "output9" $
+    and (boolean_ <$> [true, false, true])

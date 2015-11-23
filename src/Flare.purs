@@ -85,6 +85,15 @@ instance divisionRingUI :: (DivisionRing a) => DivisionRing (UI e a)
 
 instance numUI :: (Num a) => Num (UI e a)
 
+instance boundedUI :: (Bounded a) => Bounded (UI e a) where
+  top = pure top
+  bottom = pure bottom
+
+instance booleanAlgebraUI :: (BooleanAlgebra a) => BooleanAlgebra (UI e a) where
+  conj = lift2 conj
+  disj = lift2 disj
+  not = map not
+
 -- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
 lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
 lift msig = UI $ do

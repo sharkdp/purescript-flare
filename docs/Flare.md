@@ -39,6 +39,8 @@ Applicative (UI e)
 (ModuloSemiring a) => ModuloSemiring (UI e a)
 (DivisionRing a) => DivisionRing (UI e a)
 (Num a) => Num (UI e a)
+(Bounded a) => Bounded (UI e a)
+(BooleanAlgebra a) => BooleanAlgebra (UI e a)
 ```
 
 #### `lift`
