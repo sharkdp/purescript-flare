@@ -3,8 +3,7 @@ module Flare
   , Cell()
   , Flare(..)
   , ElementId()
---  , wrap
---  , lift
+  , lift
 --  , foldp
   , number
   , number_
@@ -80,6 +79,7 @@ data Component
   | CButton Label
 
 data Cell a = Cell (Array Component) a
+            | Lift (S.Signal a)
 
 data Flare a = Flare (FreeAp Cell a)
 
@@ -124,17 +124,11 @@ instance booleanAlgebraFlare :: (BooleanAlgebra a) => BooleanAlgebra (Flare a) w
   disj = lift2 disj
   not = map not
 
+-- | Lift a `Signal` to a `Flare`.
+lift :: forall a. S.Signal a -> Flare a
+lift sig = Flare (liftFreeAp (Lift sig))
+
 {--
-
--- | Encapsulate a `Signal` within a `UI` component.
-wrap :: forall e a. (S.Signal a) -> UI e a
-wrap sig = UI $ return $ Flare [] sig
-
--- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
-lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (S.Signal a) -> UI e a
-lift msig = UI $ do
-  sig <- msig
-  return $ Flare [] sig
 
 -- | Create a past dependent component. The fold-function takes the current
 -- | value of the component and the previous value of the output to produce
@@ -252,6 +246,7 @@ cellToUI (Cell components x) = SetupUI $ do
   chan <- channel x
   elements <- traverse (toElement (send chan)) components
   return (UI elements (subscribe chan))
+cellToUI (Lift sig) = SetupUI $ return (UI [] sig)
 
 toElement :: forall a e. UpdateHandler a
           -> Component

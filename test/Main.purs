@@ -50,6 +50,7 @@ main = do
   runFlare "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
     <> pure " " <> string "Name" "Pierre" <> pure "!"
+  --}
 
   let animate time enabled = if enabled then shaded rect else rect
         where s = 50.0 + 25.0 * cos (0.002 * time)
@@ -58,9 +59,10 @@ main = do
               rect = filled (fillColor gray) (rectangle w w s s)
               shaded = shadow (shadowColor black <> shadowOffset o o)
 
+  time <- animationFrame
+
   runFlareDrawing "controls7" "output7" $
-    animate <$> lift animationFrame <*> boolean "Shadow" false
-  --}
+    animate <$> lift time <*> boolean "Shadow" false
 
   runFlare "controls8" "output8" $
     traverse (intRange_ 1 5) (1..5)
