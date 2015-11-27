@@ -46,6 +46,7 @@ main = do
     coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)
                   <*> (numberRange "Radius" 2.0 45.0 0.1 25.0)
 
+  {--
   runFlare "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
     <> pure " " <> string "Name" "Pierre" <> pure "!"
@@ -59,6 +60,7 @@ main = do
 
   runFlareDrawing "controls7" "output7" $
     animate <$> lift animationFrame <*> boolean "Shadow" false
+  --}
 
   runFlare "controls8" "output8" $
     traverse (intRange_ 1 5) (1..5)
@@ -66,6 +68,7 @@ main = do
   runFlare "controls9" "output9" $
     boolean_ false && boolean_ true
 
+  {--
   let graph xs width = outlined (outlineColor black <> lineWidth width)
                                 (path points)
         where points = zipWith point xs (1 .. length xs)
@@ -80,3 +83,4 @@ main = do
 
   runFlare "controls11" "output11" $
     foldp (+) 0 (int <$> button "Increment")
+  --}

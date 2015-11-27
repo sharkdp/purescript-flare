@@ -1,10 +1,11 @@
 module Flare
-  ( Flare(..)
-  , UI(..)
+  ( Component()
+  , Cell()
+  , Flare(..)
   , ElementId()
-  , wrap
-  , lift
-  , foldp
+--  , wrap
+--  , lift
+--  , foldp
   , number
   , number_
   , numberRange
@@ -18,19 +19,25 @@ module Flare
   , boolean
   , boolean_
   , button
-  , select
-  , select_
-  , appendComponents
+--  , select
+--  , select_
+  , cellToUI -- TODO
+  , SetupUI(..) -- TODO
+  , UI(..) -- TODO
+  , appendComponent -- TODO
   , runFlare
   ) where
 
 import Prelude
 
-import Data.Monoid
+import Data.Array (reverse)
 import Data.Foldable (traverse_)
+import Data.Monoid
+import Data.Traversable (traverse)
 
 import Control.Apply
 import Control.Monad.Eff
+import Control.Applicative.Free
 
 import DOM
 import DOM.Node.Types (Element())
@@ -41,64 +48,83 @@ import Signal.Channel
 type ElementId = String
 type Label = String
 
--- | A `Flare` is a `Signal` with a corresponding list of HTML elements
--- | for the user interface components.
-data Flare a = Flare (Array Element) (S.Signal a)
+data UI a = UI (Array Element) (S.Signal a)
+
+instance functorUI :: Functor UI where
+  map f (UI cs sig) = UI cs (map f sig)
+
+instance applyUI :: Apply UI where
+  apply (UI cs1 sig1) (UI cs2 sig2) = UI (cs1 <> cs2) (sig1 <*> sig2)
+
+instance applicativeUI :: Applicative UI where
+  pure x = UI [] (pure x)
+
+newtype SetupUI e a = SetupUI (Eff (dom :: DOM, chan :: Chan | e) (UI a))
+
+instance functorSetupUI :: Functor (SetupUI e) where
+  map f (SetupUI a) = SetupUI $ map (map f) a
+
+instance applySetupUI :: Apply (SetupUI e) where
+  apply (SetupUI a1) (SetupUI a2) = SetupUI $ lift2 apply a1 a2
+
+instance applicativeSetupUI :: Applicative (SetupUI e) where
+  pure x = SetupUI $ return (pure x)
+
+data Component
+  = CNumber Label Number
+  | CNumberRange Label Number Number Number Number
+  | CInt Label Int
+  | CIntRange Label Int Int Int
+  | CString Label String
+  | CBoolean Label Boolean
+  | CButton Label
+
+data Cell a = Cell (Array Component) a
+
+data Flare a = Flare (FreeAp Cell a)
 
 instance functorFlare :: Functor Flare where
-  map f (Flare cs sig) = Flare cs (map f sig)
+  map f (Flare x) = Flare (map f x)
 
 instance applyFlare :: Apply Flare where
-  apply (Flare cs1 sig1) (Flare cs2 sig2) = Flare (cs1 <> cs2) (sig1 <*> sig2)
+  apply (Flare x) (Flare y) = Flare (x <*> y)
 
 instance applicativeFlare :: Applicative Flare where
-  pure x = Flare [] (pure x)
+  pure = Flare <<< pure
 
--- | The main data type for a Flare UI. It encapsulates the `Eff` action
--- | which is to be run when setting up the input elements and corresponding
--- | signals.
-newtype UI e a = UI (Eff (dom :: DOM, chan :: Chan | e) (Flare a))
-
-instance functorUI :: Functor (UI e) where
-  map f (UI a) = UI $ map (map f) a
-
-instance applyUI :: Apply (UI e) where
-  apply (UI a1) (UI a2) = UI $ lift2 apply a1 a2
-
-instance applicativeUI :: Applicative (UI e) where
-  pure x = UI $ return (pure x)
-
-instance semigroupUI :: (Semigroup a) => Semigroup (UI e a) where
+instance semigroupFlare :: (Semigroup a) => Semigroup (Flare a) where
   append = lift2 append
 
-instance monoidUI :: (Monoid a) => Monoid (UI e a) where
+instance monoidFlare :: (Monoid a) => Monoid (Flare a) where
   mempty = pure mempty
 
-instance semiringUI :: (Semiring a) => Semiring (UI e a) where
+instance semiringFlare :: (Semiring a) => Semiring (Flare a) where
   one = pure one
   mul = lift2 mul
   zero = pure zero
   add = lift2 add
 
-instance ringUI :: (Ring a) => Ring (UI e a) where
+instance ringFlare :: (Ring a) => Ring (Flare a) where
   sub = lift2 sub
 
-instance moduloSemiringUI :: (ModuloSemiring a) => ModuloSemiring (UI e a) where
+instance moduloSemiringFlare :: (ModuloSemiring a) => ModuloSemiring (Flare a) where
   mod = lift2 mod
   div = lift2 div
 
-instance divisionRingUI :: (DivisionRing a) => DivisionRing (UI e a)
+instance divisionRingFlare :: (DivisionRing a) => DivisionRing (Flare a)
 
-instance numUI :: (Num a) => Num (UI e a)
+instance numFlare :: (Num a) => Num (Flare a)
 
-instance boundedUI :: (Bounded a) => Bounded (UI e a) where
+instance boundedFlare :: (Bounded a) => Bounded (Flare a) where
   top = pure top
   bottom = pure bottom
 
-instance booleanAlgebraUI :: (BooleanAlgebra a) => BooleanAlgebra (UI e a) where
+instance booleanAlgebraFlare :: (BooleanAlgebra a) => BooleanAlgebra (Flare a) where
   conj = lift2 conj
   disj = lift2 disj
   not = map not
+
+{--
 
 -- | Encapsulate a `Signal` within a `UI` component.
 wrap :: forall e a. (S.Signal a) -> UI e a
@@ -118,6 +144,10 @@ foldp f x0 (UI setup) = UI $ do
   (Flare comp sig) <- setup
   return $ Flare comp (S.foldp f x0 sig)
 
+--}
+
+type UpdateHandler a = a -> Eff (chan :: Chan) Unit
+
 -- | Append a child element to the parent with the specified ID
 foreign import appendComponent :: forall e. ElementId
                                -> Element -> Eff (dom :: DOM | e) Unit
@@ -127,9 +157,9 @@ foreign import renderString :: forall e. ElementId
                             -> String
                             -> Eff (dom :: DOM | e) Unit
 
-type CreateComponent a = forall e. Label
+type CreateComponent a = forall a b e. Label
                          -> a
-                         -> (a -> Eff (chan :: Chan) Unit)
+                         -> UpdateHandler b
                          -> Eff (dom :: DOM, chan :: Chan | e) Element
 
 foreign import cNumber :: CreateComponent Number
@@ -141,97 +171,117 @@ foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: CreateComponent Boolean
 foreign import cSelect :: forall a. (Show a) => Array a -> CreateComponent a
 
--- | Set up the HTML element for a given component and create the corresponding
--- | signal channel.
-createUI :: forall e a. (CreateComponent a) -> Label -> a -> UI e a
-createUI createComp id default = UI $ do
-  chan <- channel default
-  comp <- createComp id default (send chan)
-  let signal = subscribe chan
-  return $ Flare [comp] signal
+makeFlare :: forall a. Component -> a -> Flare a
+makeFlare component default = Flare (liftFreeAp (Cell [component] default))
 
 -- | Creates a text field for a `Number` input from a given label and default
 -- | value.
-number :: forall e. Label -> Number -> UI e Number
-number = createUI cNumber
+number :: Label -> Number -> Flare Number
+number label default = makeFlare (CNumber label default) default
 
 -- | Creates a text field for a `Number` input with a default value.
-number_ :: forall e. Number -> UI e Number
+number_ :: Number -> Flare Number
 number_ = number ""
 
 -- | Creates a slider for a `Number` input from a given label,
 -- | minimum value, maximum value, step size as well as default value.
-numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
-numberRange id min max step default = createUI (cNumberRange min max step) id default
+numberRange :: Label -> Number -> Number -> Number -> Number -> Flare Number
+numberRange label min max step default =
+  makeFlare (CNumberRange label min max step default) default
 
 -- | Creates a slider for a `Number` input without a label.
-numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
+numberRange_ :: Number -> Number -> Number -> Number -> Flare Number
 numberRange_ = numberRange ""
 
 -- | Creates a text field for an `Int` input from a given label and default
 -- | value.
-int :: forall e. Label -> Int -> UI e Int
-int = createUI cInt
+int :: Label -> Int -> Flare Int
+int label default = makeFlare (CInt label default) default
 
 -- | Creates a text field for an `Int` input with a default value.
-int_ :: forall e. Int -> UI e Int
+int_ :: Int -> Flare Int
 int_ = int ""
 
 -- | Creates a slider for an `Int` input from a given label, minimum and
 -- | maximum values as well as a default value.
-intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
-intRange id min max default = createUI (cIntRange min max) id default
+intRange :: Label -> Int -> Int -> Int -> Flare Int
+intRange label min max default =
+  makeFlare (CIntRange label min max default) default
 
 -- | Creates a slider for an `Int` input without a label.
-intRange_ :: forall e. Int -> Int -> Int -> UI e Int
+intRange_ :: Int -> Int -> Int -> Flare Int
 intRange_ = intRange ""
 
 -- | Creates a text field for a `String` input from a given label and default
 -- | value.
-string :: forall e. Label -> String -> UI e String
-string = createUI cString
+string :: Label -> String -> Flare String
+string label default = makeFlare (CString label default) default
 
--- | Creates a text field for a `String` input with a default value.
-string_ :: forall e. String -> UI e String
+{-- -- | Creates a text field for a `String` input with a default value. --}
+string_ :: String -> Flare String
 string_ = string ""
 
 -- | Creates a checkbox for a `Boolean` input from a given label and default
 -- | value.
-boolean :: forall e. Label -> Boolean -> UI e Boolean
-boolean = createUI cBoolean
+boolean :: Label -> Boolean -> Flare Boolean
+boolean label default = makeFlare (CBoolean label default) default
 
 -- | Creates a checkbox for a `Boolean` input with a default value.
-boolean_ :: forall e. Boolean -> UI e Boolean
+boolean_ :: Boolean -> Flare Boolean
 boolean_ = boolean ""
 
 -- | Creates a button which yields `true` if is pressed and `false` otherwise.
-button :: forall e. Label -> UI e Boolean
-button id = createUI cButton id false
+button :: Label -> Flare Boolean
+button label = makeFlare (CButton label) false
+
+{--
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
-select :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
-select id default xs = createUI (cSelect xs) id default
+select :: forall a. (Show a) => Label -> a -> Array a -> Flare a
+select label default xs = ...
 
 -- | Create a select box without a label.
 select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 select_ = select ""
 
--- | Attach all elements in the array to the specified parent element.
-appendComponents :: forall e. ElementId
-                 -> Array Element
-                 -> Eff (dom :: DOM | e) Unit
-appendComponents = traverse_ <<< appendComponent
+--}
 
--- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
+cellToUI :: forall e. NaturalTransformation Cell (SetupUI e)
+cellToUI (Cell components x) = SetupUI $ do
+  chan <- channel x
+  elements <- traverse (toElement (send chan)) components
+  return (UI elements (subscribe chan))
+
+toElement :: forall a e. UpdateHandler a
+          -> Component
+          -> Eff (dom :: DOM, chan :: Chan | e) Element
+toElement send (CNumber label default) =
+  cNumber label default send
+toElement send (CNumberRange label min max step default) =
+  cNumberRange min max step label default send
+toElement send (CInt label default) =
+  cInt label default send
+toElement send (CIntRange label min max default) =
+  cIntRange min max label default send
+toElement send (CString label default) =
+  cString label default send
+toElement send (CBoolean label default) =
+  cBoolean label default send
+toElement send (CButton label) =
+  cButton label false send
+
+-- | Renders a `Flare` to the DOM and sets up all event handlers. The two IDs
 -- | specify the DOM elements to which the controls and the output will be
 -- | attached, respectively.
 runFlare :: forall e a. (Show a)
          => ElementId
          -> ElementId
-         -> UI e a
+         -> Flare a
          -> Eff (dom :: DOM, chan :: Chan | e) Unit
-runFlare controls target (UI setupUI) = do
-  (Flare components signal) <- setupUI
-  appendComponents controls components
-  S.runSignal (map (show >>> renderString target) signal)
+runFlare controls target (Flare flare) =
+  case foldFreeAp cellToUI flare of
+    (SetupUI setup) -> do
+      (UI els sig) <- setup
+      traverse_ (appendComponent controls) (reverse els)
+      S.runSignal (map (show >>> renderString target) sig)
