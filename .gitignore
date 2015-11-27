@@ -2,3 +2,5 @@ bower_components
 output
 .psci
 html/main.js
+.psci_modules
+.pulp-cache
