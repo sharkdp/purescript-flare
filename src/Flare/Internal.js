@@ -1,4 +1,4 @@
-// module Flare
+// module Flare.Internal
 // jshint browser: true
 // jshint node: true
 
