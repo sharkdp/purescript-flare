@@ -1539,19 +1539,19 @@ var PS = { };
       };
   };
   var $$int = createUI($foreign.cInt);
-  var int_ = $$int("");
-  var intRange = function (id) {
+  var int_ = $$int("");        
+  var intSlider = function (id) {
       return function (min) {
           return function (max) {
               return function ($$default) {
-                  return createUI($foreign.cIntRange("number")(min)(max))(id)($$default);
+                  return createUI($foreign.cIntRange("range")(min)(max))(id)($$default);
               };
           };
       };
-  };                           
-  var intSlider_ = intRange("");
+  };
+  var intSlider_ = intSlider("");
   var number = createUI($foreign.cNumber);
-  var number_ = number("");           
+  var number_ = number("");          
   var numberSlider = function (id) {
       return function (min) {
           return function (max) {
@@ -1562,7 +1562,7 @@ var PS = { };
               };
           };
       };
-  };
+  };                                   
   var select = function (__dict_Show_7) {
       return function (id) {
           return function ($$default) {
@@ -1649,7 +1649,7 @@ var PS = { };
   exports["string_"] = string_;
   exports["string"] = string;
   exports["intSlider_"] = intSlider_;
-  exports["intRange"] = intRange;
+  exports["intSlider"] = intSlider;
   exports["int_"] = int_;
   exports["numberSlider"] = numberSlider;
   exports["number_"] = number_;
