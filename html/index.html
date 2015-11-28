@@ -45,8 +45,8 @@ number_ 5.0 / number_ 2.0
 coloredCircle hue radius =
   filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
 
-ui = coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)
-                   <*> (numberRange "Radius" 2.0 45.0 0.1 25.0)
+ui = coloredCircle <$> (numberSlider "Hue" 0.0 360.0 1.0 140.0)
+                   <*> (numberSlider "Radius" 2.0 45.0 0.1 25.0)
 </pre>
         <div id="controls5"></div>
         <canvas id="output5" width="100" height="100"></canvas>
@@ -87,7 +87,7 @@ ui = animate <$> lift animationFrame <*> boolean "Shadow" false
 
         <h3>Example 8: Lists and sliders</h3>
 <pre>
-traverse (intRange_ 1 5) (1..5)
+traverse (intSlider_ 1 5) (1..5)
 </pre>
         <div id="controls8"></div>
         <div id="output8"></div>
@@ -106,8 +106,8 @@ graph xs width = outlined (outlineColor black <> lineWidth width)
   where points = zipWith point xs (1 .. length xs)
         point x y = { x, y: toNumber y }
 
-ui = graph <$> foldp cons [] (numberRange "Position" 0.0 150.0 1.0 75.0)
-           <*> numberRange "Width" 1.0 5.0 0.1 1.0
+ui = graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
+           <*> numberSlider "Width" 1.0 5.0 0.1 1.0
 </pre>
         <div id="controls10"></div>
         <canvas id="output10" width="150" height="100"

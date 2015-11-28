@@ -68,24 +68,26 @@ exports.cNumber = createComponent("number",
   }
 );
 
-exports.cNumberRange = function(min) {
-  return function(max) {
-    return function(step) {
-      return createComponent("number-range",
-        function(initial) {
-          var input = document.createElement("input");
-          input.type = "range";
-          input.min = min.toString();
-          input.max = max.toString();
-          input.step = step.toString();
-          input.value = initial.toString();
-          return input;
-        },
-        "input",
-        function(t, initial) {
-          return parseFloat(t.value);
-        }
-      );
+exports.cNumberRange = function(type) {
+  return function(min) {
+    return function(max) {
+      return function(step) {
+        return createComponent("number-" + type,
+          function(initial) {
+            var input = document.createElement("input");
+            input.type = type;
+            input.min = min.toString();
+            input.max = max.toString();
+            input.step = step.toString();
+            input.value = initial.toString();
+            return input;
+          },
+          "input",
+          function(t, initial) {
+            return parseFloat(t.value);
+          }
+        );
+      };
     };
   };
 };
@@ -105,23 +107,25 @@ exports.cInt = createComponent("int",
   }
 );
 
-exports.cIntRange = function(min) {
-  return function(max) {
-    return createComponent("int-range",
-      function(initial) {
-        var input = document.createElement("input");
-        input.type = "range";
-        input.min = min.toString();
-        input.max = max.toString();
-        input.step = "1";
-        input.value = initial.toString();
-        return input;
-      },
-      "input",
-      function(t, initial) {
-        return parseInt(t.value, 10);
-      }
-    );
+exports.cIntRange = function(type) {
+  return function(min) {
+    return function(max) {
+      return createComponent("int-" + type,
+        function(initial) {
+          var input = document.createElement("input");
+          input.type = type;
+          input.min = min.toString();
+          input.max = max.toString();
+          input.step = "1";
+          input.value = initial.toString();
+          return input;
+        },
+        "input",
+        function(t, initial) {
+          return parseInt(t.value, 10);
+        }
+      );
+    };
   };
 };
 

@@ -9,10 +9,14 @@ module Flare
   , number_
   , numberRange
   , numberRange_
+  , numberSlider
+  , numberSlider_
   , int
   , int_
   , intRange
   , intRange_
+  , intSlider
+  , intSlider_
   , string
   , string_
   , boolean
@@ -133,9 +137,9 @@ type CreateComponent a = forall e. Label
                          -> Eff (dom :: DOM, chan :: Chan | e) Element
 
 foreign import cNumber :: CreateComponent Number
-foreign import cNumberRange :: Number -> Number -> Number -> CreateComponent Number
+foreign import cNumberRange :: String -> Number -> Number -> Number -> CreateComponent Number
 foreign import cInt :: CreateComponent Int
-foreign import cIntRange :: Int -> Int -> CreateComponent Int
+foreign import cIntRange :: String -> Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: CreateComponent Boolean
@@ -159,14 +163,23 @@ number = createUI cNumber
 number_ :: forall e. Number -> UI e Number
 number_ = number ""
 
--- | Creates a slider for a `Number` input from a given label,
+-- | Creates a text field for a `Number` input from a given label,
 -- | minimum value, maximum value, step size as well as default value.
 numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
-numberRange id min max step default = createUI (cNumberRange min max step) id default
+numberRange id min max step default = createUI (cNumberRange "number" min max step) id default
 
--- | Creates a slider for a `Number` input without a label.
+-- | Creates a text field for a `Number` input without a label.
 numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
 numberRange_ = numberRange ""
+
+-- | Creates a slider for a `Number` input from a given label,
+-- | minimum value, maximum value, step size as well as default value.
+numberSlider :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
+numberSlider id min max step default = createUI (cNumberRange "range" min max step) id default
+
+-- | Creates a slider for a `Number` input without a label.
+numberSlider_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
+numberSlider_ = numberSlider ""
 
 -- | Creates a text field for an `Int` input from a given label and default
 -- | value.
@@ -177,14 +190,25 @@ int = createUI cInt
 int_ :: forall e. Int -> UI e Int
 int_ = int ""
 
--- | Creates a slider for an `Int` input from a given label, minimum and
+-- | Creates a text field for an `Int` input from a given label, minimum and
 -- | maximum values as well as a default value.
 intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
-intRange id min max default = createUI (cIntRange min max) id default
+intRange id min max default = createUI (cIntRange "number" min max) id default
 
--- | Creates a slider for an `Int` input without a label.
+-- | Creates a text field for an `Int` input from minimum and maximum values
+-- | as well as a default value.
 intRange_ :: forall e. Int -> Int -> Int -> UI e Int
 intRange_ = intRange ""
+
+-- | Creates a slider for an `Int` input from a given label, minimum and
+-- | maximum values as well as a default value.
+intSlider :: forall e. Label -> Int -> Int -> Int -> UI e Int
+intSlider id min max default = createUI (cIntRange "range" min max) id default
+
+-- | Creates a slider for an `Int` input from minimum and maximum values
+-- | as well as a default value.
+intSlider_ :: forall e. Int -> Int -> Int -> UI e Int
+intSlider_ = intSlider ""
 
 -- | Creates a text field for a `String` input from a given label and default
 -- | value.

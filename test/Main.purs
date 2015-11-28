@@ -43,8 +43,8 @@ main = do
     filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
 
   runFlareDrawing "controls5" "output5" $
-    coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)
-                  <*> (numberRange "Radius" 2.0 45.0 0.1 25.0)
+    coloredCircle <$> (numberSlider "Hue" 0.0 360.0 1.0 140.0)
+                  <*> (numberSlider "Radius" 2.0 45.0 0.1 25.0)
 
   runFlare "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
@@ -61,7 +61,7 @@ main = do
     animate <$> lift animationFrame <*> boolean "Shadow" false
 
   runFlare "controls8" "output8" $
-    traverse (intRange_ 1 5) (1..5)
+    traverse (intSlider_ 1 5) (1..5)
 
   runFlare "controls9" "output9" $
     boolean_ false && boolean_ true
@@ -72,8 +72,8 @@ main = do
               point x y = { x, y: toNumber y }
 
   runFlareDrawing "controls10" "output10" $
-    graph <$> foldp cons [] (numberRange "Position" 0.0 150.0 1.0 75.0)
-          <*> numberRange "Width" 1.0 5.0 0.1 1.0
+    graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
+          <*> numberSlider "Width" 1.0 5.0 0.1 1.0
 
   let int true  = 1
       int false = 0
