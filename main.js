@@ -1184,24 +1184,26 @@ var PS = { };
     }
   );
 
-  exports.cNumberRange = function(min) {
-    return function(max) {
-      return function(step) {
-        return createComponent("number-range",
-          function(initial) {
-            var input = document.createElement("input");
-            input.type = "range";
-            input.min = min.toString();
-            input.max = max.toString();
-            input.step = step.toString();
-            input.value = initial.toString();
-            return input;
-          },
-          "input",
-          function(t, initial) {
-            return parseFloat(t.value);
-          }
-        );
+  exports.cNumberRange = function(type) {
+    return function(min) {
+      return function(max) {
+        return function(step) {
+          return createComponent("number-" + type,
+            function(initial) {
+              var input = document.createElement("input");
+              input.type = type;
+              input.min = min.toString();
+              input.max = max.toString();
+              input.step = step.toString();
+              input.value = initial.toString();
+              return input;
+            },
+            "input",
+            function(t, initial) {
+              return parseFloat(t.value);
+            }
+          );
+        };
       };
     };
   };
@@ -1221,23 +1223,25 @@ var PS = { };
     }
   );
 
-  exports.cIntRange = function(min) {
-    return function(max) {
-      return createComponent("int-range",
-        function(initial) {
-          var input = document.createElement("input");
-          input.type = "range";
-          input.min = min.toString();
-          input.max = max.toString();
-          input.step = "1";
-          input.value = initial.toString();
-          return input;
-        },
-        "input",
-        function(t, initial) {
-          return parseInt(t.value, 10);
-        }
-      );
+  exports.cIntRange = function(type) {
+    return function(min) {
+      return function(max) {
+        return createComponent("int-" + type,
+          function(initial) {
+            var input = document.createElement("input");
+            input.type = type;
+            input.min = min.toString();
+            input.max = max.toString();
+            input.step = "1";
+            input.value = initial.toString();
+            return input;
+          },
+          "input",
+          function(t, initial) {
+            return parseInt(t.value, 10);
+          }
+        );
+      };
     };
   };
 
@@ -1540,25 +1544,25 @@ var PS = { };
       return function (min) {
           return function (max) {
               return function ($$default) {
-                  return createUI($foreign.cIntRange(min)(max))(id)($$default);
+                  return createUI($foreign.cIntRange("number")(min)(max))(id)($$default);
               };
           };
       };
-  };
-  var intRange_ = intRange("");
+  };                           
+  var intSlider_ = intRange("");
   var number = createUI($foreign.cNumber);
-  var number_ = number("");
-  var numberRange = function (id) {
+  var number_ = number("");           
+  var numberSlider = function (id) {
       return function (min) {
           return function (max) {
               return function (step) {
                   return function ($$default) {
-                      return createUI($foreign.cNumberRange(min)(max)(step))(id)($$default);
+                      return createUI($foreign.cNumberRange("range")(min)(max)(step))(id)($$default);
                   };
               };
           };
       };
-  };                                 
+  };
   var select = function (__dict_Show_7) {
       return function (id) {
           return function ($$default) {
@@ -1644,10 +1648,10 @@ var PS = { };
   exports["boolean"] = $$boolean;
   exports["string_"] = string_;
   exports["string"] = string;
-  exports["intRange_"] = intRange_;
+  exports["intSlider_"] = intSlider_;
   exports["intRange"] = intRange;
   exports["int_"] = int_;
-  exports["numberRange"] = numberRange;
+  exports["numberSlider"] = numberSlider;
   exports["number_"] = number_;
   exports["number"] = number;
   exports["foldp"] = foldp;
@@ -2709,7 +2713,7 @@ var PS = { };
               return Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.hsl(hue)(0.8)(100.0)))(Graphics_Drawing.circle(50.0)(50.0)(radius));
           };
       };
-      Flare_Drawing.runFlareDrawing("controls5")("output5")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(coloredCircle)(Flare.numberRange("Hue")(0.0)(360.0)(1.0)(140.0)))(Flare.numberRange("Radius")(2.0)(45.0)(0.1)(25.0)))();
+      Flare_Drawing.runFlareDrawing("controls5")("output5")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(coloredCircle)(Flare.numberSlider("Hue")(0.0)(360.0)(1.0)(140.0)))(Flare.numberSlider("Radius")(2.0)(45.0)(0.1)(25.0)))();
       Flare.runFlare(Prelude.showString)("controls6")("output6")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select(showLanguage)("Language")(English.value)([ French.value, German.value ])))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!")))))();
       var animate = function (time) {
           return function (enabled) {
@@ -2728,7 +2732,7 @@ var PS = { };
           };
       };
       Flare_Drawing.runFlareDrawing("controls7")("output7")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(animate)(Flare.lift(Signal_DOM.animationFrame)))(Flare["boolean"]("Shadow")(false)))();
-      Flare.runFlare(Prelude.showArray(Prelude.showInt))("controls8")("output8")(Data_Traversable.traverse(Data_Traversable.traversableArray)(Flare.applicativeUI)(Flare.intRange_(1)(5))(Data_Array[".."](1)(5)))();
+      Flare.runFlare(Prelude.showArray(Prelude.showInt))("controls8")("output8")(Data_Traversable.traverse(Data_Traversable.traversableArray)(Flare.applicativeUI)(Flare.intSlider_(1)(5))(Data_Array[".."](1)(5)))();
       Flare.runFlare(Prelude.showBoolean)("controls9")("output9")(Prelude["&&"](Flare.booleanAlgebraUI(Prelude.booleanAlgebraBoolean))(Flare.boolean_(false))(Flare.boolean_(true)))();
       var graph = function (xs) {
           return function (width) {
@@ -2744,7 +2748,7 @@ var PS = { };
               return Graphics_Drawing.outlined(Prelude["<>"](Graphics_Drawing.semigroupOutlineStyle)(Graphics_Drawing.outlineColor(Graphics_Drawing_Color.black))(Graphics_Drawing.lineWidth(width)))(Graphics_Drawing.path(Data_Foldable.foldableArray)(points));
           };
       };
-      Flare_Drawing.runFlareDrawing("controls10")("output10")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(graph)(Flare.foldp(Data_Array.cons)([  ])(Flare.numberRange("Position")(0.0)(150.0)(1.0)(75.0))))(Flare.numberRange("Width")(1.0)(5.0)(0.1)(1.0)))();
+      Flare_Drawing.runFlareDrawing("controls10")("output10")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(graph)(Flare.foldp(Data_Array.cons)([  ])(Flare.numberSlider("Position")(0.0)(150.0)(1.0)(75.0))))(Flare.numberSlider("Width")(1.0)(5.0)(0.1)(1.0)))();
       var $$int = function (_2) {
           if (_2) {
               return 1;
