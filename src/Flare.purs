@@ -1,6 +1,6 @@
 module Flare
   ( lift
---  , foldp
+  , foldp
   , number
   , number_
   , numberRange
@@ -30,6 +30,8 @@ import DOM (DOM())
 import qualified Signal as S
 import Signal.Channel (Chan())
 
+import Unsafe.Coerce
+
 import Flare.Types
 import Flare.Internal
 
@@ -37,15 +39,11 @@ import Flare.Internal
 lift :: forall a. S.Signal a -> Flare a
 lift sig = Flare (liftFreeAp (Lift sig))
 
-{--
 -- | Create a past dependent component. The fold-function takes the current
 -- | value of the component and the previous value of the output to produce
 -- | the new value of the output.
-foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
-foldp f x0 (UI setup) = UI $ do
-  (Flare comp sig) <- setup
-  return $ Flare comp (S.foldp f x0 sig)
---}
+foldp :: forall a b. (a -> b -> b) -> b -> Flare a -> Flare b
+foldp f x0 flare = Flare $ liftFreeAp (FoldP (unsafeCoerce f) x0 (unsafeCoerce flare))
 
 -- | Creates a text field for a `Number` input from a given label and default
 -- | value.

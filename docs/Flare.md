@@ -8,11 +8,24 @@ lift :: forall a. Signal a -> Flare a
 
 Lift a `Signal` to a `Flare`.
 
+#### `foldp`
+
+``` purescript
+foldp :: forall a b. (a -> b -> b) -> b -> Flare a -> Flare b
+```
+
+Create a past dependent component. The fold-function takes the current
+value of the component and the previous value of the output to produce
+the new value of the output.
+
 #### `number`
 
 ``` purescript
 number :: Label -> Number -> Flare Number
 ```
+
+Creates a text field for a `Number` input from a given label and default
+value.
 
 #### `number_`
 

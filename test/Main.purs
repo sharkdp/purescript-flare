@@ -70,7 +70,6 @@ main = do
   runFlare "controls9" "output9" $
     boolean_ false && boolean_ true
 
-  {--
   let graph xs width = outlined (outlineColor black <> lineWidth width)
                                 (path points)
         where points = zipWith point xs (1 .. length xs)
@@ -85,4 +84,3 @@ main = do
 
   runFlare "controls11" "output11" $
     foldp (+) 0 (int <$> button "Increment")
-  --}
