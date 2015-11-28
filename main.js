@@ -1200,7 +1200,8 @@ var PS = { };
             },
             "input",
             function(t, initial) {
-              return parseFloat(t.value);
+              var val = parseFloat(t.value);
+              return (isNaN(val) ? initial : val);
             }
           );
         };
@@ -1238,7 +1239,8 @@ var PS = { };
           },
           "input",
           function(t, initial) {
-            return parseInt(t.value, 10);
+            var val = parseInt(t.value, 10);
+            return (isNaN(val) ? initial : val);
           }
         );
       };
