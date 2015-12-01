@@ -65,7 +65,12 @@ var PS = { };
     return function (n2) {
       return n1 / n2;
     };
-  };                                          
+  };
+
+  //- Bounded --------------------------------------------------------------------
+
+  exports.topInt = 2147483647;
+  exports.bottomInt = -2147483648;            
 
   //- BooleanAlgebra -------------------------------------------------------------
 
@@ -283,6 +288,7 @@ var PS = { };
   }, function (x) {
       return x;
   });
+  var boundedInt = new Bounded($foreign.bottomInt, $foreign.topInt);
   var boundedBoolean = new Bounded(false, true);
   var bottom = function (dict) {
       return dict.bottom;
@@ -385,6 +391,7 @@ var PS = { };
   exports["semiringNumber"] = semiringNumber;
   exports["moduloSemiringNumber"] = moduloSemiringNumber;
   exports["boundedBoolean"] = boundedBoolean;
+  exports["boundedInt"] = boundedInt;
   exports["booleanAlgebraBoolean"] = booleanAlgebraBoolean;
   exports["showBoolean"] = showBoolean;
   exports["showInt"] = showInt;
@@ -1128,6 +1135,17 @@ var PS = { };
     };
   };
 
+  exports.removeChildren = function(target) {
+    return function() {
+      var el = document.getElementById(target);
+
+      // http://stackoverflow.com/a/3955238/704831
+      while (el.firstChild) {
+        el.removeChild(el.firstChild);
+      }
+    };
+  };
+
   exports.appendComponent = function(target) {
     return function(el) {
       return function() {
@@ -1184,6 +1202,17 @@ var PS = { };
     }
   );
 
+  function clamp(min, max, initial, value) {
+    if (isNaN(value)) {
+      return initial;
+    } else if (value < min) {
+      return min;
+    } else if (value > max) {
+      return max;
+    }
+    return value;
+  }
+
   exports.cNumberRange = function(type) {
     return function(min) {
       return function(max) {
@@ -1200,29 +1229,13 @@ var PS = { };
             },
             "input",
             function(t, initial) {
-              var val = parseFloat(t.value);
-              return (isNaN(val) ? initial : val);
+              return clamp(min, max, initial, parseFloat(t.value));
             }
           );
         };
       };
     };
   };
-
-  exports.cInt = createComponent("int",
-    function(initial) {
-      var input = document.createElement("input");
-      input.type = "number";
-      input.step = "1";
-      input.value = initial.toString();
-      return input;
-    },
-    "input",
-    function(t, initial) {
-      var val = parseInt(t.value, 10);
-      return (isNaN(val) ? initial : val);
-    }
-  );
 
   exports.cIntRange = function(type) {
     return function(min) {
@@ -1239,8 +1252,7 @@ var PS = { };
           },
           "input",
           function(t, initial) {
-            var val = parseInt(t.value, 10);
-            return (isNaN(val) ? initial : val);
+            return clamp(min, max, initial, parseInt(t.value, 10));
           }
         );
       };
@@ -1500,6 +1512,25 @@ var PS = { };
   var UI = function (x) {
       return x;
   };
+  var runFlareWith = function (controls) {
+      return function (handler) {
+          return function (_6) {
+              return function __do() {
+                  var _4 = _6();
+                  $foreign.removeChildren(controls)();
+                  Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(controls))(_4.value0)();
+                  return Signal.runSignal(Prelude.map(Signal.functorSignal)(handler)(_4.value1))();
+              };
+          };
+      };
+  };
+  var runFlare = function (__dict_Show_2) {
+      return function (controls) {
+          return function (target) {
+              return runFlareWith(controls)(Prelude[">>>"](Prelude.semigroupoidFn)(Prelude.show(__dict_Show_2))($foreign.renderString(target)));
+          };
+      };
+  };
   var lift = function (msig) {
       return UI(function __do() {
           var _0 = msig();
@@ -1540,7 +1571,9 @@ var PS = { };
           };
       };
   };
-  var $$int = createUI($foreign.cInt);
+  var $$int = function (id) {
+      return createUI($foreign.cIntRange("number")(Prelude.bottom(Prelude.boundedInt))(Prelude.top(Prelude.boundedInt)))(id);
+  };
   var int_ = $$int("");        
   var intSlider = function (id) {
       return function (min) {
@@ -1553,7 +1586,18 @@ var PS = { };
   };
   var intSlider_ = intSlider("");
   var number = createUI($foreign.cNumber);
-  var number_ = number("");          
+  var number_ = number("");
+  var numberRange = function (id) {
+      return function (min) {
+          return function (max) {
+              return function (step) {
+                  return function ($$default) {
+                      return createUI($foreign.cNumberRange("number")(min)(max)(step))(id)($$default);
+                  };
+              };
+          };
+      };
+  };                                 
   var numberSlider = function (id) {
       return function (min) {
           return function (max) {
@@ -1565,11 +1609,11 @@ var PS = { };
           };
       };
   };                                   
-  var select = function (__dict_Show_7) {
+  var select = function (__dict_Show_8) {
       return function (id) {
           return function ($$default) {
               return function (xs) {
-                  return createUI($foreign.cSelect(__dict_Show_7)(xs))(id)($$default);
+                  return createUI($foreign.cSelect(__dict_Show_8)(xs))(id)($$default);
               };
           };
       };
@@ -1608,42 +1652,26 @@ var PS = { };
   }, function (x) {
       return UI(Prelude["return"](Control_Monad_Eff.applicativeEff)(Prelude.pure(applicativeFlare)(x)));
   });
-  var boundedUI = function (__dict_Bounded_9) {
-      return new Prelude.Bounded(Prelude.pure(applicativeUI)(Prelude.bottom(__dict_Bounded_9)), Prelude.pure(applicativeUI)(Prelude.top(__dict_Bounded_9)));
+  var boundedUI = function (__dict_Bounded_10) {
+      return new Prelude.Bounded(Prelude.pure(applicativeUI)(Prelude.bottom(__dict_Bounded_10)), Prelude.pure(applicativeUI)(Prelude.top(__dict_Bounded_10)));
   };
-  var booleanAlgebraUI = function (__dict_BooleanAlgebra_10) {
+  var booleanAlgebraUI = function (__dict_BooleanAlgebra_11) {
       return new Prelude.BooleanAlgebra(function () {
-          return boundedUI(__dict_BooleanAlgebra_10["__superclass_Prelude.Bounded_0"]());
-      }, Control_Apply.lift2(applyUI)(Prelude.conj(__dict_BooleanAlgebra_10)), Control_Apply.lift2(applyUI)(Prelude.disj(__dict_BooleanAlgebra_10)), Prelude.map(functorUI)(Prelude.not(__dict_BooleanAlgebra_10)));
+          return boundedUI(__dict_BooleanAlgebra_11["__superclass_Prelude.Bounded_0"]());
+      }, Control_Apply.lift2(applyUI)(Prelude.conj(__dict_BooleanAlgebra_11)), Control_Apply.lift2(applyUI)(Prelude.disj(__dict_BooleanAlgebra_11)), Prelude.map(functorUI)(Prelude.not(__dict_BooleanAlgebra_11)));
   };
   var semiringUI = function (__dict_Semiring_0) {
       return new Prelude.Semiring(Control_Apply.lift2(applyUI)(Prelude.add(__dict_Semiring_0)), Control_Apply.lift2(applyUI)(Prelude.mul(__dict_Semiring_0)), Prelude.pure(applicativeUI)(Prelude.one(__dict_Semiring_0)), Prelude.pure(applicativeUI)(Prelude.zero(__dict_Semiring_0)));
   };
-  var moduloSemiringUI = function (__dict_ModuloSemiring_5) {
+  var moduloSemiringUI = function (__dict_ModuloSemiring_6) {
       return new Prelude.ModuloSemiring(function () {
-          return semiringUI(__dict_ModuloSemiring_5["__superclass_Prelude.Semiring_0"]());
-      }, Control_Apply.lift2(applyUI)(Prelude.div(__dict_ModuloSemiring_5)), Control_Apply.lift2(applyUI)(Prelude.mod(__dict_ModuloSemiring_5)));
-  };
-  var appendComponents = function (_42) {
-      return Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(_42));
-  };
-  var runFlare = function (__dict_Show_11) {
-      return function (controls) {
-          return function (target) {
-              return function (_6) {
-                  return function __do() {
-                      var _4 = _6();
-                      appendComponents(controls)(_4.value0)();
-                      return Signal.runSignal(Prelude.map(Signal.functorSignal)(Prelude[">>>"](Prelude.semigroupoidFn)(Prelude.show(__dict_Show_11))($foreign.renderString(target)))(_4.value1))();
-                  };
-              };
-          };
-      };
+          return semiringUI(__dict_ModuloSemiring_6["__superclass_Prelude.Semiring_0"]());
+      }, Control_Apply.lift2(applyUI)(Prelude.div(__dict_ModuloSemiring_6)), Control_Apply.lift2(applyUI)(Prelude.mod(__dict_ModuloSemiring_6)));
   };
   exports["UI"] = UI;
   exports["Flare"] = Flare;
   exports["runFlare"] = runFlare;
-  exports["appendComponents"] = appendComponents;
+  exports["runFlareWith"] = runFlareWith;
   exports["select"] = select;
   exports["button"] = button;
   exports["boolean_"] = boolean_;
@@ -1654,6 +1682,7 @@ var PS = { };
   exports["intSlider"] = intSlider;
   exports["int_"] = int_;
   exports["numberSlider"] = numberSlider;
+  exports["numberRange"] = numberRange;
   exports["number_"] = number_;
   exports["number"] = number;
   exports["foldp"] = foldp;
@@ -2076,7 +2105,7 @@ var PS = { };
                   };
                   throw new Error("Failed pattern match at Graphics.Drawing.Color line 49, column 1 - line 50, column 1: " + [  ]);
               })();
-              return rgb(rgb1.r + m)(rgb1.g + m)(rgb1.b + m);
+              return rgb(255.0 * (rgb1.r + m))(255.0 * (rgb1.g + m))(255.0 * (rgb1.b + m));
           };
       };
   };                               
@@ -2528,15 +2557,12 @@ var PS = { };
   var Graphics_Drawing = PS["Graphics.Drawing"];
   var Graphics_Canvas = PS["Graphics.Canvas"];
   var DOM = PS["DOM"];
-  var Signal = PS["Signal"];
   var Signal_Channel = PS["Signal.Channel"];
   var Flare = PS["Flare"];     
   var runFlareDrawing = function (controls) {
       return function (canvasID) {
-          return function (_5) {
+          return function (ui) {
               return function __do() {
-                  var _4 = _5();
-                  Flare.appendComponents(controls)(_4.value0)();
                   var _3 = Graphics_Canvas.getCanvasElementById(canvasID)();
                   if (_3 instanceof Data_Maybe.Just) {
                       var _2 = Graphics_Canvas.getContext2D(_3.value0)();
@@ -2554,10 +2580,10 @@ var PS = { };
                                   return Graphics_Drawing.render(_2)(drawing)();
                               };
                           };
-                          return Signal.runSignal(Prelude.map(Signal.functorSignal)(render$prime)(_4.value1));
+                          return Flare.runFlareWith(controls)(render$prime)(ui);
                       })()();
                   };
-                  throw new Error("Failed pattern match at Flare.Drawing line 26, column 1 - line 30, column 1: " + [ _3.constructor.name ]);
+                  throw new Error("Failed pattern match at Flare.Drawing line 25, column 1 - line 29, column 1: " + [ _3.constructor.name ]);
               };
           };
       };
@@ -2712,7 +2738,7 @@ var PS = { };
       Flare.runFlare(Prelude.showNumber)("controls4")("output4")(Prelude["/"](Flare.moduloSemiringUI(Prelude.moduloSemiringNumber))(Flare.number_(5.0))(Flare.number_(2.0)))();
       var coloredCircle = function (hue) {
           return function (radius) {
-              return Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.hsl(hue)(0.8)(100.0)))(Graphics_Drawing.circle(50.0)(50.0)(radius));
+              return Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.hsl(hue)(0.8)(0.4)))(Graphics_Drawing.circle(50.0)(50.0)(radius));
           };
       };
       Flare_Drawing.runFlareDrawing("controls5")("output5")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(coloredCircle)(Flare.numberSlider("Hue")(0.0)(360.0)(1.0)(140.0)))(Flare.numberSlider("Radius")(2.0)(45.0)(0.1)(25.0)))();
@@ -2751,7 +2777,7 @@ var PS = { };
           };
       };
       Flare_Drawing.runFlareDrawing("controls10")("output10")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(graph)(Flare.foldp(Data_Array.cons)([  ])(Flare.numberSlider("Position")(0.0)(150.0)(1.0)(75.0))))(Flare.numberSlider("Width")(1.0)(5.0)(0.1)(1.0)))();
-      var $$int = function (_2) {
+      var toInt = function (_2) {
           if (_2) {
               return 1;
           };
@@ -2760,7 +2786,8 @@ var PS = { };
           };
           throw new Error("Failed pattern match at Test.Main line 78, column 7 - line 79, column 7: " + [ _2.constructor.name ]);
       };
-      return Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)($$int)(Flare.button("Increment"))))();
+      Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment"))))();
+      return Flare.runFlare(Prelude.showNumber)("controls12")("output12")(Flare.numberRange("huhu")(4.0)(10.0)(0.1)(6.0))();
   };
   exports["English"] = English;
   exports["French"] = French;
