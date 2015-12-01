@@ -75,8 +75,8 @@ main = do
     graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
           <*> numberSlider "Width" 1.0 5.0 0.1 1.0
 
-  let int true  = 1
-      int false = 0
+  let toInt true  = 1
+      toInt false = 0
 
   runFlare "controls11" "output11" $
-    foldp (+) 0 (int <$> button "Increment")
+    foldp (+) 0 (toInt <$> button "Increment")

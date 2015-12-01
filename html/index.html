@@ -115,10 +115,10 @@ ui = graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
 
         <h3>Example 11: Buttons</h3>
 <pre>
-int true  = 1
-int false = 0
+toInt true  = 1
+toInt false = 0
 
-ui = foldp (+) 0 (int <$> button "Increment")
+ui = foldp (+) 0 (toInt <$> button "Increment")
 </pre>
         <div id="controls11"></div>
         <div id="output11"></div>
