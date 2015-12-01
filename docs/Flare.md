@@ -239,13 +239,15 @@ select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 
 Create a select box without a label.
 
-#### `appendComponents`
+#### `runFlareWith`
 
 ``` purescript
-appendComponents :: forall e. ElementId -> Array Element -> Eff (dom :: DOM | e) Unit
+runFlareWith :: forall e a. ElementId -> (a -> Eff (dom :: DOM, chan :: Chan | e) Unit) -> UI e a -> Eff (dom :: DOM, chan :: Chan | e) Unit
 ```
 
-Attach all elements in the array to the specified parent element.
+Renders a Flare UI to the DOM and sets up all event handlers. The ID
+specifies the HTML element to which the controls are attached. The
+function argument will be mapped over the `Signal` inside the `Flare`.
 
 #### `runFlare`
 

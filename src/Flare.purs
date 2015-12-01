@@ -24,7 +24,7 @@ module Flare
   , button
   , select
   , select_
-  , appendComponents
+  , runFlareWith
   , runFlare
   ) where
 
@@ -241,11 +241,17 @@ select id default xs = createUI (cSelect xs) id default
 select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 select_ = select ""
 
--- | Attach all elements in the array to the specified parent element.
-appendComponents :: forall e. ElementId
-                 -> Array Element
-                 -> Eff (dom :: DOM | e) Unit
-appendComponents = traverse_ <<< appendComponent
+-- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
+-- | specifies the HTML element to which the controls are attached. The
+-- | function argument will be mapped over the `Signal` inside the `Flare`.
+runFlareWith :: forall e a. ElementId
+             -> (a -> Eff (dom :: DOM, chan :: Chan | e) Unit)
+             -> UI e a
+             -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareWith controls handler (UI setupUI) = do
+  (Flare components signal) <- setupUI
+  traverse_ (appendComponent controls) components
+  S.runSignal (map handler signal)
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 -- | specify the DOM elements to which the controls and the output will be
@@ -255,7 +261,5 @@ runFlare :: forall e a. (Show a)
          -> ElementId
          -> UI e a
          -> Eff (dom :: DOM, chan :: Chan | e) Unit
-runFlare controls target (UI setupUI) = do
-  (Flare components signal) <- setupUI
-  appendComponents controls components
-  S.runSignal (map (show >>> renderString target) signal)
+runFlare controls target =
+  runFlareWith controls (show >>> renderString target)

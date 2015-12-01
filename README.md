@@ -41,5 +41,5 @@ the current output will be rendered to the `output` element.
 ```
 bower install
 pulp build
-pulp test -r cat > html/main.js
+pulp build -O -m Test.Main -t html/main.js
 ```

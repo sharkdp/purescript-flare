@@ -15,7 +15,6 @@ import Graphics.Canvas (getCanvasElementById, getContext2D, Canvas(),
 
 import DOM
 
-import qualified Signal as S
 import Signal.Channel
 
 import Flare
@@ -27,10 +26,7 @@ runFlareDrawing :: forall e. ElementId
                 -> ElementId
                 -> UI (canvas :: Canvas | e) Drawing
                 -> Eff (dom :: DOM, chan :: Chan, canvas :: Canvas | e) Unit
-runFlareDrawing controls canvasID (UI setupUI) = do
-  (Flare components signal) <- setupUI
-  appendComponents controls components
-
+runFlareDrawing controls canvasID ui = do
   Just canvas <- getCanvasElementById canvasID
   ctx <- getContext2D canvas
 
@@ -41,4 +37,4 @@ runFlareDrawing controls canvasID (UI setupUI) = do
         clearRect ctx { x: 0.0, y: 0.0, w, h }
         render ctx drawing
 
-  S.runSignal (map render' signal)
+  runFlareWith controls render' ui
