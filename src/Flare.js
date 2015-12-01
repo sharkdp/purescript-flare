@@ -79,6 +79,17 @@ exports.cNumber = createComponent("number",
   }
 );
 
+function clamp(min, max, initial, value) {
+  if (isNaN(value)) {
+    return initial;
+  } else if (value < min) {
+    return min;
+  } else if (value > max) {
+    return max;
+  }
+  return value;
+}
+
 exports.cNumberRange = function(type) {
   return function(min) {
     return function(max) {
@@ -95,29 +106,13 @@ exports.cNumberRange = function(type) {
           },
           "input",
           function(t, initial) {
-            var val = parseFloat(t.value);
-            return (isNaN(val) ? initial : val);
+            return clamp(min, max, initial, parseFloat(t.value));
           }
         );
       };
     };
   };
 };
-
-exports.cInt = createComponent("int",
-  function(initial) {
-    var input = document.createElement("input");
-    input.type = "number";
-    input.step = "1";
-    input.value = initial.toString();
-    return input;
-  },
-  "input",
-  function(t, initial) {
-    var val = parseInt(t.value, 10);
-    return (isNaN(val) ? initial : val);
-  }
-);
 
 exports.cIntRange = function(type) {
   return function(min) {
@@ -134,8 +129,7 @@ exports.cIntRange = function(type) {
         },
         "input",
         function(t, initial) {
-          var val = parseInt(t.value, 10);
-          return (isNaN(val) ? initial : val);
+          return clamp(min, max, initial, parseInt(t.value, 10));
         }
       );
     };

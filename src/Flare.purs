@@ -142,7 +142,6 @@ type CreateComponent a = forall e. Label
 
 foreign import cNumber :: CreateComponent Number
 foreign import cNumberRange :: String -> Number -> Number -> Number -> CreateComponent Number
-foreign import cInt :: CreateComponent Int
 foreign import cIntRange :: String -> Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
@@ -158,21 +157,22 @@ createUI createComp id default = UI $ do
   let signal = subscribe chan
   return $ Flare [comp] signal
 
--- | Creates a text field for a `Number` input from a given label and default
+-- | Creates an input field for a `Number` from a given label and default
 -- | value.
 number :: forall e. Label -> Number -> UI e Number
 number = createUI cNumber
 
--- | Creates a text field for a `Number` input with a default value.
+-- | Like `number`, but without a label.
 number_ :: forall e. Number -> UI e Number
 number_ = number ""
 
--- | Creates a text field for a `Number` input from a given label,
+-- | Creates an input field for a `Number` from a given label,
 -- | minimum value, maximum value, step size as well as default value.
+-- | The returned value is guaranteed to be within the given range.
 numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
 numberRange id min max step default = createUI (cNumberRange "number" min max step) id default
 
--- | Creates a text field for a `Number` input without a label.
+-- | Like `numberRange`, but without a label.
 numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
 numberRange_ = numberRange ""
 
@@ -181,26 +181,27 @@ numberRange_ = numberRange ""
 numberSlider :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
 numberSlider id min max step default = createUI (cNumberRange "range" min max step) id default
 
--- | Creates a slider for a `Number` input without a label.
+-- | Like `numberSlider`, but without a label.
 numberSlider_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
 numberSlider_ = numberSlider ""
 
--- | Creates a text field for an `Int` input from a given label and default
--- | value.
+-- | Creates an input field for an `Int` from a given label and default
+-- | value. The returned value is guaranteed to be within the allowed integer
+-- | range.
 int :: forall e. Label -> Int -> UI e Int
-int = createUI cInt
+int id = createUI (cIntRange "number" bottom top) id
 
--- | Creates a text field for an `Int` input with a default value.
+-- | Like `int`, but without a label.
 int_ :: forall e. Int -> UI e Int
 int_ = int ""
 
--- | Creates a text field for an `Int` input from a given label, minimum and
--- | maximum values as well as a default value.
+-- | Creates an input field for an `Int` from a given label, minimum and
+-- | maximum values as well as a default value. The returned value is
+-- | guaranteed to be within the given range.
 intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
 intRange id min max default = createUI (cIntRange "number" min max) id default
 
--- | Creates a text field for an `Int` input from minimum and maximum values
--- | as well as a default value.
+-- | Like `intRange`, but without a label.
 intRange_ :: forall e. Int -> Int -> Int -> UI e Int
 intRange_ = intRange ""
 
@@ -209,8 +210,7 @@ intRange_ = intRange ""
 intSlider :: forall e. Label -> Int -> Int -> Int -> UI e Int
 intSlider id min max default = createUI (cIntRange "range" min max) id default
 
--- | Creates a slider for an `Int` input from minimum and maximum values
--- | as well as a default value.
+-- | Like `intSlider`, but without a label.
 intSlider_ :: forall e. Int -> Int -> Int -> UI e Int
 intSlider_ = intSlider ""
 
@@ -219,7 +219,7 @@ intSlider_ = intSlider ""
 string :: forall e. Label -> String -> UI e String
 string = createUI cString
 
--- | Creates a text field for a `String` input with a default value.
+-- | Like `string`, but without a label.
 string_ :: forall e. String -> UI e String
 string_ = string ""
 
@@ -228,7 +228,7 @@ string_ = string ""
 boolean :: forall e. Label -> Boolean -> UI e Boolean
 boolean = createUI cBoolean
 
--- | Creates a checkbox for a `Boolean` input with a default value.
+-- | Like `boolean`, but without a label.
 boolean_ :: forall e. Boolean -> UI e Boolean
 boolean_ = boolean ""
 
@@ -241,7 +241,7 @@ button id = createUI cButton id false
 select :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
 select id default xs = createUI (cSelect xs) id default
 
--- | Create a select box without a label.
+-- | Like `select`, but without a label.
 select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 select_ = select ""
 

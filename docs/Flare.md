@@ -82,7 +82,7 @@ the new value of the output.
 number :: forall e. Label -> Number -> UI e Number
 ```
 
-Creates a text field for a `Number` input from a given label and default
+Creates an input field for a `Number` from a given label and default
 value.
 
 #### `number_`
@@ -91,7 +91,7 @@ value.
 number_ :: forall e. Number -> UI e Number
 ```
 
-Creates a text field for a `Number` input with a default value.
+Like `number`, but without a label.
 
 #### `numberRange`
 
@@ -99,8 +99,9 @@ Creates a text field for a `Number` input with a default value.
 numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
 ```
 
-Creates a text field for a `Number` input from a given label,
+Creates an input field for a `Number` from a given label,
 minimum value, maximum value, step size as well as default value.
+The returned value is guaranteed to be within the given range.
 
 #### `numberRange_`
 
@@ -108,7 +109,7 @@ minimum value, maximum value, step size as well as default value.
 numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
 ```
 
-Creates a text field for a `Number` input without a label.
+Like `numberRange`, but without a label.
 
 #### `numberSlider`
 
@@ -125,7 +126,7 @@ minimum value, maximum value, step size as well as default value.
 numberSlider_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
 ```
 
-Creates a slider for a `Number` input without a label.
+Like `numberSlider`, but without a label.
 
 #### `int`
 
@@ -133,8 +134,9 @@ Creates a slider for a `Number` input without a label.
 int :: forall e. Label -> Int -> UI e Int
 ```
 
-Creates a text field for an `Int` input from a given label and default
-value.
+Creates an input field for an `Int` from a given label and default
+value. The returned value is guaranteed to be within the allowed integer
+range.
 
 #### `int_`
 
@@ -142,7 +144,7 @@ value.
 int_ :: forall e. Int -> UI e Int
 ```
 
-Creates a text field for an `Int` input with a default value.
+Like `int`, but without a label.
 
 #### `intRange`
 
@@ -150,8 +152,9 @@ Creates a text field for an `Int` input with a default value.
 intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
 ```
 
-Creates a text field for an `Int` input from a given label, minimum and
-maximum values as well as a default value.
+Creates an input field for an `Int` from a given label, minimum and
+maximum values as well as a default value. The returned value is
+guaranteed to be within the given range.
 
 #### `intRange_`
 
@@ -159,8 +162,7 @@ maximum values as well as a default value.
 intRange_ :: forall e. Int -> Int -> Int -> UI e Int
 ```
 
-Creates a text field for an `Int` input from minimum and maximum values
-as well as a default value.
+Like `intRange`, but without a label.
 
 #### `intSlider`
 
@@ -177,8 +179,7 @@ maximum values as well as a default value.
 intSlider_ :: forall e. Int -> Int -> Int -> UI e Int
 ```
 
-Creates a slider for an `Int` input from minimum and maximum values
-as well as a default value.
+Like `intSlider`, but without a label.
 
 #### `string`
 
@@ -195,7 +196,7 @@ value.
 string_ :: forall e. String -> UI e String
 ```
 
-Creates a text field for a `String` input with a default value.
+Like `string`, but without a label.
 
 #### `boolean`
 
@@ -212,7 +213,7 @@ value.
 boolean_ :: forall e. Boolean -> UI e Boolean
 ```
 
-Creates a checkbox for a `Boolean` input with a default value.
+Like `boolean`, but without a label.
 
 #### `button`
 
@@ -237,7 +238,7 @@ is selected by default. The rest of the options is given as an array.
 select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 ```
 
-Create a select box without a label.
+Like `select`, but without a label.
 
 #### `runFlareWith`
 
