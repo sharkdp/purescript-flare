@@ -30,7 +30,7 @@ main = do
     pow <$> number "Base" 2.0
         <*> number "Exponent" 10.0
 
-  runFlare "controls2" "output2" $
+  runFlareS "controls2" "output2" $
     string_ "Hello" <> pure " " <> string_ "World"
 
   runFlare "controls3" "output3" $
@@ -46,7 +46,7 @@ main = do
     coloredCircle <$> (numberSlider "Hue" 0.0 360.0 1.0 140.0)
                   <*> (numberSlider "Radius" 2.0 45.0 0.1 25.0)
 
-  runFlare "controls6" "output6" $
+  runFlareS "controls6" "output6" $
        (greet <$> (select "Language" English [French, German]))
     <> pure " " <> string "Name" "Pierre" <> pure "!"
 

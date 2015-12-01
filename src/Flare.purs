@@ -26,6 +26,7 @@ module Flare
   , select_
   , runFlareWith
   , runFlare
+  , runFlareS
   ) where
 
 import Prelude
@@ -268,3 +269,12 @@ runFlare :: forall e a. (Show a)
          -> Eff (dom :: DOM, chan :: Chan | e) Unit
 runFlare controls target =
   runFlareWith controls (show >>> renderString target)
+
+-- | Like `runFlare`, but does not run `show` on the `String`, so as to prevent
+-- | the double quotes around the string.
+runFlareS :: forall e.
+             ElementId
+          -> ElementId
+          -> UI e String
+          -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareS controls target = runFlareWith controls (renderString target)
