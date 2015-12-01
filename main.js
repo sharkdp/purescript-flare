@@ -101,10 +101,6 @@ var PS = { };
     return n === (n | 0) ? n + ".0" : n.toString();
   };
 
-  exports.showStringImpl = function (s) {
-    return JSON.stringify(s);
-  };
-
   exports.showArrayImpl = function (f) {
     return function (xs) {
       var ss = [];
@@ -180,7 +176,6 @@ var PS = { };
   var top = function (dict) {
       return dict.top;
   }; 
-  var showString = new Show($foreign.showStringImpl);
   var showNumber = new Show($foreign.showNumberImpl);
   var showInt = new Show($foreign.showIntImpl);  
   var showBoolean = new Show(function (_35) {
@@ -396,7 +391,6 @@ var PS = { };
   exports["showBoolean"] = showBoolean;
   exports["showInt"] = showInt;
   exports["showNumber"] = showNumber;
-  exports["showString"] = showString;
   exports["showArray"] = showArray;;
  
 })(PS["Prelude"] = PS["Prelude"] || {});
@@ -1524,6 +1518,11 @@ var PS = { };
           };
       };
   };
+  var runFlareS = function (controls) {
+      return function (target) {
+          return runFlareWith(controls)($foreign.renderString(target));
+      };
+  };
   var runFlare = function (__dict_Show_2) {
       return function (controls) {
           return function (target) {
@@ -1586,18 +1585,7 @@ var PS = { };
   };
   var intSlider_ = intSlider("");
   var number = createUI($foreign.cNumber);
-  var number_ = number("");
-  var numberRange = function (id) {
-      return function (min) {
-          return function (max) {
-              return function (step) {
-                  return function ($$default) {
-                      return createUI($foreign.cNumberRange("number")(min)(max)(step))(id)($$default);
-                  };
-              };
-          };
-      };
-  };                                 
+  var number_ = number("");          
   var numberSlider = function (id) {
       return function (min) {
           return function (max) {
@@ -1670,6 +1658,7 @@ var PS = { };
   };
   exports["UI"] = UI;
   exports["Flare"] = Flare;
+  exports["runFlareS"] = runFlareS;
   exports["runFlare"] = runFlare;
   exports["runFlareWith"] = runFlareWith;
   exports["select"] = select;
@@ -1682,7 +1671,6 @@ var PS = { };
   exports["intSlider"] = intSlider;
   exports["int_"] = int_;
   exports["numberSlider"] = numberSlider;
-  exports["numberRange"] = numberRange;
   exports["number_"] = number_;
   exports["number"] = number;
   exports["foldp"] = foldp;
@@ -2733,7 +2721,7 @@ var PS = { };
   };
   var main = function __do() {
       Flare.runFlare(Prelude.showNumber)("controls1")("output1")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)($$Math.pow)(Flare.number("Base")(2.0)))(Flare.number("Exponent")(10.0)))();
-      Flare.runFlare(Prelude.showString)("controls2")("output2")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string_("Hello"))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Flare.string_("World"))))();
+      Flare.runFlareS("controls2")("output2")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string_("Hello"))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Flare.string_("World"))))();
       Flare.runFlare(Prelude.showInt)("controls3")("output3")(Data_Foldable.sum(Data_Foldable.foldableArray)(Flare.semiringUI(Prelude.semiringInt))(Prelude["<$>"](Prelude.functorArray)(Flare.int_)([ 2, 13, 27, 42 ])))();
       Flare.runFlare(Prelude.showNumber)("controls4")("output4")(Prelude["/"](Flare.moduloSemiringUI(Prelude.moduloSemiringNumber))(Flare.number_(5.0))(Flare.number_(2.0)))();
       var coloredCircle = function (hue) {
@@ -2742,7 +2730,7 @@ var PS = { };
           };
       };
       Flare_Drawing.runFlareDrawing("controls5")("output5")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(coloredCircle)(Flare.numberSlider("Hue")(0.0)(360.0)(1.0)(140.0)))(Flare.numberSlider("Radius")(2.0)(45.0)(0.1)(25.0)))();
-      Flare.runFlare(Prelude.showString)("controls6")("output6")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select(showLanguage)("Language")(English.value)([ French.value, German.value ])))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!")))))();
+      Flare.runFlareS("controls6")("output6")(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select(showLanguage)("Language")(English.value)([ French.value, German.value ])))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!")))))();
       var animate = function (time) {
           return function (enabled) {
               var s = 50.0 + 25.0 * $$Math.cos(2.0e-3 * time);
@@ -2786,8 +2774,7 @@ var PS = { };
           };
           throw new Error("Failed pattern match at Test.Main line 78, column 7 - line 79, column 7: " + [ _2.constructor.name ]);
       };
-      Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment"))))();
-      return Flare.runFlare(Prelude.showNumber)("controls12")("output12")(Flare.numberRange("huhu")(4.0)(10.0)(0.1)(6.0))();
+      return Flare.runFlare(Prelude.showInt)("controls11")("output11")(Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment"))))();
   };
   exports["English"] = English;
   exports["French"] = French;
