@@ -12,6 +12,17 @@ exports.renderString = function(target) {
   };
 };
 
+exports.removeChildren = function(target) {
+  return function() {
+    var el = document.getElementById(target);
+
+    // http://stackoverflow.com/a/3955238/704831
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
+  };
+};
+
 exports.appendComponent = function(target) {
   return function(el) {
     return function() {

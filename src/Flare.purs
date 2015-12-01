@@ -122,11 +122,15 @@ foldp f x0 (UI setup) = UI $ do
   (Flare comp sig) <- setup
   return $ Flare comp (S.foldp f x0 sig)
 
--- | Append a child element to the parent with the specified ID
+-- | Remove all children from a given parent element.
+foreign import removeChildren :: forall e. ElementId
+                              -> Eff (dom :: DOM | e) Unit
+
+-- | Append a child element to the parent with the specified ID.
 foreign import appendComponent :: forall e. ElementId
                                -> Element -> Eff (dom :: DOM | e) Unit
 
--- | Set the inner HTML of the specified element to the given value
+-- | Set the inner HTML of the specified element to the given value.
 foreign import renderString :: forall e. ElementId
                             -> String
                             -> Eff (dom :: DOM | e) Unit
@@ -250,6 +254,7 @@ runFlareWith :: forall e a. ElementId
              -> Eff (dom :: DOM, chan :: Chan | e) Unit
 runFlareWith controls handler (UI setupUI) = do
   (Flare components signal) <- setupUI
+  removeChildren controls
   traverse_ (appendComponent controls) components
   S.runSignal (map handler signal)
 
