@@ -24,6 +24,8 @@ module Flare
   , button
   , select
   , select_
+  , radioGroup
+  , radioGroup_
   , runFlareWith
   , runFlare
   , runFlareS
@@ -148,6 +150,7 @@ foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: CreateComponent Boolean
 foreign import cSelect :: forall a. (Show a) => Array a -> CreateComponent a
+foreign import cRadioGroup :: forall a. (Show a) => Array a -> CreateComponent a
 
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
@@ -245,6 +248,16 @@ select id default xs = createUI (cSelect xs) id default
 -- | Like `select`, but without a label.
 select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 select_ = select ""
+
+-- | Creates a group of radio buttons to choose from a list of options. The
+-- | first option is selected by default. The rest of the options is given as
+-- | an array.
+radioGroup :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
+radioGroup id default xs = createUI (cRadioGroup xs) id default
+
+-- | Like `radioGroup`, but without a label.
+radioGroup_ :: forall e a. (Show a) => a -> Array a -> UI e a
+radioGroup_ = radioGroup ""
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The

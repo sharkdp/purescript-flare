@@ -217,4 +217,52 @@ exports.cSelect = function(showX) {
   };
 };
 
+exports.cRadioGroup = function(showX) {
+  return function(xs) {
+    return function(id) {
+      return createComponent("radioGroup",
+        function(initial) {
+          var fieldset = document.createElement("fieldset");
+
+          if (id !== "") {
+            var legend = document.createElement("legend");
+            legend.appendChild(document.createTextNode(id));
+            fieldset.appendChild(legend);
+          }
+
+          var x, xid, op, label;
+          for (var i = 0; i < xs.length + 1; i++) {
+            x = (i === 0) ? initial : xs[i - 1];
+            xid = id + "-" + i.toString();
+
+            op = document.createElement("input");
+            op.type = "radio";
+            op.name = id;
+            op.id = xid;
+            if (i === 0) {
+              op.checked = "checked";
+            }
+            fieldset.appendChild(op);
+
+            label = document.createElement("label");
+            label.appendChild(document.createTextNode(showX.show(x)));
+            label.htmlFor = xid;
+            fieldset.appendChild(label);
+          }
+
+          return fieldset;
+        },
+        "change",
+        function(t, initial) {
+          var ix = parseInt(t.id.substr(id.length + 1), 10);
+          if (ix === 0) {
+            return initial;
+          }
+          return xs[ix - 1];
+        }
+      )("");
+    };
+  };
+};
+
 // vim: ts=2:sw=2

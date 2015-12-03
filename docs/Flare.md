@@ -240,6 +240,24 @@ select_ :: forall e a. (Show a) => a -> Array a -> UI e a
 
 Like `select`, but without a label.
 
+#### `radioGroup`
+
+``` purescript
+radioGroup :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
+```
+
+Creates a group of radio buttons to choose from a list of options. The
+first option is selected by default. The rest of the options is given as
+an array.
+
+#### `radioGroup_`
+
+``` purescript
+radioGroup_ :: forall e a. (Show a) => a -> Array a -> UI e a
+```
+
+Like `radioGroup`, but without a label.
+
 #### `runFlareWith`
 
 ``` purescript
@@ -259,5 +277,14 @@ runFlare :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff (dom
 Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 specify the DOM elements to which the controls and the output will be
 attached, respectively.
+
+#### `runFlareS`
+
+``` purescript
+runFlareS :: forall e. ElementId -> ElementId -> UI e String -> Eff (dom :: DOM, chan :: Chan | e) Unit
+```
+
+Like `runFlare`, but does not run `show` on the `String`, so as to prevent
+the double quotes around the string.
 
 
