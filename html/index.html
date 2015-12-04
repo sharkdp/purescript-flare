@@ -73,14 +73,21 @@ ui = (greet <$> (select "Language" English [French, German]))
 
         <h3>Example 7: Integration with Signals</h3>
 <pre>
-animate time enabled = if enabled then shaded rect else rect
-  where s = 50.0 + 25.0 * cos (0.002 * time)
-        w = 50.0 - s / 2.0
-        o = s / 10.0
-        rect = filled (fillColor gray) (rectangle w w s s)
-        shaded = shadow (shadowColor black <> shadowOffset o o)
+plot n s phi0 =
+  shadow (fromMaybe mempty s) $ filled (fillColor (hsl 220.0 0.6 0.5)) $
+    path (map point angles)
 
-ui = animate <$> lift animationFrame <*> boolean "Shadow" false
+  where point phi = { x: 50.0 + radius phi * cos phi
+                    , y: 50.0 + radius phi * sin phi }
+        angles = map (\i -> 2.0 * pi / toNumber points * toNumber i) (0 .. points)
+        points = 200
+        radius phi = 48.0 * abs (cos (0.5 * toNumber n * (phi + phi0)))
+
+shadowStyle = shadowColor black <> shadowOffset 2.0 2.0 <> shadowBlur 2.0
+
+ui = plot <$> intSlider "Leaves" 2 10 6
+          <*> optional "Shadow" true shadowStyle
+          <*> pure 0.001 * lift animationFrame
 </pre>
         <div id="controls7"></div>
         <canvas id="output7" width="100" height="100"></canvas>

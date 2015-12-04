@@ -21,6 +21,8 @@ module Flare
   , string_
   , boolean
   , boolean_
+  , optional
+  , optional_
   , button
   , select
   , select_
@@ -33,6 +35,7 @@ module Flare
 
 import Prelude
 
+import Data.Maybe
 import Data.Monoid
 import Data.Foldable (traverse_)
 
@@ -235,6 +238,18 @@ boolean = createUI cBoolean
 -- | Like `boolean`, but without a label.
 boolean_ :: forall e. Boolean -> UI e Boolean
 boolean_ = boolean ""
+
+-- | Creates a checkbox that returns `Just x` if enabled and `Nothing` if
+-- | disabled. Takes a label, the initial state (enabled or disabled) and
+-- | the default value `x`.
+optional :: forall a e. Label -> Boolean -> a -> UI e (Maybe a)
+optional id enabled x = ret <$> boolean id enabled
+  where ret true = (Just x)
+        ret false = Nothing
+
+-- | Like `optional`, but without a label.
+optional_ :: forall a e. Boolean -> a -> UI e (Maybe a)
+optional_ = optional ""
 
 -- | Creates a button which yields `true` if is pressed and `false` otherwise.
 button :: forall e. Label -> UI e Boolean

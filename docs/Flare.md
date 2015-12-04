@@ -215,6 +215,24 @@ boolean_ :: forall e. Boolean -> UI e Boolean
 
 Like `boolean`, but without a label.
 
+#### `optional`
+
+``` purescript
+optional :: forall a e. Label -> Boolean -> a -> UI e (Maybe a)
+```
+
+Creates a checkbox that returns `Just x` if enabled and `Nothing` if
+disabled. Takes a label, the initial state (enabled or disabled) and
+the default value `x`.
+
+#### `optional_`
+
+``` purescript
+optional_ :: forall a e. Boolean -> a -> UI e (Maybe a)
+```
+
+Like `optional`, but without a label.
+
 #### `button`
 
 ``` purescript

@@ -5,8 +5,10 @@ import Prelude
 import Data.Array
 import Data.Foldable
 import Data.Int
+import Data.Maybe (fromMaybe)
+import Data.Monoid (mempty)
 import Data.Traversable
-import Math (pow, cos)
+import Math (pow, sin, cos, pi, abs)
 
 import Signal.DOM
 
@@ -50,15 +52,22 @@ main = do
        (greet <$> (select "Language" English [French, German]))
     <> pure " " <> string "Name" "Pierre" <> pure "!"
 
-  let animate time enabled = if enabled then shaded rect else rect
-        where s = 50.0 + 25.0 * cos (0.002 * time)
-              w = 50.0 - s / 2.0
-              o = s / 10.0
-              rect = filled (fillColor gray) (rectangle w w s s)
-              shaded = shadow (shadowColor black <> shadowOffset o o)
+  let plot n s phi0 =
+        shadow (fromMaybe mempty s) $ filled (fillColor (hsl 220.0 0.6 0.5)) $
+          path (map point angles)
+
+        where point phi = { x: 50.0 + radius phi * cos phi
+                          , y: 50.0 + radius phi * sin phi }
+              angles = map (\i -> 2.0 * pi / toNumber points * toNumber i) (0 .. points)
+              points = 200
+              radius phi = 48.0 * abs (cos (0.5 * toNumber n * (phi + phi0)))
+
+      shadowStyle = shadowColor black <> shadowOffset 2.0 2.0 <> shadowBlur 2.0
 
   runFlareDrawing "controls7" "output7" $
-    animate <$> lift animationFrame <*> boolean "Shadow" false
+    plot <$> intSlider "Leaves" 2 10 6
+         <*> optional "Shadow" true shadowStyle
+         <*> pure 0.001 * lift animationFrame
 
   runFlare "controls8" "output8" $
     traverse (intSlider_ 1 5) (1..5)

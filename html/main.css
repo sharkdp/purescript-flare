@@ -10,7 +10,7 @@ body {
 pre {
     background-color: #f0f0f0;
     padding: 5px;
-    width: 750px;
+    width: 830px;
 }
 
 h3 {
@@ -30,7 +30,7 @@ h3 {
     width: 80px;
 }
 
-.flare-input-number-range {
+input[type="range"] {
     width: 150px;
     padding: 0px;
     margin: 0px;
