@@ -12,8 +12,12 @@ import Math (pow, sin, cos, pi, abs)
 
 import Signal.DOM
 
+import qualified Text.Smolder.HTML as H
+import qualified Text.Smolder.Markup as H
+
 import Flare
 import Flare.Drawing
+import Flare.Smolder
 
 -- Example 1
 
@@ -99,6 +103,14 @@ toInt false = 0
 
 ui11 = foldp (+) 0 (toInt <$> button "Increment")
 
+-- Example 12
+
+table h w = H.table $ fold (map row (0 .. h))
+  where row i = H.tr (fold (map (cell i) (0 .. w)))
+        cell i j = H.td (H.text (show i ++ "," ++ show j))
+
+ui12 = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
+
 -- Render everything to the DOM
 
 main = do
@@ -113,3 +125,4 @@ main = do
   runFlare "controls9" "output9" ui9
   runFlareDrawing "controls10" "output10" ui10
   runFlare "controls11" "output11" ui11
+  runFlareHTML "controls12" "output12" ui12

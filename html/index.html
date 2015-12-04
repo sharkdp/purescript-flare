@@ -131,6 +131,17 @@ ui = foldp (+) 0 (toInt <$> button "Increment")
         <div id="controls11"></div>
         <div id="output11"></div>
 
+        <h3>Example 12: HTML output using Smolder</h3>
+<pre>
+table h w = H.table $ fold (map row (0 .. h))
+  where row i = H.tr (fold (map (cell i) (0 .. w)))
+        cell i j = H.td (H.text (show i ++ "," ++ show j))
+
+ui = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
+</pre>
+        <div id="controls12"></div>
+        <div id="output12"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>

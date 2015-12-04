@@ -33,3 +33,15 @@ label {
     width: 150px;
     display: inline-block;
 }
+
+table {
+    width: 300px;
+    height: 300px;
+}
+
+td {
+    text-align: center;
+    border: 1px solid black;
+    padding: 3px;
+    font-size: 11px;
+}
