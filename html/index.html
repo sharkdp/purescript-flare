@@ -87,7 +87,7 @@ plot n s phi0 =
 shadowStyle = shadowColor black <> shadowOffset 2.0 2.0 <> shadowBlur 2.0
 
 ui = plot <$> intSlider "Leaves" 2 10 6
-          <*> optional "Shadow" true shadowStyle
+          <*> optional "Shadow" false shadowStyle
           <*> pure 0.001 * lift animationFrame
 </pre>
         <div id="controls7"></div>
