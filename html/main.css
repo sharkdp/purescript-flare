@@ -1,15 +1,10 @@
-html, body, input {
-    font-size: 17px;
-}
-
 body {
-    margin-left: 40px;
-    margin-bottom: 40px;
+    margin: 40px;
 }
 
 pre {
     background-color: #f0f0f0;
-    padding: 5px;
+    padding: 10px;
     width: 830px;
 }
 
@@ -19,21 +14,19 @@ h3 {
 }
 
 .flare-input {
-    margin-bottom: 2px;
+    margin-bottom: 5px;
 }
 
-.flare-input > input:invalid {
+input:invalid {
     background-color: #ff5050;
 }
 
-.flare-input-number, .flare-input-int {
+.flare-input-number, .flare-input-int-number {
     width: 80px;
 }
 
 input[type="range"] {
     width: 150px;
-    padding: 0px;
-    margin: 0px;
 }
 
 label {
