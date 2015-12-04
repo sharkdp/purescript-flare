@@ -8,9 +8,7 @@ user interface. Flare is inspired by the Haskell library
 [typed-spreadsheet](https://github.com/Gabriel439/Haskell-Typed-Spreadsheet-Library).
 The main design-criterion of this library is ease of use.
 
-Module documentation:
-- [Flare](docs/Flare.md)
-- [Flare.Drawing](docs/Flare/Drawing.md)
+[Module documentation](http://pursuit.purescript.org/packages/purescript-flare/)
 
 [**Live demo with many examples**](http://sharkdp.github.io/purescript-flare/)
 
