@@ -1,16 +1,11 @@
-html, body, input {
-    font-size: 17px;
-}
-
 body {
-    margin-left: 40px;
-    margin-bottom: 40px;
+    margin: 40px;
 }
 
 pre {
     background-color: #f0f0f0;
-    padding: 5px;
-    width: 750px;
+    padding: 10px;
+    width: 830px;
 }
 
 h3 {
@@ -19,25 +14,34 @@ h3 {
 }
 
 .flare-input {
-    margin-bottom: 2px;
+    margin-bottom: 5px;
 }
 
-.flare-input > input:invalid {
+input:invalid {
     background-color: #ff5050;
 }
 
-.flare-input-number, .flare-input-int {
+.flare-input-number, .flare-input-int-number {
     width: 80px;
 }
 
-.flare-input-number-range {
+input[type="range"] {
     width: 150px;
-    padding: 0px;
-    margin: 0px;
 }
 
 label {
     width: 150px;
     display: inline-block;
-    float: left;
+}
+
+table {
+    width: 300px;
+    height: 300px;
+}
+
+td {
+    text-align: center;
+    border: 1px solid black;
+    padding: 3px;
+    font-size: 11px;
 }
