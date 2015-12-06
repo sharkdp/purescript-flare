@@ -105,11 +105,23 @@ ui11 = foldp (+) 0 (toInt <$> button "Increment")
 
 -- Example 12
 
-table h w = H.table $ fold (map row (0 .. h))
-  where row i = H.tr (fold (map (cell i) (0 .. w)))
+table h w = H.table $ foldMap row (0 .. h)
+  where row i = H.tr $ foldMap (cell i) (0 .. w)
         cell i j = H.td (H.text (show i ++ "," ++ show j))
 
 ui12 = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
+
+-- Example 13
+
+inputs = { current: _ , add: _ }
+           <$> string "Add item:" "Orange"
+           <*> button "Add"
+
+update { current, add } xs = if add then current : xs else xs
+
+list = foldp update ["Apple", "Banana"] inputs
+
+ui13 = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 
 -- Render everything to the DOM
 
@@ -126,3 +138,4 @@ main = do
   runFlareDrawing "controls10" "output10" ui10
   runFlare "controls11" "output11" ui11
   runFlareHTML "controls12" "output12" ui12
+  runFlareHTML "controls13" "output13" ui13
