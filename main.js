@@ -1116,8 +1116,10 @@ var PS = { };
   var Data_Monoid = PS["Data.Monoid"];
   var Data_Traversable = PS["Data.Traversable"];
   var Data_Tuple = PS["Data.Tuple"];
-  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];
+  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];     
+  var $colon = $foreign.cons;
   var $dot$dot = $foreign.range;
+  exports[":"] = $colon;
   exports[".."] = $dot$dot;
   exports["zipWith"] = $foreign.zipWith;
   exports["cons"] = $foreign.cons;
@@ -3668,12 +3670,16 @@ var PS = { };
   "use strict";
   var Prelude = PS["Prelude"];
   var Text_Smolder_Markup = PS["Text.Smolder.Markup"];
+  var ul = Text_Smolder_Markup.parent("ul");    
   var tr = Text_Smolder_Markup.parent("tr");            
   var td = Text_Smolder_Markup.parent("td");      
   var table = Text_Smolder_Markup.parent("table");
+  var li = Text_Smolder_Markup.parent("li");
+  exports["ul"] = ul;
   exports["tr"] = tr;
   exports["td"] = td;
-  exports["table"] = table;;
+  exports["table"] = table;
+  exports["li"] = li;;
  
 })(PS["Text.Smolder.HTML"] = PS["Text.Smolder.HTML"] || {});
 (function(exports) {
@@ -3717,20 +3723,31 @@ var PS = { };
       German.value = new German();
       return German;
   })();
+  var update = function (_4) {
+      return function (xs) {
+          if (_4.add) {
+              return Data_Array[":"](_4.current)(xs);
+          };
+          if (!_4.add) {
+              return xs;
+          };
+          throw new Error("Failed pattern match at Test.Main line 120, column 1 - line 122, column 1: " + [ _4.add.constructor.name ]);
+      };
+  };
   var ui9 = Prelude["&&"](Flare.booleanAlgebraUI(Prelude.booleanAlgebraBoolean))(Flare.boolean_(false))(Flare.boolean_(true));
   var ui8 = Data_Traversable.traverse(Data_Traversable.traversableArray)(Flare.applicativeUI)(Flare.intSlider_(1)(5))(Data_Array[".."](1)(5));
   var ui4 = Prelude["/"](Flare.moduloSemiringUI(Prelude.moduloSemiringNumber))(Flare.number_(5.0))(Flare.number_(2.0));
   var ui3 = Data_Foldable.sum(Data_Foldable.foldableArray)(Flare.semiringUI(Prelude.semiringInt))(Prelude["<$>"](Prelude.functorArray)(Flare.int_)([ 2, 13, 27, 42 ]));
   var ui2 = Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string_("Hello"))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Flare.string_("World")));
   var ui1 = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)($$Math.pow)(Flare.number("Base")(2.0)))(Flare.number("Exponent")(10.0));
-  var toInt = function (_1) {
-      if (_1) {
+  var toInt = function (_3) {
+      if (_3) {
           return 1;
       };
-      if (!_1) {
+      if (!_3) {
           return 0;
       };
-      throw new Error("Failed pattern match at Test.Main line 101, column 1 - line 102, column 1: " + [ _1.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 101, column 1 - line 102, column 1: " + [ _3.constructor.name ]);
   };
   var ui11 = Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment")));
   var table = function (h) {
@@ -3741,23 +3758,23 @@ var PS = { };
               };
           };
           var row = function (i) {
-              return Text_Smolder_HTML.tr(Data_Foldable.fold(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(Prelude.map(Prelude.functorArray)(cell(i))(Data_Array[".."](0)(w))));
+              return Text_Smolder_HTML.tr(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(cell(i))(Data_Array[".."](0)(w)));
           };
-          return Text_Smolder_HTML.table(Data_Foldable.fold(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(Prelude.map(Prelude.functorArray)(row)(Data_Array[".."](0)(h))));
+          return Text_Smolder_HTML.table(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(row)(Data_Array[".."](0)(h)));
       };
   };
   var ui12 = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(table)(Flare.intSlider_(0)(9)(5)))(Flare.intSlider_(0)(9)(5));
-  var showLanguage = new Prelude.Show(function (_2) {
-      if (_2 instanceof English) {
+  var showLanguage = new Prelude.Show(function (_5) {
+      if (_5 instanceof English) {
           return "english";
       };
-      if (_2 instanceof French) {
+      if (_5 instanceof French) {
           return "french";
       };
-      if (_2 instanceof German) {
+      if (_5 instanceof German) {
           return "german";
       };
-      throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 55, column 1: " + [ _2.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 55, column 1: " + [ _5.constructor.name ]);
   });
   var shadowStyle = Prelude["<>"](Graphics_Drawing.semigroupShadow)(Graphics_Drawing.shadowColor(Graphics_Drawing_Color.black))(Prelude["<>"](Graphics_Drawing.semigroupShadow)(Graphics_Drawing.shadowOffset(2.0)(2.0))(Graphics_Drawing.shadowBlur(2.0)));
   var plot = function (n) {
@@ -3780,17 +3797,31 @@ var PS = { };
       };
   };
   var ui7 = Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(plot)(Flare.intSlider("Leaves")(2)(10)(6)))(Flare.optional("Shadow")(false)(shadowStyle)))(Prelude["*"](Flare.semiringUI(Prelude.semiringNumber))(Prelude.pure(Flare.applicativeUI)(1.0e-3))(Flare.lift(Signal_DOM.animationFrame)));
-  var greet = function (_0) {
-      if (_0 instanceof English) {
+  var inputs = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(function (_0) {
+      return function (_1) {
+          return {
+              current: _0, 
+              add: _1
+          };
+      };
+  })(Flare.string("Add item:")("Orange")))(Flare.button("Add"));
+  var list = Flare.foldp(update)([ "Apple", "Banana" ])(inputs);
+  var ui13 = Prelude["<$>"](Flare.functorUI)(function (_14) {
+      return Text_Smolder_HTML.ul(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(function (_15) {
+          return Text_Smolder_HTML.li(Text_Smolder_Markup.text(_15));
+      })(_14));
+  })(list);
+  var greet = function (_2) {
+      if (_2 instanceof English) {
           return "Hello";
       };
-      if (_0 instanceof French) {
+      if (_2 instanceof French) {
           return "Salut";
       };
-      if (_0 instanceof German) {
+      if (_2 instanceof German) {
           return "Hallo";
       };
-      throw new Error("Failed pattern match at Test.Main line 55, column 1 - line 56, column 1: " + [ _0.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 55, column 1 - line 56, column 1: " + [ _2.constructor.name ]);
   };
   var ui6 = Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select(showLanguage)("Language")(English.value)([ French.value, German.value ])))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!"))));
   var graph = function (xs) {
@@ -3826,12 +3857,17 @@ var PS = { };
       Flare.runFlare(Prelude.showBoolean)("controls9")("output9")(ui9)();
       Flare_Drawing.runFlareDrawing("controls10")("output10")(ui10)();
       Flare.runFlare(Prelude.showInt)("controls11")("output11")(ui11)();
-      return Flare_Smolder.runFlareHTML("controls12")("output12")(ui12)();
+      Flare_Smolder.runFlareHTML("controls12")("output12")(ui12)();
+      return Flare_Smolder.runFlareHTML("controls13")("output13")(ui13)();
   };
   exports["English"] = English;
   exports["French"] = French;
   exports["German"] = German;
   exports["main"] = main;
+  exports["ui13"] = ui13;
+  exports["list"] = list;
+  exports["update"] = update;
+  exports["inputs"] = inputs;
   exports["ui12"] = ui12;
   exports["table"] = table;
   exports["ui11"] = ui11;
