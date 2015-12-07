@@ -270,9 +270,6 @@ var PS = { };
   };
   var mul = function (dict) {
       return dict.mul;
-  };
-  var $times = function (__dict_Semiring_4) {
-      return mul(__dict_Semiring_4);
   }; 
   var moduloSemiringNumber = new ModuloSemiring(function () {
       return semiringNumber;
@@ -456,7 +453,6 @@ var PS = { };
   exports["/"] = $div;
   exports["mod"] = mod;
   exports["div"] = div;
-  exports["*"] = $times;
   exports["+"] = $plus;
   exports["one"] = one;
   exports["mul"] = mul;
@@ -759,20 +755,7 @@ var PS = { };
           return new Just(value0);
       };
       return Just;
-  })();
-  var maybe = function (b) {
-      return function (f) {
-          return function (_0) {
-              if (_0 instanceof Nothing) {
-                  return b;
-              };
-              if (_0 instanceof Just) {
-                  return f(_0.value0);
-              };
-              throw new Error("Failed pattern match at Data.Maybe line 26, column 1 - line 27, column 1: " + [ b.constructor.name, f.constructor.name, _0.constructor.name ]);
-          };
-      };
-  };                                                
+  })();                                             
   var functorMaybe = new Prelude.Functor(function (fn) {
       return function (_2) {
           if (_2 instanceof Just) {
@@ -781,9 +764,6 @@ var PS = { };
           return Nothing.value;
       };
   });
-  var fromMaybe = function (a) {
-      return maybe(a)(Prelude.id(Prelude.categoryFn));
-  }; 
   var altMaybe = new Control_Alt.Alt(function () {
       return functorMaybe;
   }, function (_4) {
@@ -796,8 +776,6 @@ var PS = { };
   });
   exports["Nothing"] = Nothing;
   exports["Just"] = Just;
-  exports["fromMaybe"] = fromMaybe;
-  exports["maybe"] = maybe;
   exports["functorMaybe"] = functorMaybe;
   exports["altMaybe"] = altMaybe;;
  
@@ -2363,22 +2341,6 @@ var PS = { };
   };
   var $$boolean = createUI($foreign.cBoolean);
   var boolean_ = $$boolean("");
-  var optional = function (id) {
-      return function (enabled) {
-          return function (x) {
-              var ret = function (_13) {
-                  if (_13) {
-                      return new Data_Maybe.Just(x);
-                  };
-                  if (!_13) {
-                      return Data_Maybe.Nothing.value;
-                  };
-                  throw new Error("Failed pattern match at Flare line 247, column 9 - line 248, column 9: " + [ _13.constructor.name ]);
-              };
-              return Prelude["<$>"](functorUI)(ret)($$boolean(id)(enabled));
-          };
-      };
-  };                           
   var applyFlare = new Prelude.Apply(function () {
       return functorFlare;
   }, function (_8) {
@@ -2429,7 +2391,6 @@ var PS = { };
   exports["runFlareWith"] = runFlareWith;
   exports["select"] = select;
   exports["button"] = button;
-  exports["optional"] = optional;
   exports["boolean_"] = boolean_;
   exports["string_"] = string_;
   exports["string"] = string;
@@ -3065,43 +3026,7 @@ var PS = { };
               translateY: ty
           });
       };
-  };                     
-  var shadowOffset = function (x) {
-      return function (y) {
-          return {
-              color: Data_Maybe.Nothing.value, 
-              blur: Data_Maybe.Nothing.value, 
-              offset: new Data_Maybe.Just({
-                  x: x, 
-                  y: y
-              })
-          };
-      };
-  };
-  var shadowColor = function (c) {
-      return {
-          color: new Data_Maybe.Just(c), 
-          blur: Data_Maybe.Nothing.value, 
-          offset: Data_Maybe.Nothing.value
-      };
-  };
-  var shadowBlur = function (b) {
-      return {
-          color: Data_Maybe.Nothing.value, 
-          blur: new Data_Maybe.Just(b), 
-          offset: Data_Maybe.Nothing.value
-      };
-  };
-  var shadow = WithShadow.create;
-  var semigroupShadow = new Prelude.Semigroup(function (_18) {
-      return function (_19) {
-          return {
-              color: Control_Alt["<|>"](Data_Maybe.altMaybe)(_18.color)(_19.color), 
-              blur: Control_Alt["<|>"](Data_Maybe.altMaybe)(_18.blur)(_19.blur), 
-              offset: Control_Alt["<|>"](Data_Maybe.altMaybe)(_18.offset)(_19.offset)
-          };
-      };
-  });
+  }; 
   var semigroupOutlineStyle = new Prelude.Semigroup(function (_12) {
       return function (_13) {
           return {
@@ -3250,14 +3175,7 @@ var PS = { };
           color: new Data_Maybe.Just(c), 
           lineWidth: Data_Maybe.Nothing.value
       };
-  };                                                          
-  var monoidShadow = new Data_Monoid.Monoid(function () {
-      return semigroupShadow;
-  }, {
-      color: Data_Maybe.Nothing.value, 
-      blur: Data_Maybe.Nothing.value, 
-      offset: Data_Maybe.Nothing.value
-  });                                                    
+  };                                                     
   var lineWidth = function (c) {
       return {
           color: Data_Maybe.Nothing.value, 
@@ -3287,18 +3205,12 @@ var PS = { };
   exports["scale"] = scale;
   exports["outlined"] = outlined;
   exports["filled"] = filled;
-  exports["shadow"] = shadow;
-  exports["shadowColor"] = shadowColor;
-  exports["shadowBlur"] = shadowBlur;
-  exports["shadowOffset"] = shadowOffset;
   exports["lineWidth"] = lineWidth;
   exports["outlineColor"] = outlineColor;
   exports["fillColor"] = fillColor;
   exports["circle"] = circle;
   exports["path"] = path;
-  exports["semigroupOutlineStyle"] = semigroupOutlineStyle;
-  exports["semigroupShadow"] = semigroupShadow;
-  exports["monoidShadow"] = monoidShadow;;
+  exports["semigroupOutlineStyle"] = semigroupOutlineStyle;;
  
 })(PS["Graphics.Drawing"] = PS["Graphics.Drawing"] || {});
 (function(exports) {
@@ -3731,7 +3643,7 @@ var PS = { };
           if (!_4.add) {
               return xs;
           };
-          throw new Error("Failed pattern match at Test.Main line 120, column 1 - line 122, column 1: " + [ _4.add.constructor.name ]);
+          throw new Error("Failed pattern match at Test.Main line 125, column 1 - line 127, column 1: " + [ _4.add.constructor.name ]);
       };
   };
   var ui9 = Prelude["&&"](Flare.booleanAlgebraUI(Prelude.booleanAlgebraBoolean))(Flare.boolean_(false))(Flare.boolean_(true));
@@ -3747,7 +3659,7 @@ var PS = { };
       if (!_3) {
           return 0;
       };
-      throw new Error("Failed pattern match at Test.Main line 101, column 1 - line 102, column 1: " + [ _3.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 106, column 1 - line 107, column 1: " + [ _3.constructor.name ]);
   };
   var ui11 = Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment")));
   var table = function (h) {
@@ -3776,27 +3688,33 @@ var PS = { };
       };
       throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 55, column 1: " + [ _5.constructor.name ]);
   });
-  var shadowStyle = Prelude["<>"](Graphics_Drawing.semigroupShadow)(Graphics_Drawing.shadowColor(Graphics_Drawing_Color.black))(Prelude["<>"](Graphics_Drawing.semigroupShadow)(Graphics_Drawing.shadowOffset(2.0)(2.0))(Graphics_Drawing.shadowBlur(2.0)));
-  var plot = function (n) {
-      return function (s) {
-          return function (phi0) {
-              var radius = function (phi) {
-                  return 48.0 * $$Math.abs($$Math.cos(0.5 * Data_Int.toNumber(n) * (phi + phi0)));
-              };
-              var point = function (phi) {
-                  return {
-                      x: 50.0 + radius(phi) * $$Math.cos(phi), 
-                      y: 50.0 + radius(phi) * $$Math.sin(phi)
+  var plot = function (m) {
+      return function (n1) {
+          return function (s) {
+              return function (time) {
+                  var n3 = s + 3.0 * $$Math.cos(5.0e-3 * time);
+                  var n2 = s + 3.0 * $$Math.sin(5.0e-3 * time);
+                  var radius = function (phi) {
+                      var second = $$Math.pow($$Math.abs($$Math.sin((m * phi) / 4.0)))(n3);
+                      var first = $$Math.pow($$Math.abs($$Math.cos((m * phi) / 4.0)))(n2);
+                      var inner = first + second;
+                      return 20.0 * $$Math.pow(inner)(-1.0 / n1);
                   };
+                  var point = function (phi) {
+                      return {
+                          x: 100.0 + radius(phi) * $$Math.cos(phi), 
+                          y: 100.0 + radius(phi) * $$Math.sin(phi)
+                      };
+                  };
+                  var angles = Prelude.map(Prelude.functorArray)(function (i) {
+                      return ((2.0 * $$Math.pi) / Data_Int.toNumber(400)) * Data_Int.toNumber(i);
+                  })(Data_Array[".."](0)(400));
+                  return Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.hsl(333.0)(0.6)(0.5)))(Graphics_Drawing.path(Data_Foldable.foldableArray)(Prelude.map(Prelude.functorArray)(point)(angles)));
               };
-              var angles = Prelude.map(Prelude.functorArray)(function (i) {
-                  return ((2.0 * $$Math.pi) / Data_Int.toNumber(200)) * Data_Int.toNumber(i);
-              })(Data_Array[".."](0)(200));
-              return Graphics_Drawing.shadow(Data_Maybe.fromMaybe(Data_Monoid.mempty(Graphics_Drawing.monoidShadow))(s))(Graphics_Drawing.filled(Graphics_Drawing.fillColor(Graphics_Drawing_Color.hsl(220.0)(0.6)(0.5)))(Graphics_Drawing.path(Data_Foldable.foldableArray)(Prelude.map(Prelude.functorArray)(point)(angles))));
           };
       };
   };
-  var ui7 = Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(plot)(Flare.intSlider("Leaves")(2)(10)(6)))(Flare.optional("Shadow")(false)(shadowStyle)))(Prelude["*"](Flare.semiringUI(Prelude.semiringNumber))(Prelude.pure(Flare.applicativeUI)(1.0e-3))(Flare.lift(Signal_DOM.animationFrame)));
+  var ui7 = Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(plot)(Flare.numberSlider("m")(0.0)(10.0)(1.0)(7.0)))(Flare.numberSlider("n1")(1.0)(10.0)(0.1)(4.0)))(Flare.numberSlider("s")(4.0)(16.0)(0.1)(14.0)))(Flare.lift(Signal_DOM.animationFrame));
   var inputs = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(function (_0) {
       return function (_1) {
           return {
@@ -3877,7 +3795,6 @@ var PS = { };
   exports["ui9"] = ui9;
   exports["ui8"] = ui8;
   exports["ui7"] = ui7;
-  exports["shadowStyle"] = shadowStyle;
   exports["plot"] = plot;
   exports["ui6"] = ui6;
   exports["greet"] = greet;
