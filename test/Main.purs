@@ -62,21 +62,26 @@ ui6 = (greet <$> (select "Language" English [French, German]))
 
 -- Example 7
 
-plot n s phi0 =
-      shadow (fromMaybe mempty s) $ filled (fillColor (hsl 220.0 0.6 0.5)) $
+plot m n1 s time =
+      filled (fillColor (hsl 333.0 0.6 0.5)) $
         path (map point angles)
 
-      where point phi = { x: 50.0 + radius phi * cos phi
-                        , y: 50.0 + radius phi * sin phi }
-            angles = map (\i -> 2.0 * pi / toNumber points * toNumber i) (0 .. points)
-            points = 200
-            radius phi = 48.0 * abs (cos (0.5 * toNumber n * (phi + phi0)))
+      where point phi = { x: 100.0 + radius phi * cos phi
+                        , y: 100.0 + radius phi * sin phi }
+            angles = map (\i -> 2.0 * pi / toNumber points * toNumber i)
+                         (0 .. points)
+            points = 400
+            n2 = s + 3.0 * sin (0.005 * time)
+            n3 = s + 3.0 * cos (0.005 * time)
+            radius phi = 20.0 * pow inner (- 1.0 / n1)
+              where inner = first + second
+                    first = pow (abs (cos (m * phi / 4.0))) n2
+                    second = pow (abs (sin (m * phi / 4.0))) n3
 
-shadowStyle = shadowColor black <> shadowOffset 2.0 2.0 <> shadowBlur 2.0
-
-ui7 = plot <$> intSlider "Leaves" 2 10 6
-           <*> optional "Shadow" false shadowStyle
-           <*> pure 0.001 * lift animationFrame
+ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0 7.0)
+           <*> (numberSlider "n1" 1.0 10.0 0.1 4.0)
+           <*> (numberSlider "s" 4.0 16.0 0.1 14.0)
+           <*> lift animationFrame
 
 -- Example 8
 
