@@ -39,6 +39,5 @@ the current output will be rendered to the `output` element.
 ## Building
 ```
 bower install
-pulp build
 pulp build -O -I test -m Test.Main -t html/main.js
 ```
