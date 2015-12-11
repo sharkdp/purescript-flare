@@ -5,8 +5,6 @@ import Prelude
 import Data.Array
 import Data.Foldable
 import Data.Int
-import Data.Maybe (fromMaybe)
-import Data.Monoid (mempty)
 import Data.Traversable
 import Math (pow, sin, cos, pi, abs)
 
@@ -14,6 +12,7 @@ import Signal.DOM
 
 import qualified Text.Smolder.HTML as H
 import qualified Text.Smolder.Markup as H
+import qualified Text.Smolder.HTML.Attributes as A
 
 import Flare
 import Flare.Drawing
@@ -128,6 +127,30 @@ list = foldp update ["Apple", "Banana"] inputs
 
 ui13 = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 
+-- Example 14
+
+data Domain = HSL | RGB
+
+instance showDomain :: Show Domain where
+  show HSL = "HSL"
+  show RGB = "RGB"
+
+toHTML c = H.div `H.with` (A.style $ "background-color:" ++ hex) $ H.text hex
+  where hex = colorString c
+
+ns l = numberSlider l 0.0
+
+uiColor HSL = hsl <$> ns "Hue"        360.0  1.0 180.0
+                  <*> ns "Saturation"   1.0 0.01   0.5
+                  <*> ns "Lightness"    1.0 0.01   0.5
+uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
+                  <*> ns "Green"      255.0  1.0   0.0
+                  <*> ns "Blue"       255.0  1.0 100.0
+
+inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
+
+ui14 = select "Color domain" HSL [RGB]
+
 -- Render everything to the DOM
 
 main = do
@@ -144,3 +167,4 @@ main = do
   runFlare "controls11" "output11" ui11
   runFlareHTML "controls12" "output12" ui12
   runFlareHTML "controls13" "output13" ui13
+  runFlareWith "controls14a" inner ui14

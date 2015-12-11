@@ -162,6 +162,36 @@ ui = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
         <div id="controls13"></div>
         <div id="output13"></div>
 
+        <h3>Example 14: Color picker (running Flare inside Flare)</h3>
+<pre>
+data Domain = HSL | RGB
+
+instance showDomain :: Show Domain where
+  show HSL = "HSL"
+  show RGB = "RGB"
+
+toHTML c = H.div `H.with` (A.style $ "background-color:" ++ hex) $ H.text hex
+  where hex = colorString c
+
+ns l = numberSlider l 0.0
+
+uiColor HSL = hsl <$> ns "Hue"        360.0  1.0 180.0
+                  <*> ns "Saturation"   1.0 0.01   0.5
+                  <*> ns "Lightness"    1.0 0.01   0.5
+uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
+                  <*> ns "Green"      255.0  1.0   0.0
+                  <*> ns "Blue"       255.0  1.0 100.0
+
+inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
+
+ui = select "Color domain" HSL [RGB]
+
+main = runFlareWith "controls14a" inner ui
+</pre>
+        <div id="controls14a"></div>
+        <div id="controls14b"></div>
+        <div id="output14"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>

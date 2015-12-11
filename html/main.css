@@ -45,3 +45,11 @@ td {
     padding: 3px;
     font-size: 11px;
 }
+
+#output14 > div {
+    display: inline-block;
+    padding: 20px;
+    color: black;
+    text-shadow: 0px 0px 4px white;
+    font-family: courier;
+}
