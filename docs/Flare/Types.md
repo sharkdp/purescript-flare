@@ -37,7 +37,6 @@ Possible input types.
 data Cell a
   = Cell (Array Component) a
   | Lift (Signal a)
-  | FoldP (forall b. b -> a -> a) a (forall c. Flare c)
 ```
 
 Intermediate data type.

@@ -119,13 +119,6 @@ cellToUI (Cell components x) = SetupUI $ do
   elements <- traverse (toElement (send chan)) components
   return (UI elements (subscribe chan))
 cellToUI (Lift sig) = SetupUI $ return (UI [] sig)
-cellToUI (FoldP f x0 flare) = SetupUI $ do
-  case flare of
-    (Flare free) ->
-      case (foldFreeAp cellToUI free) of
-        (SetupUI setup) -> do
-          (UI els sig) <- setup
-          return (UI els (S.foldp f x0 sig))
 
 -- | Renders a `Flare` to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached.

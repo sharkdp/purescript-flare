@@ -27,23 +27,23 @@ import Control.Applicative.Free (liftFreeAp)
 
 import DOM (DOM())
 
-import qualified Signal as S
+import Signal hiding (foldp)
 import Signal.Channel (Chan())
-
-import Unsafe.Coerce
 
 import Flare.Types
 import Flare.Internal
 
 -- | Lift a `Signal` to a `Flare`.
-lift :: forall a. S.Signal a -> Flare a
+lift :: forall a. Signal a -> Flare a
 lift sig = Flare (liftFreeAp (Lift sig))
+
+foreign import foldp_ :: forall a b. (a -> b -> b) -> b -> (a -> b)
 
 -- | Create a past dependent component. The fold-function takes the current
 -- | value of the component and the previous value of the output to produce
 -- | the new value of the output.
 foldp :: forall a b. (a -> b -> b) -> b -> Flare a -> Flare b
-foldp f x0 flare = Flare $ liftFreeAp (FoldP (unsafeCoerce f) x0 (unsafeCoerce flare))
+foldp f s0 = map (foldp_ f s0)
 
 -- | Creates a text field for a `Number` input from a given label and default
 -- | value.

@@ -43,7 +43,7 @@ number_ 5.0 / number_ 2.0
         <h3>Example 5: Drawing output</h3>
 <pre>
 coloredCircle hue radius =
-  filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
+  filled (fillColor (hsl hue 0.8 0.4)) (circle 50.0 50.0 radius)
 
 ui = coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)
                    <*> (numberRange "Radius" 2.0 45.0 0.1 25.0)

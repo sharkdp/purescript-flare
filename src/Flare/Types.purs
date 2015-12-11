@@ -34,7 +34,6 @@ data Component
 -- | Intermediate data type.
 data Cell a = Cell (Array Component) a
             | Lift (Signal a)
-            | FoldP (forall b. b -> a -> a) a (forall c. Flare c)
 
 -- | The main data type for a Flare UI.
 data Flare a = Flare (FreeAp Cell a)

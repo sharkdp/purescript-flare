@@ -40,7 +40,7 @@ main = do
     number_ 5.0 / number_ 2.0
 
   let coloredCircle hue radius =
-    filled (fillColor (hsl hue 0.8 100.0)) (circle 50.0 50.0 radius)
+    filled (fillColor (hsl hue 0.8 0.4)) (circle 50.0 50.0 radius)
 
   runFlareDrawing "controls5" "output5" $
     coloredCircle <$> (numberRange "Hue" 0.0 360.0 1.0 140.0)

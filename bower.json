@@ -21,6 +21,6 @@
     "purescript-foldable-traversable": "^0.4.1",
     "purescript-canvas": "^0.3.4",
     "purescript-drawing": "^0.3.6",
-    "purescript-freeap": "https://github.com/ethul/purescript-freeap.git#master"
+    "purescript-freeap": "^0.1.0"
   }
 }
