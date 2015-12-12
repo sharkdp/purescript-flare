@@ -40,24 +40,22 @@ ui4 = number_ 5.0 / number_ 2.0
 coloredCircle hue radius =
   filled (fillColor (hsl hue 0.8 0.4)) (circle 50.0 50.0 radius)
 
-ui5 = coloredCircle <$> (numberSlider "Hue" 0.0 360.0 1.0 140.0)
-                    <*> (numberSlider "Radius" 2.0 45.0 0.1 25.0)
+ui5 = coloredCircle <$> (numberSlider "Hue"    0.0 360.0 1.0 140.0)
+                    <*> (numberSlider "Radius" 2.0  45.0 0.1  25.0)
 
 -- Example 6
 
 data Language = English | French | German
 
-instance showLanguage :: Show Language where
-  show English = "english"
-  show French = "french"
-  show German = "german"
+toString English = "english"
+toString French  = "french"
+toString German  = "german"
 
-greet :: Language -> String
 greet English = "Hello"
-greet French =  "Salut"
-greet German =  "Hallo"
+greet French  = "Salut"
+greet German  = "Hallo"
 
-ui6 = (greet <$> (select "Language" English [French, German]))
+ui6 = (greet <$> (select "Language" English [French, German] toString))
       <> pure " " <> string "Name" "Pierre" <> pure "!"
 
 -- Example 7
@@ -78,9 +76,9 @@ plot m n1 s time =
                     first = pow (abs (cos (m * phi / 4.0))) n2
                     second = pow (abs (sin (m * phi / 4.0))) n3
 
-ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0 7.0)
-           <*> (numberSlider "n1" 1.0 10.0 0.1 4.0)
-           <*> (numberSlider "s" 4.0 16.0 0.1 14.0)
+ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0  7.0)
+           <*> (numberSlider "n1" 1.0 10.0 0.1  4.0)
+           <*> (numberSlider "s"  4.0 16.0 0.1 14.0)
            <*> lift animationFrame
 
 -- Example 8
@@ -132,9 +130,8 @@ ui13 = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 
 data Domain = HSL | RGB
 
-instance showDomain :: Show Domain where
-  show HSL = "HSL"
-  show RGB = "RGB"
+showDomain HSL = "HSL"
+showDomain RGB = "RGB"
 
 toHTML c = H.div `H.with` (A.style $ "background-color:" ++ hex) $ H.text hex
   where hex = colorString c
@@ -150,17 +147,16 @@ uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
 
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
-ui14 = select "Color domain" HSL [RGB]
+ui14 = select "Color domain" HSL [RGB] showDomain
 
 -- Example 15
 
 data Action = Increment | Decrement | Negate | Reset
 
-instance showAction :: Show Action where
-  show Increment = "+ 1"
-  show Decrement = "- 1"
-  show Negate    = "+/-"
-  show Reset     = "Reset"
+label Increment = "+ 1"
+label Decrement = "- 1"
+label Negate    = "+/-"
+label Reset     = "Reset"
 
 perform :: Action -> Int -> Int
 perform Increment = add 1
@@ -168,23 +164,24 @@ perform Decrement = flip sub 1
 perform Negate    = negate
 perform Reset     = const 0
 
-ui15 = foldp (maybe id perform) 0 $ buttons [Increment, Decrement, Negate, Reset]
+ui15 = foldp (maybe id perform) 0 $
+         buttons [Increment, Decrement, Negate, Reset] label
 
 -- Render everything to the DOM
 
 main = do
-  runFlare "controls1" "output1" ui1
-  runFlareS "controls2" "output2" ui2
-  runFlare "controls3" "output3" ui3
-  runFlare "controls4" "output4" ui4
-  runFlareDrawing "controls5" "output5" ui5
-  runFlareS "controls6" "output6" ui6
-  runFlareDrawing "controls7" "output7" ui7
-  runFlare "controls8" "output8" ui8
-  runFlare "controls9" "output9" ui9
-  runFlareDrawing "controls10" "output10" ui10
-  runFlare "controls11" "output11" ui11
-  runFlareHTML "controls12" "output12" ui12
-  runFlareHTML "controls13" "output13" ui13
-  runFlareWith "controls14a" inner ui14
-  runFlare "controls15" "output15" ui15
+  runFlareShow     "controls1"   "output1"  ui1
+  runFlare         "controls2"   "output2"  ui2
+  runFlareShow     "controls3"   "output3"  ui3
+  runFlareShow     "controls4"   "output4"  ui4
+  runFlareDrawing  "controls5"   "output5"  ui5
+  runFlare         "controls6"   "output6"  ui6
+  runFlareDrawing  "controls7"   "output7"  ui7
+  runFlareShow     "controls8"   "output8"  ui8
+  runFlareShow     "controls9"   "output9"  ui9
+  runFlareDrawing "controls10"  "output10" ui10
+  runFlareHTML    "controls12"  "output12" ui12
+  runFlareShow    "controls11"  "output11" ui11
+  runFlareHTML    "controls13"  "output13" ui13
+  runFlareWith    "controls14a"     inner  ui14
+  runFlareShow    "controls15"  "output15" ui15

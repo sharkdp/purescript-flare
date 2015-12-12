@@ -250,7 +250,7 @@ Creates a button which yields `true` if is pressed and `false` otherwise.
 #### `buttons`
 
 ``` purescript
-buttons :: forall a e. (Show a) => Array a -> UI e (Maybe a)
+buttons :: forall a e. Array a -> (a -> String) -> UI e (Maybe a)
 ```
 
 Create a button for each element of the array. The whole component
@@ -260,7 +260,7 @@ the button corresponding to the element `x` is pressed.
 #### `select`
 
 ``` purescript
-select :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
+select :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
 ```
 
 Creates a select box to choose from a list of options. The first option
@@ -269,7 +269,7 @@ is selected by default. The rest of the options is given as an array.
 #### `select_`
 
 ``` purescript
-select_ :: forall e a. (Show a) => a -> Array a -> UI e a
+select_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 ```
 
 Like `select`, but without a label.
@@ -277,7 +277,7 @@ Like `select`, but without a label.
 #### `radioGroup`
 
 ``` purescript
-radioGroup :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
+radioGroup :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
 ```
 
 Creates a group of radio buttons to choose from a list of options. The
@@ -287,7 +287,7 @@ an array.
 #### `radioGroup_`
 
 ``` purescript
-radioGroup_ :: forall e a. (Show a) => a -> Array a -> UI e a
+radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 ```
 
 Like `radioGroup`, but without a label.
@@ -305,20 +305,20 @@ function argument will be mapped over the `Signal` inside the `Flare`.
 #### `runFlare`
 
 ``` purescript
-runFlare :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlare :: forall e. ElementId -> ElementId -> UI e String -> Eff (dom :: DOM, chan :: Chan | e) Unit
 ```
 
 Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 specify the DOM elements to which the controls and the output will be
 attached, respectively.
 
-#### `runFlareS`
+#### `runFlareShow`
 
 ``` purescript
-runFlareS :: forall e. ElementId -> ElementId -> UI e String -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareShow :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff (dom :: DOM, chan :: Chan | e) Unit
 ```
 
-Like `runFlare`, but does not run `show` on the `String`, so as to prevent
-the double quotes around the string.
+Like `runFlare` but uses `show` to convert the contained value to a
+`String` before rendering to the DOM.
 
 

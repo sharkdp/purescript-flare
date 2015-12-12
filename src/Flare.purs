@@ -32,7 +32,7 @@ module Flare
   , radioGroup_
   , runFlareWith
   , runFlare
-  , runFlareS
+  , runFlareShow
   ) where
 
 import Prelude
@@ -156,8 +156,8 @@ foreign import cIntRange :: String -> Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: CreateComponent Boolean
-foreign import cSelect :: forall a. (Show a) => Array a -> CreateComponent a
-foreign import cRadioGroup :: forall a. (Show a) => Array a -> CreateComponent a
+foreign import cSelect :: forall a. Array a -> (a -> String) -> CreateComponent a
+foreign import cRadioGroup :: forall a. Array a -> (a -> String) -> CreateComponent a
 
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
@@ -262,29 +262,29 @@ button id = createUI cButton id false
 -- | Create a button for each element of the array. The whole component
 -- | returns `Nothing` if none of the buttons is pressed and `Just x` if
 -- | the button corresponding to the element `x` is pressed.
-buttons :: forall a e. (Show a) => Array a -> UI e (Maybe a)
-buttons xs = (head <<< catMaybes) <$> traverse toButton xs
-  where toButton x = toMaybe x <$> button (show x)
+buttons :: forall a e. Array a -> (a -> String) -> UI e (Maybe a)
+buttons xs toString = (head <<< catMaybes) <$> traverse toButton xs
+  where toButton x = toMaybe x <$> button (toString x)
         toMaybe x true  = Just x
         toMaybe _ false = Nothing
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
-select :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
-select id default xs = createUI (cSelect xs) id default
+select :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
+select id default xs toString = createUI (cSelect xs toString) id default
 
 -- | Like `select`, but without a label.
-select_ :: forall e a. (Show a) => a -> Array a -> UI e a
+select_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 select_ = select ""
 
 -- | Creates a group of radio buttons to choose from a list of options. The
 -- | first option is selected by default. The rest of the options is given as
 -- | an array.
-radioGroup :: forall e a. (Show a) => Label -> a -> Array a -> UI e a
-radioGroup id default xs = createUI (cRadioGroup xs) id default
+radioGroup :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
+radioGroup id default xs toString = createUI (cRadioGroup xs toString) id default
 
 -- | Like `radioGroup`, but without a label.
-radioGroup_ :: forall e a. (Show a) => a -> Array a -> UI e a
+radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 radioGroup_ = radioGroup ""
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
@@ -303,19 +303,18 @@ runFlareWith controls handler (UI setupUI) = do
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 -- | specify the DOM elements to which the controls and the output will be
 -- | attached, respectively.
-runFlare :: forall e a. (Show a)
-         => ElementId
+runFlare :: forall e.
+            ElementId
          -> ElementId
-         -> UI e a
+         -> UI e String
          -> Eff (dom :: DOM, chan :: Chan | e) Unit
-runFlare controls target =
-  runFlareWith controls (show >>> renderString target)
+runFlare controls target = runFlareWith controls (renderString target)
 
--- | Like `runFlare`, but does not run `show` on the `String`, so as to prevent
--- | the double quotes around the string.
-runFlareS :: forall e.
-             ElementId
-          -> ElementId
-          -> UI e String
-          -> Eff (dom :: DOM, chan :: Chan | e) Unit
-runFlareS controls target = runFlareWith controls (renderString target)
+-- | Like `runFlare` but uses `show` to convert the contained value to a
+-- | `String` before rendering to the DOM.
+runFlareShow :: forall e a. (Show a)
+             => ElementId
+             -> ElementId
+             -> UI e a
+             -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareShow controls target ui = runFlare controls target (show <$> ui)

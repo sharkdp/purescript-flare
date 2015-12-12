@@ -189,8 +189,8 @@ exports.cButton = function(label) {
   };
 };
 
-exports.cSelect = function(showX) {
-  return function(xs) {
+exports.cSelect = function(xs) {
+  return function(toString) {
     return createComponent("select",
       function(initial) {
         var select = document.createElement("select");
@@ -199,7 +199,7 @@ exports.cSelect = function(showX) {
         for (var i = 0; i < xs.length + 1; i++) {
           x = (i === 0) ? initial : xs[i - 1];
           op = document.createElement("option");
-          op.appendChild(document.createTextNode(showX.show(x)));
+          op.appendChild(document.createTextNode(toString(x)));
           select.appendChild(op);
         }
 
@@ -217,8 +217,8 @@ exports.cSelect = function(showX) {
   };
 };
 
-exports.cRadioGroup = function(showX) {
-  return function(xs) {
+exports.cRadioGroup = function(xs) {
+  return function(toString) {
     return function(id) {
       return createComponent("radioGroup",
         function(initial) {
@@ -245,7 +245,7 @@ exports.cRadioGroup = function(showX) {
             fieldset.appendChild(op);
 
             label = document.createElement("label");
-            label.appendChild(document.createTextNode(showX.show(x)));
+            label.appendChild(document.createTextNode(toString(x)));
             label.htmlFor = xid;
             fieldset.appendChild(label);
           }

@@ -23,4 +23,4 @@ runFlareHTML :: forall e. ElementId
                 -> UI e Markup
                 -> Eff (dom :: DOM, chan :: Chan | e) Unit
 runFlareHTML controls target =
-  runFlareS controls target <<< map render
+  runFlare controls target <<< map render
