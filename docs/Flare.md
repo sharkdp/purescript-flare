@@ -247,6 +247,16 @@ button :: forall e. Label -> UI e Boolean
 
 Creates a button which yields `true` if is pressed and `false` otherwise.
 
+#### `buttons`
+
+``` purescript
+buttons :: forall a e. (Show a) => Array a -> UI e (Maybe a)
+```
+
+Create a button for each element of the array. The whole component
+returns `Nothing` if none of the buttons is pressed and `Just x` if
+the button corresponding to the element `x` is pressed.
+
 #### `select`
 
 ``` purescript

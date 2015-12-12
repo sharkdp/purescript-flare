@@ -3,6 +3,7 @@ module Test.Main where
 import Prelude
 
 import Data.Array
+import Data.Maybe
 import Data.Foldable
 import Data.Int
 import Data.Traversable
@@ -151,6 +152,24 @@ inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
 ui14 = select "Color domain" HSL [RGB]
 
+-- Example 15
+
+data Action = Increment | Decrement | Negate | Reset
+
+instance showAction :: Show Action where
+  show Increment = "+ 1"
+  show Decrement = "- 1"
+  show Negate    = "+/-"
+  show Reset     = "Reset"
+
+perform :: Action -> Int -> Int
+perform Increment = add 1
+perform Decrement = flip sub 1
+perform Negate    = negate
+perform Reset     = const 0
+
+ui15 = foldp (maybe id perform) 0 $ buttons [Increment, Decrement, Negate, Reset]
+
 -- Render everything to the DOM
 
 main = do
@@ -168,3 +187,4 @@ main = do
   runFlareHTML "controls12" "output12" ui12
   runFlareHTML "controls13" "output13" ui13
   runFlareWith "controls14a" inner ui14
+  runFlare "controls15" "output15" ui15

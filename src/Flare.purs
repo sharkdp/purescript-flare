@@ -25,6 +25,7 @@ module Flare
   , optional
   , optional_
   , button
+  , buttons
   , select
   , select_
   , radioGroup
@@ -36,9 +37,11 @@ module Flare
 
 import Prelude
 
+import Data.Array (head, catMaybes, (:))
 import Data.Maybe
 import Data.Monoid
 import Data.Foldable (traverse_)
+import Data.Traversable (traverse)
 
 import Control.Apply
 import Control.Monad.Eff
@@ -255,6 +258,15 @@ optional_ = optional ""
 -- | Creates a button which yields `true` if is pressed and `false` otherwise.
 button :: forall e. Label -> UI e Boolean
 button id = createUI cButton id false
+
+-- | Create a button for each element of the array. The whole component
+-- | returns `Nothing` if none of the buttons is pressed and `Just x` if
+-- | the button corresponding to the element `x` is pressed.
+buttons :: forall a e. (Show a) => Array a -> UI e (Maybe a)
+buttons xs = (head <<< catMaybes) <$> traverse toButton xs
+  where toButton x = toMaybe x <$> button (show x)
+        toMaybe x true  = Just x
+        toMaybe _ false = Nothing
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
