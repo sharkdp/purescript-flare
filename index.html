@@ -46,8 +46,8 @@ number_ 5.0 / number_ 2.0
 coloredCircle hue radius =
   filled (fillColor (hsl hue 0.8 0.4)) (circle 50.0 50.0 radius)
 
-ui = coloredCircle <$> (numberSlider "Hue" 0.0 360.0 1.0 140.0)
-                   <*> (numberSlider "Radius" 2.0 45.0 0.1 25.0)
+ui = coloredCircle <$> (numberSlider "Hue"    0.0 360.0 1.0 140.0)
+                   <*> (numberSlider "Radius" 2.0  45.0 0.1  25.0)
 </pre>
         <div id="controls5"></div>
         <canvas id="output5" width="100" height="100"></canvas>
@@ -56,17 +56,15 @@ ui = coloredCircle <$> (numberSlider "Hue" 0.0 360.0 1.0 140.0)
 <pre>
 data Language = English | French | German
 
-instance showLanguage :: Show Language where
-  show English = "english"
-  show French = "french"
-  show German = "german"
+toString English = "english"
+toString French  = "french"
+toString German  = "german"
 
-greet :: Language -> String
 greet English = "Hello"
-greet French =  "Salut"
-greet German =  "Hallo"
+greet French  = "Salut"
+greet German  = "Hallo"
 
-ui = (greet <$> (select "Language" English [French, German]))
+ui = (greet <$> (select "Language" English [French, German] toString))
      <> pure " " <> string "Name" "Pierre" <> pure "!"
 </pre>
         <div id="controls6"></div>
@@ -90,9 +88,9 @@ plot m n1 s time =
                     first = pow (abs (cos (m * phi / 4.0))) n2
                     second = pow (abs (sin (m * phi / 4.0))) n3
 
-ui = plot <$> (numberSlider "m"  0.0 10.0 1.0 7.0)
-          <*> (numberSlider "n1" 1.0 10.0 0.1 4.0)
-          <*> (numberSlider "s" 4.0 16.0 0.1 14.0)
+ui = plot <$> (numberSlider "m"  0.0 10.0 1.0  7.0)
+          <*> (numberSlider "n1" 1.0 10.0 0.1  4.0)
+          <*> (numberSlider "s"  4.0 16.0 0.1 14.0)
           <*> lift animationFrame
 </pre>
         <div id="controls7"></div>
@@ -166,9 +164,8 @@ ui = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 <pre>
 data Domain = HSL | RGB
 
-instance showDomain :: Show Domain where
-  show HSL = "HSL"
-  show RGB = "RGB"
+showDomain HSL = "HSL"
+showDomain RGB = "RGB"
 
 toHTML c = H.div `H.with` (A.style $ "background-color:" ++ hex) $ H.text hex
   where hex = colorString c
@@ -184,7 +181,7 @@ uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
 
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
-ui = select "Color domain" HSL [RGB]
+ui = select "Color domain" HSL [RGB] showDomain
 
 main = runFlareWith "controls14a" inner ui
 </pre>
@@ -196,11 +193,10 @@ main = runFlareWith "controls14a" inner ui
 <pre>
 data Action = Increment | Decrement | Negate | Reset
 
-instance showAction :: Show Action where
-  show Increment = "+ 1"
-  show Decrement = "- 1"
-  show Negate    = "+/-"
-  show Reset     = "Reset"
+label Increment = "+ 1"
+label Decrement = "- 1"
+label Negate    = "+/-"
+label Reset     = "Reset"
 
 perform :: Action -> Int -> Int
 perform Increment = add 1
@@ -208,7 +204,8 @@ perform Decrement = flip sub 1
 perform Negate    = negate
 perform Reset     = const 0
 
-ui = foldp (maybe id perform) 0 $ buttons [Increment, Decrement, Negate, Reset]
+ui = foldp (maybe id perform) 0 $
+       buttons [Increment, Decrement, Negate, Reset] label
 </pre>
         <div id="controls15"></div>
         <div id="output15"></div>
