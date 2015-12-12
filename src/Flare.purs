@@ -2,6 +2,7 @@ module Flare
   ( Flare(..)
   , UI(..)
   , ElementId()
+  , Label()
   , wrap
   , lift
   , foldp

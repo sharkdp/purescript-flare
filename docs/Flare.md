@@ -6,6 +6,12 @@
 type ElementId = String
 ```
 
+#### `Label`
+
+``` purescript
+type Label = String
+```
+
 #### `Flare`
 
 ``` purescript
