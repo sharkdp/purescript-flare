@@ -53,3 +53,8 @@ td {
     text-shadow: 0px 0px 4px white;
     font-family: courier;
 }
+
+#controls15 > div {
+    display: inline-block;
+    margin-right: 5px;
+}

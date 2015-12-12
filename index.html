@@ -192,6 +192,27 @@ main = runFlareWith "controls14a" inner ui
         <div id="controls14b"></div>
         <div id="output14"></div>
 
+        <h3>Example 15: Multiple buttons</h3>
+<pre>
+data Action = Increment | Decrement | Negate | Reset
+
+instance showAction :: Show Action where
+  show Increment = "+ 1"
+  show Decrement = "- 1"
+  show Negate    = "+/-"
+  show Reset     = "Reset"
+
+perform :: Action -> Int -> Int
+perform Increment = add 1
+perform Decrement = flip sub 1
+perform Negate    = negate
+perform Reset     = const 0
+
+ui = foldp (maybe id perform) 0 $ buttons [Increment, Decrement, Negate, Reset]
+</pre>
+        <div id="controls15"></div>
+        <div id="output15"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>

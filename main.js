@@ -19,6 +19,18 @@ var PS = { };
     };
   };
 
+  //- Bind -----------------------------------------------------------------------
+
+  exports.arrayBind = function (arr) {
+    return function (f) {
+      var result = [];
+      for (var i = 0, l = arr.length; i < l; i++) {
+        Array.prototype.push.apply(result, f(arr[i]));
+      }
+      return result;
+    };
+  };
+
   //- Monoid ---------------------------------------------------------------------
 
   exports.concatString = function (s1) {
@@ -64,6 +76,15 @@ var PS = { };
   exports.numDiv = function (n1) {
     return function (n2) {
       return n1 / n2;
+    };
+  };
+
+  //- Ring -----------------------------------------------------------------------
+
+  exports.intSub = function (x) {
+    return function (y) {
+      /* jshint bitwise: false */
+      return x - y | 0;
     };
   };
 
@@ -194,6 +215,10 @@ var PS = { };
       this.one = one;
       this.zero = zero;
   };
+  var Ring = function (__superclass_Prelude$dotSemiring_0, sub) {
+      this["__superclass_Prelude.Semiring_0"] = __superclass_Prelude$dotSemiring_0;
+      this.sub = sub;
+  };
   var ModuloSemiring = function (__superclass_Prelude$dotSemiring_0, div, mod) {
       this["__superclass_Prelude.Semiring_0"] = __superclass_Prelude$dotSemiring_0;
       this.div = div;
@@ -226,6 +251,12 @@ var PS = { };
   var unit = {};
   var top = function (dict) {
       return dict.top;
+  };
+  var sub = function (dict) {
+      return dict.sub;
+  };
+  var $minus = function (__dict_Ring_0) {
+      return sub(__dict_Ring_0);
   }; 
   var showNumber = new Show($foreign.showNumberImpl);
   var showInt = new Show($foreign.showIntImpl);  
@@ -255,6 +286,9 @@ var PS = { };
   });
   var semigroupString = new Semigroup($foreign.concatString);
   var semigroupArray = new Semigroup($foreign.concatArray);
+  var ringInt = new Ring(function () {
+      return semiringInt;
+  }, $foreign.intSub);
   var pure = function (dict) {
       return dict.pure;
   };
@@ -267,6 +301,11 @@ var PS = { };
   };
   var not = function (dict) {
       return dict.not;
+  };
+  var negate = function (__dict_Ring_3) {
+      return function (a) {
+          return $minus(__dict_Ring_3)(zero(__dict_Ring_3["__superclass_Prelude.Semiring_0"]()))(a);
+      };
   };
   var mul = function (dict) {
       return dict.mul;
@@ -412,7 +451,23 @@ var PS = { };
               });
           };
       };
-  }; 
+  };
+  var monadArray = new Monad(function () {
+      return applicativeArray;
+  }, function () {
+      return bindArray;
+  });
+  var bindArray = new Bind(function () {
+      return applyArray;
+  }, $foreign.arrayBind);
+  var applyArray = new Apply(function () {
+      return functorArray;
+  }, ap(monadArray));
+  var applicativeArray = new Applicative(function () {
+      return applyArray;
+  }, function (x) {
+      return [ x ];
+  });
   var add = function (dict) {
       return dict.add;
   };
@@ -427,6 +482,7 @@ var PS = { };
   exports["Bounded"] = Bounded;
   exports["Ord"] = Ord;
   exports["Eq"] = Eq;
+  exports["Ring"] = Ring;
   exports["ModuloSemiring"] = ModuloSemiring;
   exports["Semiring"] = Semiring;
   exports["Semigroup"] = Semigroup;
@@ -450,6 +506,8 @@ var PS = { };
   exports["compare"] = compare;
   exports["=="] = $eq$eq;
   exports["eq"] = eq;
+  exports["negate"] = negate;
+  exports["sub"] = sub;
   exports["/"] = $div;
   exports["mod"] = mod;
   exports["div"] = div;
@@ -481,10 +539,15 @@ var PS = { };
   exports["semigroupoidFn"] = semigroupoidFn;
   exports["categoryFn"] = categoryFn;
   exports["functorArray"] = functorArray;
+  exports["applyArray"] = applyArray;
+  exports["applicativeArray"] = applicativeArray;
+  exports["bindArray"] = bindArray;
+  exports["monadArray"] = monadArray;
   exports["semigroupString"] = semigroupString;
   exports["semigroupArray"] = semigroupArray;
   exports["semiringInt"] = semiringInt;
   exports["semiringNumber"] = semiringNumber;
+  exports["ringInt"] = ringInt;
   exports["moduloSemiringNumber"] = moduloSemiringNumber;
   exports["eqString"] = eqString;
   exports["ordString"] = ordString;
@@ -648,6 +711,18 @@ var PS = { };
     };
   };
 
+  //------------------------------------------------------------------------------
+  // Non-indexed reads -----------------------------------------------------------
+  //------------------------------------------------------------------------------
+
+  exports["uncons'"] = function (empty) {
+    return function (next) {
+      return function (xs) {
+        return xs.length === 0 ? empty({}) : next(xs[0])(xs.slice(1));
+      };
+    };
+  };
+
   exports.concat = function (xss) {
     var result = [];
     for (var i = 0, l = xss.length; i < l; i++) {
@@ -657,6 +732,18 @@ var PS = { };
       }
     }
     return result;
+  };
+
+  //------------------------------------------------------------------------------
+  // Subarrays -------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+
+  exports.slice = function (s) {
+    return function (e) {
+      return function (l) {
+        return l.slice(s, e);
+      };
+    };
   };
 
   //------------------------------------------------------------------------------
@@ -755,7 +842,20 @@ var PS = { };
           return new Just(value0);
       };
       return Just;
-  })();                                             
+  })();
+  var maybe = function (b) {
+      return function (f) {
+          return function (_0) {
+              if (_0 instanceof Nothing) {
+                  return b;
+              };
+              if (_0 instanceof Just) {
+                  return f(_0.value0);
+              };
+              throw new Error("Failed pattern match at Data.Maybe line 26, column 1 - line 27, column 1: " + [ b.constructor.name, f.constructor.name, _0.constructor.name ]);
+          };
+      };
+  };                                                
   var functorMaybe = new Prelude.Functor(function (fn) {
       return function (_2) {
           if (_2 instanceof Just) {
@@ -776,6 +876,7 @@ var PS = { };
   });
   exports["Nothing"] = Nothing;
   exports["Just"] = Just;
+  exports["maybe"] = maybe;
   exports["functorMaybe"] = functorMaybe;
   exports["altMaybe"] = altMaybe;;
  
@@ -807,8 +908,8 @@ var PS = { };
   var traverse_ = function (__dict_Applicative_0) {
       return function (__dict_Foldable_1) {
           return function (f) {
-              return foldr(__dict_Foldable_1)(function (_97) {
-                  return Control_Apply["*>"](__dict_Applicative_0["__superclass_Prelude.Apply_0"]())(f(_97));
+              return foldr(__dict_Foldable_1)(function (_109) {
+                  return Control_Apply["*>"](__dict_Applicative_0["__superclass_Prelude.Apply_0"]())(f(_109));
               })(Prelude.pure(__dict_Applicative_0)(Prelude.unit));
           };
       };
@@ -847,21 +948,21 @@ var PS = { };
           };
       };
   };
-  var sum = function (__dict_Foldable_12) {
-      return function (__dict_Semiring_13) {
-          return foldl(__dict_Foldable_12)(Prelude["+"](__dict_Semiring_13))(Prelude.zero(__dict_Semiring_13));
+  var sum = function (__dict_Foldable_18) {
+      return function (__dict_Semiring_19) {
+          return foldl(__dict_Foldable_18)(Prelude["+"](__dict_Semiring_19))(Prelude.zero(__dict_Semiring_19));
       };
   }; 
-  var foldableMaybe = new Foldable(function (__dict_Monoid_15) {
+  var foldableMaybe = new Foldable(function (__dict_Monoid_21) {
       return function (f) {
           return function (_2) {
               if (_2 instanceof Data_Maybe.Nothing) {
-                  return Data_Monoid.mempty(__dict_Monoid_15);
+                  return Data_Monoid.mempty(__dict_Monoid_21);
               };
               if (_2 instanceof Data_Maybe.Just) {
                   return f(_2.value0);
               };
-              throw new Error("Failed pattern match at Data.Foldable line 99, column 1 - line 107, column 1: " + [ f.constructor.name, _2.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ f.constructor.name, _2.constructor.name ]);
           };
       };
   }, function (f) {
@@ -873,7 +974,7 @@ var PS = { };
               if (_1 instanceof Data_Maybe.Just) {
                   return f(z)(_1.value0);
               };
-              throw new Error("Failed pattern match at Data.Foldable line 99, column 1 - line 107, column 1: " + [ f.constructor.name, z.constructor.name, _1.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ f.constructor.name, z.constructor.name, _1.constructor.name ]);
           };
       };
   }, function (f) {
@@ -885,32 +986,32 @@ var PS = { };
               if (_0 instanceof Data_Maybe.Just) {
                   return f(_0.value0)(z);
               };
-              throw new Error("Failed pattern match at Data.Foldable line 99, column 1 - line 107, column 1: " + [ f.constructor.name, z.constructor.name, _0.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ f.constructor.name, z.constructor.name, _0.constructor.name ]);
           };
       };
   });
-  var foldMapDefaultR = function (__dict_Foldable_20) {
-      return function (__dict_Monoid_21) {
+  var foldMapDefaultR = function (__dict_Foldable_26) {
+      return function (__dict_Monoid_27) {
           return function (f) {
               return function (xs) {
-                  return foldr(__dict_Foldable_20)(function (x) {
+                  return foldr(__dict_Foldable_26)(function (x) {
                       return function (acc) {
-                          return Prelude["<>"](__dict_Monoid_21["__superclass_Prelude.Semigroup_0"]())(f(x))(acc);
+                          return Prelude["<>"](__dict_Monoid_27["__superclass_Prelude.Semigroup_0"]())(f(x))(acc);
                       };
-                  })(Data_Monoid.mempty(__dict_Monoid_21))(xs);
+                  })(Data_Monoid.mempty(__dict_Monoid_27))(xs);
               };
           };
       };
   };
-  var foldableArray = new Foldable(function (__dict_Monoid_22) {
-      return foldMapDefaultR(foldableArray)(__dict_Monoid_22);
+  var foldableArray = new Foldable(function (__dict_Monoid_28) {
+      return foldMapDefaultR(foldableArray)(__dict_Monoid_28);
   }, $foreign.foldlArray, $foreign.foldrArray);
   var foldMap = function (dict) {
       return dict.foldMap;
   };
-  var fold = function (__dict_Foldable_29) {
-      return function (__dict_Monoid_30) {
-          return foldMap(__dict_Foldable_29)(__dict_Monoid_30)(Prelude.id(Prelude.categoryFn));
+  var fold = function (__dict_Foldable_35) {
+      return function (__dict_Monoid_36) {
+          return foldMap(__dict_Foldable_35)(__dict_Monoid_36)(Prelude.id(Prelude.categoryFn));
       };
   };
   exports["Foldable"] = Foldable;
@@ -1097,8 +1198,28 @@ var PS = { };
   var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];     
   var $colon = $foreign.cons;
   var $dot$dot = $foreign.range;
+  var singleton = function (a) {
+      return [ a ];
+  };
+  var head = $foreign["uncons'"](Prelude["const"](Data_Maybe.Nothing.value))(function (x) {
+      return function (_6) {
+          return new Data_Maybe.Just(x);
+      };
+  });
+  var concatMap = Prelude.flip(Prelude.bind(Prelude.bindArray));
+  var mapMaybe = function (f) {
+      return concatMap(function (_48) {
+          return Data_Maybe.maybe([  ])(singleton)(f(_48));
+      });
+  };
+  var catMaybes = mapMaybe(Prelude.id(Prelude.categoryFn));
+  exports["catMaybes"] = catMaybes;
+  exports["mapMaybe"] = mapMaybe;
+  exports["concatMap"] = concatMap;
+  exports["head"] = head;
   exports[":"] = $colon;
   exports[".."] = $dot$dot;
+  exports["singleton"] = singleton;
   exports["zipWith"] = $foreign.zipWith;
   exports["cons"] = $foreign.cons;
   exports["length"] = $foreign.length;;
@@ -2210,9 +2331,11 @@ var PS = { };
   "use strict";
   var $foreign = PS["Flare"];
   var Prelude = PS["Prelude"];
+  var Data_Array = PS["Data.Array"];
   var Data_Maybe = PS["Data.Maybe"];
   var Data_Monoid = PS["Data.Monoid"];
   var Data_Foldable = PS["Data.Foldable"];
+  var Data_Traversable = PS["Data.Traversable"];
   var Control_Apply = PS["Control.Apply"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var DOM = PS["DOM"];
@@ -2368,13 +2491,34 @@ var PS = { };
   }, function (x) {
       return UI(Prelude["return"](Control_Monad_Eff.applicativeEff)(Prelude.pure(applicativeFlare)(x)));
   });
-  var boundedUI = function (__dict_Bounded_12) {
-      return new Prelude.Bounded(Prelude.pure(applicativeUI)(Prelude.bottom(__dict_Bounded_12)), Prelude.pure(applicativeUI)(Prelude.top(__dict_Bounded_12)));
+  var boundedUI = function (__dict_Bounded_13) {
+      return new Prelude.Bounded(Prelude.pure(applicativeUI)(Prelude.bottom(__dict_Bounded_13)), Prelude.pure(applicativeUI)(Prelude.top(__dict_Bounded_13)));
   };
-  var booleanAlgebraUI = function (__dict_BooleanAlgebra_13) {
+  var booleanAlgebraUI = function (__dict_BooleanAlgebra_14) {
       return new Prelude.BooleanAlgebra(function () {
-          return boundedUI(__dict_BooleanAlgebra_13["__superclass_Prelude.Bounded_0"]());
-      }, Control_Apply.lift2(applyUI)(Prelude.conj(__dict_BooleanAlgebra_13)), Control_Apply.lift2(applyUI)(Prelude.disj(__dict_BooleanAlgebra_13)), Prelude.map(functorUI)(Prelude.not(__dict_BooleanAlgebra_13)));
+          return boundedUI(__dict_BooleanAlgebra_14["__superclass_Prelude.Bounded_0"]());
+      }, Control_Apply.lift2(applyUI)(Prelude.conj(__dict_BooleanAlgebra_14)), Control_Apply.lift2(applyUI)(Prelude.disj(__dict_BooleanAlgebra_14)), Prelude.map(functorUI)(Prelude.not(__dict_BooleanAlgebra_14)));
+  };
+  var buttons = function (__dict_Show_12) {
+      return function (xs) {
+          var toMaybe = function (x) {
+              return function (_14) {
+                  if (_14) {
+                      return new Data_Maybe.Just(x);
+                  };
+                  if (!_14) {
+                      return Data_Maybe.Nothing.value;
+                  };
+                  throw new Error("Failed pattern match at Flare line 267, column 9 - line 268, column 9: " + [ x.constructor.name, _14.constructor.name ]);
+              };
+          };
+          var toButton = function (x) {
+              return Prelude["<$>"](functorUI)(toMaybe(x))(button(Prelude.show(__dict_Show_12)(x)));
+          };
+          return Prelude["<$>"](functorUI)(function (_47) {
+              return Data_Array.head(Data_Array.catMaybes(_47));
+          })(Data_Traversable.traverse(Data_Traversable.traversableArray)(applicativeUI)(toButton)(xs));
+      };
   };
   var semiringUI = function (__dict_Semiring_0) {
       return new Prelude.Semiring(Control_Apply.lift2(applyUI)(Prelude.add(__dict_Semiring_0)), Control_Apply.lift2(applyUI)(Prelude.mul(__dict_Semiring_0)), Prelude.pure(applicativeUI)(Prelude.one(__dict_Semiring_0)), Prelude.pure(applicativeUI)(Prelude.zero(__dict_Semiring_0)));
@@ -2390,6 +2534,7 @@ var PS = { };
   exports["runFlare"] = runFlare;
   exports["runFlareWith"] = runFlareWith;
   exports["select"] = select;
+  exports["buttons"] = buttons;
   exports["button"] = button;
   exports["boolean_"] = boolean_;
   exports["string_"] = string_;
@@ -2674,6 +2819,7 @@ var PS = { };
   var Data_Function = PS["Data.Function"];
   var Data_Maybe = PS["Data.Maybe"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Exception_Unsafe = PS["Control.Monad.Eff.Exception.Unsafe"];
   var withContext = function (ctx) {
       return function (action) {
           return function __do() {
@@ -3665,6 +3811,7 @@ var PS = { };
   var Graphics_Drawing_Color = PS["Graphics.Drawing.Color"];
   var Prelude = PS["Prelude"];
   var Data_Array = PS["Data.Array"];
+  var Data_Maybe = PS["Data.Maybe"];
   var Data_Foldable = PS["Data.Foldable"];
   var Data_Int = PS["Data.Int"];
   var Data_Traversable = PS["Data.Traversable"];
@@ -3712,6 +3859,34 @@ var PS = { };
       RGB.value = new RGB();
       return RGB;
   })();
+  var Increment = (function () {
+      function Increment() {
+
+      };
+      Increment.value = new Increment();
+      return Increment;
+  })();
+  var Decrement = (function () {
+      function Decrement() {
+
+      };
+      Decrement.value = new Decrement();
+      return Decrement;
+  })();
+  var Negate = (function () {
+      function Negate() {
+
+      };
+      Negate.value = new Negate();
+      return Negate;
+  })();
+  var Reset = (function () {
+      function Reset() {
+
+      };
+      Reset.value = new Reset();
+      return Reset;
+  })();
   var update = function (_4) {
       return function (xs) {
           if (_4.add) {
@@ -3720,7 +3895,7 @@ var PS = { };
           if (!_4.add) {
               return xs;
           };
-          throw new Error("Failed pattern match at Test.Main line 124, column 1 - line 126, column 1: " + [ _4.add.constructor.name ]);
+          throw new Error("Failed pattern match at Test.Main line 125, column 1 - line 127, column 1: " + [ _4.add.constructor.name ]);
       };
   };
   var ui9 = Prelude["&&"](Flare.booleanAlgebraUI(Prelude.booleanAlgebraBoolean))(Flare.boolean_(false))(Flare.boolean_(true));
@@ -3736,7 +3911,7 @@ var PS = { };
       if (!_3) {
           return 0;
       };
-      throw new Error("Failed pattern match at Test.Main line 105, column 1 - line 106, column 1: " + [ _3.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 106, column 1 - line 107, column 1: " + [ _3.constructor.name ]);
   };
   var ui11 = Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment")));
   var toHTML = function (c) {
@@ -3757,28 +3932,59 @@ var PS = { };
       };
   };
   var ui12 = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(table)(Flare.intSlider_(0)(9)(5)))(Flare.intSlider_(0)(9)(5));
-  var showLanguage = new Prelude.Show(function (_6) {
-      if (_6 instanceof English) {
+  var showLanguage = new Prelude.Show(function (_7) {
+      if (_7 instanceof English) {
           return "english";
       };
-      if (_6 instanceof French) {
+      if (_7 instanceof French) {
           return "french";
       };
-      if (_6 instanceof German) {
+      if (_7 instanceof German) {
           return "german";
       };
-      throw new Error("Failed pattern match at Test.Main line 49, column 1 - line 54, column 1: " + [ _6.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 55, column 1: " + [ _7.constructor.name ]);
   });
-  var showDomain = new Prelude.Show(function (_7) {
-      if (_7 instanceof HSL) {
+  var showDomain = new Prelude.Show(function (_8) {
+      if (_8 instanceof HSL) {
           return "HSL";
       };
-      if (_7 instanceof RGB) {
+      if (_8 instanceof RGB) {
           return "RGB";
       };
-      throw new Error("Failed pattern match at Test.Main line 134, column 1 - line 138, column 1: " + [ _7.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 135, column 1 - line 139, column 1: " + [ _8.constructor.name ]);
   });
   var ui14 = Flare.select(showDomain)("Color domain")(HSL.value)([ RGB.value ]);
+  var showAction = new Prelude.Show(function (_9) {
+      if (_9 instanceof Increment) {
+          return "+ 1";
+      };
+      if (_9 instanceof Decrement) {
+          return "- 1";
+      };
+      if (_9 instanceof Negate) {
+          return "+/-";
+      };
+      if (_9 instanceof Reset) {
+          return "Reset";
+      };
+      throw new Error("Failed pattern match at Test.Main line 159, column 1 - line 165, column 1: " + [ _9.constructor.name ]);
+  });
+  var perform = function (_6) {
+      if (_6 instanceof Increment) {
+          return Prelude.add(Prelude.semiringInt)(1);
+      };
+      if (_6 instanceof Decrement) {
+          return Prelude.flip(Prelude.sub(Prelude.ringInt))(1);
+      };
+      if (_6 instanceof Negate) {
+          return Prelude.negate(Prelude.ringInt);
+      };
+      if (_6 instanceof Reset) {
+          return Prelude["const"](0);
+      };
+      throw new Error("Failed pattern match at Test.Main line 165, column 1 - line 166, column 1: " + [ _6.constructor.name ]);
+  };
+  var ui15 = Flare.foldp(Data_Maybe.maybe(Prelude.id(Prelude.categoryFn))(perform))(0)(Flare.buttons(showAction)([ Increment.value, Decrement.value, Negate.value, Reset.value ]));
   var ns = function (l) {
       return Flare.numberSlider(l)(0.0);
   };
@@ -3789,7 +3995,7 @@ var PS = { };
       if (_5 instanceof RGB) {
           return Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(Graphics_Drawing_Color.rgb)(ns("Red")(255.0)(1.0)(200.0)))(ns("Green")(255.0)(1.0)(0.0)))(ns("Blue")(255.0)(1.0)(100.0));
       };
-      throw new Error("Failed pattern match at Test.Main line 143, column 1 - line 146, column 1: " + [ _5.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 144, column 1 - line 147, column 1: " + [ _5.constructor.name ]);
   };
   var inputs = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(function (_0) {
       return function (_1) {
@@ -3800,13 +4006,13 @@ var PS = { };
       };
   })(Flare.string("Add item:")("Orange")))(Flare.button("Add"));
   var list = Flare.foldp(update)([ "Apple", "Banana" ])(inputs);
-  var ui13 = Prelude["<$>"](Flare.functorUI)(function (_18) {
-      return Text_Smolder_HTML.ul(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(function (_19) {
-          return Text_Smolder_HTML.li(Text_Smolder_Markup.text(_19));
-      })(_18));
+  var ui13 = Prelude["<$>"](Flare.functorUI)(function (_22) {
+      return Text_Smolder_HTML.ul(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(function (_23) {
+          return Text_Smolder_HTML.li(Text_Smolder_Markup.text(_23));
+      })(_22));
   })(list);
-  var inner = function (_20) {
-      return Flare_Smolder.runFlareHTML("controls14b")("output14")(Prelude.map(Flare.functorUI)(toHTML)(uiColor(_20)));
+  var inner = function (_24) {
+      return Flare_Smolder.runFlareHTML("controls14b")("output14")(Prelude.map(Flare.functorUI)(toHTML)(uiColor(_24)));
   };
   var plot = function (m) {
       return function (n1) {
@@ -3845,7 +4051,7 @@ var PS = { };
       if (_2 instanceof German) {
           return "Hallo";
       };
-      throw new Error("Failed pattern match at Test.Main line 54, column 1 - line 55, column 1: " + [ _2.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 55, column 1 - line 56, column 1: " + [ _2.constructor.name ]);
   };
   var ui6 = Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select(showLanguage)("Language")(English.value)([ French.value, German.value ])))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!"))));
   var graph = function (xs) {
@@ -3883,14 +4089,21 @@ var PS = { };
       Flare.runFlare(Prelude.showInt)("controls11")("output11")(ui11)();
       Flare_Smolder.runFlareHTML("controls12")("output12")(ui12)();
       Flare_Smolder.runFlareHTML("controls13")("output13")(ui13)();
-      return Flare.runFlareWith("controls14a")(inner)(ui14)();
+      Flare.runFlareWith("controls14a")(inner)(ui14)();
+      return Flare.runFlare(Prelude.showInt)("controls15")("output15")(ui15)();
   };
+  exports["Increment"] = Increment;
+  exports["Decrement"] = Decrement;
+  exports["Negate"] = Negate;
+  exports["Reset"] = Reset;
   exports["HSL"] = HSL;
   exports["RGB"] = RGB;
   exports["English"] = English;
   exports["French"] = French;
   exports["German"] = German;
   exports["main"] = main;
+  exports["ui15"] = ui15;
+  exports["perform"] = perform;
   exports["ui14"] = ui14;
   exports["inner"] = inner;
   exports["uiColor"] = uiColor;
@@ -3919,7 +4132,8 @@ var PS = { };
   exports["ui2"] = ui2;
   exports["ui1"] = ui1;
   exports["showLanguage"] = showLanguage;
-  exports["showDomain"] = showDomain;;
+  exports["showDomain"] = showDomain;
+  exports["showAction"] = showAction;;
  
 })(PS["Test.Main"] = PS["Test.Main"] || {});
 
