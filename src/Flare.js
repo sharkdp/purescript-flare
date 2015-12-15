@@ -162,28 +162,30 @@ exports.cBoolean = createComponent("boolean",
   }
 );
 
-exports.cButton = function(label) {
-  return function(initial) {
-    return function(send) {
-      return function() {
-        var div = document.createElement("div");
-        div.className = "flare-input";
+exports.cButton = function(vPressed) {
+  return function(label) {
+    return function(vDefault) {
+      return function(send) {
+        return function() {
+          var div = document.createElement("div");
+          div.className = "flare-input";
 
-        var button = document.createElement("button");
-        button.id = label;
-        button.className = "flare-input-button";
-        button.appendChild(document.createTextNode(label));
+          var button = document.createElement("button");
+          button.id = label;
+          button.className = "flare-input-button";
+          button.appendChild(document.createTextNode(label));
 
-        button.addEventListener('mousedown', function() {
-          send(true)();
-        });
-        button.addEventListener('mouseup', function() {
-          send(false)();
-        });
+          button.addEventListener('mousedown', function() {
+            send(vPressed)();
+          });
+          button.addEventListener('mouseup', function() {
+            send(vDefault)();
+          });
 
-        div.appendChild(button);
-        return div;
+          div.appendChild(button);
+          return div;
 
+        };
       };
     };
   };

@@ -101,10 +101,7 @@ ui10 = graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
 
 -- Example 11
 
-toInt true  = 1
-toInt false = 0
-
-ui11 = foldp (+) 0 (toInt <$> button "Increment")
+ui11 = foldp (+) 0 (button "Increment" 0 1)
 
 -- Example 12
 
@@ -116,13 +113,9 @@ ui12 = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
 
 -- Example 13
 
-inputs = { current: _ , add: _ }
-           <$> string "Add item:" "Orange"
-           <*> button "Add"
+actions = string "Add item:" "Orange" <**> button "Add" (flip const) cons
 
-update { current, add } xs = if add then current : xs else xs
-
-list = foldp update ["Apple", "Banana"] inputs
+list = foldp id ["Apple", "Banana"] actions
 
 ui13 = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 

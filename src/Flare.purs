@@ -6,6 +6,7 @@ module Flare
   , wrap
   , lift
   , foldp
+  , (<**>)
   , number
   , number_
   , numberRange
@@ -132,6 +133,16 @@ foldp f x0 (UI setup) = UI $ do
   (Flare comp sig) <- setup
   return $ Flare comp (S.foldp f x0 sig)
 
+infixl 4 <**>
+
+-- | A flipped version of `<*>` that arranges the components in the
+-- | order of appearance.
+(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+(<**>) (UI setup1) (UI setup2) = UI $ do
+  (Flare cs1 sig1) <- setup1
+  (Flare cs2 sig2) <- setup2
+  return $ Flare (cs1 <> cs2) (sig2 <*> sig1)
+
 -- | Remove all children from a given parent element.
 foreign import removeChildren :: forall e. ElementId
                               -> Eff (dom :: DOM | e) Unit
@@ -155,7 +166,7 @@ foreign import cNumberRange :: String -> Number -> Number -> Number -> CreateCom
 foreign import cIntRange :: String -> Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
-foreign import cButton :: CreateComponent Boolean
+foreign import cButton :: forall a. a -> CreateComponent a
 foreign import cSelect :: forall a. Array a -> (a -> String) -> CreateComponent a
 foreign import cRadioGroup :: forall a. Array a -> (a -> String) -> CreateComponent a
 
@@ -255,18 +266,17 @@ optional id enabled x = ret <$> boolean id enabled
 optional_ :: forall a e. Boolean -> a -> UI e (Maybe a)
 optional_ = optional ""
 
--- | Creates a button which yields `true` if is pressed and `false` otherwise.
-button :: forall e. Label -> UI e Boolean
-button id = createUI cButton id false
+-- | Creates a button which yields the first value in the default state and
+-- | the second value when it is pressed.
+button :: forall a e. Label -> a -> a -> UI e a
+button id vDefault vPressed = createUI (cButton vPressed) id vDefault
 
 -- | Create a button for each element of the array. The whole component
 -- | returns `Nothing` if none of the buttons is pressed and `Just x` if
 -- | the button corresponding to the element `x` is pressed.
 buttons :: forall a e. Array a -> (a -> String) -> UI e (Maybe a)
 buttons xs toString = (head <<< catMaybes) <$> traverse toButton xs
-  where toButton x = toMaybe x <$> button (toString x)
-        toMaybe x true  = Just x
-        toMaybe _ false = Nothing
+  where toButton x = button (toString x) Nothing (Just x)
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.

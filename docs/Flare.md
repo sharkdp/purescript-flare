@@ -82,6 +82,17 @@ Create a past dependent component. The fold-function takes the current
 value of the component and the previous value of the output to produce
 the new value of the output.
 
+#### `(<**>)`
+
+``` purescript
+(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+```
+
+_left-associative / precedence 4_
+
+A flipped version of `<*>` that arranges the components in the
+order of appearance.
+
 #### `number`
 
 ``` purescript
@@ -242,10 +253,11 @@ Like `optional`, but without a label.
 #### `button`
 
 ``` purescript
-button :: forall e. Label -> UI e Boolean
+button :: forall a e. Label -> a -> a -> UI e a
 ```
 
-Creates a button which yields `true` if is pressed and `false` otherwise.
+Creates a button which yields the first value in the default state and
+the second value when it is pressed.
 
 #### `buttons`
 
