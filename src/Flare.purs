@@ -30,7 +30,7 @@ module Flare
   , (<**>)
   , wrap
   , lift
-  , liftSignalFunction
+  , liftSF
   , foldp
   , runFlareWith
   , runFlare
@@ -296,12 +296,12 @@ lift msig = UI $ do
 -- |
 -- | ``` purescript
 -- | dropRepeats :: forall e a. (Eq a) => UI e a -> UI e a
--- | dropRepeats = liftSignalFunction S.dropRepeats
+-- | dropRepeats = liftSF S.dropRepeats
 -- | ```
-liftSignalFunction :: forall e a b. (S.Signal a -> S.Signal b)
-                   -> UI e a
-                   -> UI e b
-liftSignalFunction f (UI setup) = UI do
+liftSF :: forall e a b. (S.Signal a -> S.Signal b)
+       -> UI e a
+       -> UI e b
+liftSF f (UI setup) = UI do
   (Flare comp sig) <- setup
   return $ Flare comp (f sig)
 
@@ -309,7 +309,7 @@ liftSignalFunction f (UI setup) = UI do
 -- | value of the component and the previous value of the output to produce
 -- | the new value of the output.
 foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
-foldp f x0 = liftSignalFunction (S.foldp f x0)
+foldp f x0 = liftSF (S.foldp f x0)
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The

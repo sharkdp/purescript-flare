@@ -209,7 +209,7 @@ light on = H.with H.div arg mempty
   where arg | on = A.className "on"
             | otherwise = mempty
 
-ui = light <$> liftSignalFunction (since 1000.0) (button "Switch on" unit unit)
+ui = light <$> liftSF (since 1000.0) (button "Switch on" unit unit)
 </pre>
         <div id="controls16"></div>
         <div id="output16"></div>

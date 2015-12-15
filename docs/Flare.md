@@ -292,10 +292,10 @@ lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
 
 Lift a `Signal` inside the `Eff` monad to a `UI` component.
 
-#### `liftSignalFunction`
+#### `liftSF`
 
 ``` purescript
-liftSignalFunction :: forall e a b. (Signal a -> Signal b) -> UI e a -> UI e b
+liftSF :: forall e a b. (Signal a -> Signal b) -> UI e a -> UI e b
 ```
 
 Lift a function from `Signal a` to `Signal b` to a function from
@@ -303,7 +303,7 @@ Lift a function from `Signal a` to `Signal b` to a function from
 
 ``` purescript
 dropRepeats :: forall e a. (Eq a) => UI e a -> UI e a
-dropRepeats = liftSignalFunction S.dropRepeats
+dropRepeats = liftSF S.dropRepeats
 ```
 
 #### `foldp`
