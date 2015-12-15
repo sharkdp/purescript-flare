@@ -30,6 +30,7 @@ module Flare
   , (<**>)
   , wrap
   , lift
+  , liftSignalFunction
   , foldp
   , runFlareWith
   , runFlare
@@ -290,13 +291,25 @@ lift msig = UI $ do
   sig <- msig
   return $ Flare [] sig
 
+-- | Lift a function from `Signal a` to `Signal b` to a function from
+-- | `UI e a` to `UI e b` without affecting the components. For example:
+-- |
+-- | ``` purescript
+-- | dropRepeats :: forall e a. (Eq a) => UI e a -> UI e a
+-- | dropRepeats = liftSignalFunction S.dropRepeats
+-- | ```
+liftSignalFunction :: forall e a b. (S.Signal a -> S.Signal b)
+                   -> UI e a
+                   -> UI e b
+liftSignalFunction f (UI setup) = UI do
+  (Flare comp sig) <- setup
+  return $ Flare comp (f sig)
+
 -- | Create a past dependent component. The fold-function takes the current
 -- | value of the component and the previous value of the output to produce
 -- | the new value of the output.
 foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
-foldp f x0 (UI setup) = UI $ do
-  (Flare comp sig) <- setup
-  return $ Flare comp (S.foldp f x0 sig)
+foldp f x0 = liftSignalFunction (S.foldp f x0)
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
