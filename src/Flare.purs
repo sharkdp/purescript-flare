@@ -1,12 +1,8 @@
 module Flare
-  ( Flare(..)
-  , UI(..)
+  ( Flare()
+  , UI()
   , ElementId()
   , Label()
-  , wrap
-  , lift
-  , foldp
-  , (<**>)
   , number
   , number_
   , numberRange
@@ -31,6 +27,10 @@ module Flare
   , select_
   , radioGroup
   , radioGroup_
+  , (<**>)
+  , wrap
+  , lift
+  , foldp
   , runFlareWith
   , runFlare
   , runFlareShow
@@ -38,7 +38,7 @@ module Flare
 
 import Prelude
 
-import Data.Array (head, catMaybes, (:))
+import Data.Array (head, catMaybes)
 import Data.Maybe
 import Data.Monoid
 import Data.Foldable (traverse_)
@@ -114,34 +114,6 @@ instance booleanAlgebraUI :: (BooleanAlgebra a) => BooleanAlgebra (UI e a) where
   conj = lift2 conj
   disj = lift2 disj
   not = map not
-
--- | Encapsulate a `Signal` within a `UI` component.
-wrap :: forall e a. (S.Signal a) -> UI e a
-wrap sig = UI $ return $ Flare [] sig
-
--- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
-lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (S.Signal a) -> UI e a
-lift msig = UI $ do
-  sig <- msig
-  return $ Flare [] sig
-
--- | Create a past dependent component. The fold-function takes the current
--- | value of the component and the previous value of the output to produce
--- | the new value of the output.
-foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
-foldp f x0 (UI setup) = UI $ do
-  (Flare comp sig) <- setup
-  return $ Flare comp (S.foldp f x0 sig)
-
-infixl 4 <**>
-
--- | A flipped version of `<*>` that arranges the components in the
--- | order of appearance.
-(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
-(<**>) (UI setup1) (UI setup2) = UI $ do
-  (Flare cs1 sig1) <- setup1
-  (Flare cs2 sig2) <- setup2
-  return $ Flare (cs1 <> cs2) (sig2 <*> sig1)
 
 -- | Remove all children from a given parent element.
 foreign import removeChildren :: forall e. ElementId
@@ -296,6 +268,35 @@ radioGroup id default xs toString = createUI (cRadioGroup xs toString) id defaul
 -- | Like `radioGroup`, but without a label.
 radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 radioGroup_ = radioGroup ""
+
+
+infixl 4 <**>
+
+-- | A flipped version of `<*>` for `UI` that arranges the components in the
+-- | order of appearance.
+(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+(<**>) (UI setup1) (UI setup2) = UI $ do
+  (Flare cs1 sig1) <- setup1
+  (Flare cs2 sig2) <- setup2
+  return $ Flare (cs1 <> cs2) (sig2 <*> sig1)
+
+-- | Encapsulate a `Signal` within a `UI` component.
+wrap :: forall e a. (S.Signal a) -> UI e a
+wrap sig = UI $ return $ Flare [] sig
+
+-- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
+lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (S.Signal a) -> UI e a
+lift msig = UI $ do
+  sig <- msig
+  return $ Flare [] sig
+
+-- | Create a past dependent component. The fold-function takes the current
+-- | value of the component and the previous value of the output to produce
+-- | the new value of the output.
+foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
+foldp f x0 (UI setup) = UI $ do
+  (Flare comp sig) <- setup
+  return $ Flare comp (S.foldp f x0 sig)
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The

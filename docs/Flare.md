@@ -16,7 +16,6 @@ type Label = String
 
 ``` purescript
 data Flare a
-  = Flare (Array Element) (Signal a)
 ```
 
 A `Flare` is a `Signal` with a corresponding list of HTML elements
@@ -33,7 +32,6 @@ Applicative Flare
 
 ``` purescript
 newtype UI e a
-  = UI (Eff (dom :: DOM, chan :: Chan | e) (Flare a))
 ```
 
 The main data type for a Flare UI. It encapsulates the `Eff` action
@@ -55,43 +53,6 @@ Applicative (UI e)
 (Bounded a) => Bounded (UI e a)
 (BooleanAlgebra a) => BooleanAlgebra (UI e a)
 ```
-
-#### `wrap`
-
-``` purescript
-wrap :: forall e a. Signal a -> UI e a
-```
-
-Encapsulate a `Signal` within a `UI` component.
-
-#### `lift`
-
-``` purescript
-lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
-```
-
-Lift a `Signal` inside the `Eff` monad to a `UI` component.
-
-#### `foldp`
-
-``` purescript
-foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
-```
-
-Create a past dependent component. The fold-function takes the current
-value of the component and the previous value of the output to produce
-the new value of the output.
-
-#### `(<**>)`
-
-``` purescript
-(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
-```
-
-_left-associative / precedence 4_
-
-A flipped version of `<*>` that arranges the components in the
-order of appearance.
 
 #### `number`
 
@@ -303,6 +264,43 @@ radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 ```
 
 Like `radioGroup`, but without a label.
+
+#### `(<**>)`
+
+``` purescript
+(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+```
+
+_left-associative / precedence 4_
+
+A flipped version of `<*>` for `UI` that arranges the components in the
+order of appearance.
+
+#### `wrap`
+
+``` purescript
+wrap :: forall e a. Signal a -> UI e a
+```
+
+Encapsulate a `Signal` within a `UI` component.
+
+#### `lift`
+
+``` purescript
+lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
+```
+
+Lift a `Signal` inside the `Eff` monad to a `UI` component.
+
+#### `foldp`
+
+``` purescript
+foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
+```
+
+Create a past dependent component. The fold-function takes the current
+value of the component and the previous value of the output to produce
+the new value of the output.
 
 #### `runFlareWith`
 
