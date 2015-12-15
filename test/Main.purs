@@ -4,12 +4,14 @@ import Prelude
 
 import Data.Array
 import Data.Maybe
+import Data.Monoid
 import Data.Foldable
 import Data.Int
 import Data.Traversable
 import Math (pow, sin, cos, pi, abs)
 
 import Signal.DOM
+import Signal.Time
 
 import qualified Text.Smolder.HTML as H
 import qualified Text.Smolder.Markup as H
@@ -160,6 +162,15 @@ perform Reset     = const 0
 ui15 = foldp (maybe id perform) 0 $
          buttons [Increment, Decrement, Negate, Reset] label
 
+-- Example 16
+
+light on = H.with H.div arg mempty
+  where arg | on = A.className "on"
+            | otherwise = mempty
+
+ui16 = light <$> liftSignalFunction (since 1000.0) (button "Switch on" unit unit)
+
+
 -- Render everything to the DOM
 
 main = do
@@ -178,3 +189,4 @@ main = do
   runFlareHTML    "controls13"  "output13" ui13
   runFlareWith    "controls14a"     inner  ui14
   runFlareShow    "controls15"  "output15" ui15
+  runFlareHTML    "controls16"  "output16" ui16

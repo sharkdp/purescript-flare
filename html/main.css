@@ -58,3 +58,14 @@ td {
     display: inline-block;
     margin-right: 5px;
 }
+
+#output16 > div {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    background-color: #ccc;
+}
+
+#output16 > div.on {
+    background-color: #ebdd13;
+}
