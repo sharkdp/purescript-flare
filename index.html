@@ -203,6 +203,17 @@ ui = foldp (maybe id perform) 0 $
         <div id="controls15"></div>
         <div id="output15"></div>
 
+        <h3>Example 16: Using other Signal functions (here: since)</h3>
+<pre>
+light on = H.with H.div arg mempty
+  where arg | on = A.className "on"
+            | otherwise = mempty
+
+ui = light <$> liftSignalFunction (since 1000.0) (button "Switch on" unit unit)
+</pre>
+        <div id="controls16"></div>
+        <div id="output16"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>

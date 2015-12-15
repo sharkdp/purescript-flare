@@ -803,13 +803,17 @@ var PS = { };
   };               
   var monoidString = new Monoid(function () {
       return Prelude.semigroupString;
-  }, "");  
+  }, "");
+  var monoidArray = new Monoid(function () {
+      return Prelude.semigroupArray;
+  }, [  ]);
   var mempty = function (dict) {
       return dict.mempty;
   };
   exports["Monoid"] = Monoid;
   exports["mempty"] = mempty;
-  exports["monoidString"] = monoidString;;
+  exports["monoidString"] = monoidString;
+  exports["monoidArray"] = monoidArray;;
  
 })(PS["Data.Monoid"] = PS["Data.Monoid"] || {});
 (function(exports) {
@@ -2353,23 +2357,23 @@ var PS = { };
   var UI = function (x) {
       return x;
   };
-  var $less$times$times$greater = function (_12) {
-      return function (_13) {
+  var $less$times$times$greater = function (_7) {
+      return function (_8) {
           return UI(function __do() {
-              var _5 = _12();
-              var _4 = _13();
-              return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(Prelude["<>"](Prelude.semigroupArray)(_5.value0)(_4.value0), Prelude["<*>"](Signal.applySignal)(_4.value1)(_5.value1)))();
+              var _3 = _7();
+              var _2 = _8();
+              return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(Prelude["<>"](Prelude.semigroupArray)(_3.value0)(_2.value0), Prelude["<*>"](Signal.applySignal)(_2.value1)(_3.value1)))();
           });
       };
   };
   var runFlareWith = function (controls) {
       return function (handler) {
-          return function (_14) {
+          return function (_10) {
               return function __do() {
-                  var _8 = _14();
+                  var _6 = _10();
                   $foreign.removeChildren(controls)();
-                  Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(controls))(_8.value0)();
-                  return Signal.runSignal(Prelude.map(Signal.functorSignal)(handler)(_8.value1))();
+                  Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(controls))(_6.value0)();
+                  return Signal.runSignal(Prelude.map(Signal.functorSignal)(handler)(_6.value1))();
               };
           };
       };
@@ -2379,20 +2383,28 @@ var PS = { };
           return runFlareWith(controls)($foreign.renderString(target));
       };
   };
+  var liftSignalFunction = function (f) {
+      return function (_9) {
+          return function __do() {
+              var _5 = _9();
+              return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(_5.value0, f(_5.value1)))();
+          };
+      };
+  };
   var lift = function (msig) {
       return UI(function __do() {
-          var _0 = msig();
-          return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([  ], _0))();
+          var _4 = msig();
+          return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([  ], _4))();
       });
   };
   var functorFlare = new Prelude.Functor(function (f) {
-      return function (_15) {
-          return new Flare(_15.value0, Prelude.map(Signal.functorSignal)(f)(_15.value1));
+      return function (_11) {
+          return new Flare(_11.value0, Prelude.map(Signal.functorSignal)(f)(_11.value1));
       };
   });
   var functorUI = new Prelude.Functor(function (f) {
-      return function (_18) {
-          return UI(Prelude.map(Control_Monad_Eff.functorEff)(Prelude.map(functorFlare)(f))(_18));
+      return function (_14) {
+          return UI(Prelude.map(Control_Monad_Eff.functorEff)(Prelude.map(functorFlare)(f))(_14));
       };
   });
   var runFlareShow = function (__dict_Show_2) {
@@ -2406,23 +2418,18 @@ var PS = { };
   };
   var foldp = function (f) {
       return function (x0) {
-          return function (_9) {
-              return UI(function __do() {
-                  var _1 = _9();
-                  return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(_1.value0, Signal.foldp(f)(x0)(_1.value1)))();
-              });
-          };
+          return liftSignalFunction(Signal.foldp(f)(x0));
       };
   };
   var createUI = function (createComp) {
       return function (id) {
           return function ($$default) {
               return UI(function __do() {
-                  var _7 = Signal_Channel.channel($$default)();
-                  var _6 = createComp(id)($$default)(Signal_Channel.send(_7))();
+                  var _1 = Signal_Channel.channel($$default)();
+                  var _0 = createComp(id)($$default)(Signal_Channel.send(_1))();
                   return (function () {
-                      var signal = Signal_Channel.subscribe(_7);
-                      return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ _6 ], signal));
+                      var signal = Signal_Channel.subscribe(_1);
+                      return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ _0 ], signal));
                   })()();
               });
           };
@@ -2477,16 +2484,16 @@ var PS = { };
   var boolean_ = $$boolean("");
   var applyFlare = new Prelude.Apply(function () {
       return functorFlare;
-  }, function (_16) {
-      return function (_17) {
-          return new Flare(Prelude["<>"](Prelude.semigroupArray)(_16.value0)(_17.value0), Prelude["<*>"](Signal.applySignal)(_16.value1)(_17.value1));
+  }, function (_12) {
+      return function (_13) {
+          return new Flare(Prelude["<>"](Prelude.semigroupArray)(_12.value0)(_13.value0), Prelude["<*>"](Signal.applySignal)(_12.value1)(_13.value1));
       };
   });
   var applyUI = new Prelude.Apply(function () {
       return functorUI;
-  }, function (_19) {
-      return function (_20) {
-          return UI(Control_Apply.lift2(Control_Monad_Eff.applyEff)(Prelude.apply(applyFlare))(_19)(_20));
+  }, function (_15) {
+      return function (_16) {
+          return UI(Control_Apply.lift2(Control_Monad_Eff.applyEff)(Prelude.apply(applyFlare))(_15)(_16));
       };
   });
   var semigroupUI = function (__dict_Semigroup_1) {
@@ -2515,8 +2522,8 @@ var PS = { };
           var toButton = function (x) {
               return button(toString(x))(Data_Maybe.Nothing.value)(new Data_Maybe.Just(x));
           };
-          return Prelude["<$>"](functorUI)(function (_68) {
-              return Data_Array.head(Data_Array.catMaybes(_68));
+          return Prelude["<$>"](functorUI)(function (_55) {
+              return Data_Array.head(Data_Array.catMaybes(_55));
           })(Data_Traversable.traverse(Data_Traversable.traversableArray)(applicativeUI)(toButton)(xs));
       };
   };
@@ -2528,11 +2535,13 @@ var PS = { };
           return semiringUI(__dict_ModuloSemiring_6["__superclass_Prelude.Semiring_0"]());
       }, Control_Apply.lift2(applyUI)(Prelude.div(__dict_ModuloSemiring_6)), Control_Apply.lift2(applyUI)(Prelude.mod(__dict_ModuloSemiring_6)));
   };
-  exports["UI"] = UI;
-  exports["Flare"] = Flare;
   exports["runFlareShow"] = runFlareShow;
   exports["runFlare"] = runFlare;
   exports["runFlareWith"] = runFlareWith;
+  exports["foldp"] = foldp;
+  exports["liftSignalFunction"] = liftSignalFunction;
+  exports["lift"] = lift;
+  exports["<**>"] = $less$times$times$greater;
   exports["select"] = select;
   exports["buttons"] = buttons;
   exports["button"] = button;
@@ -2545,9 +2554,6 @@ var PS = { };
   exports["numberSlider"] = numberSlider;
   exports["number_"] = number_;
   exports["number"] = number;
-  exports["<**>"] = $less$times$times$greater;
-  exports["foldp"] = foldp;
-  exports["lift"] = lift;
   exports["functorFlare"] = functorFlare;
   exports["applyFlare"] = applyFlare;
   exports["applicativeFlare"] = applicativeFlare;
@@ -3478,12 +3484,20 @@ var PS = { };
   };
   var text = function (s) {
       return new Content(s, new Return(Prelude.unit));
-  }; 
+  };
+  var semigroupAttribute = new Prelude.Semigroup(function (_2) {
+      return function (_3) {
+          return new Attribute(Prelude.append(Prelude.semigroupArray)(_2.value0)(_3.value0));
+      };
+  });
   var parent = function (el) {
       return function (kids) {
           return new Element(el, new Data_Maybe.Just(kids), [  ], new Return(Prelude.unit));
       };
   };
+  var monoidAttribute = new Data_Monoid.Monoid(function () {
+      return semigroupAttribute;
+  }, new Attribute(Data_Monoid.mempty(Data_Monoid.monoidArray)));
   var functorMarkupM = new Prelude.Functor(function (f) {
       return function (_0) {
           if (_0 instanceof Element) {
@@ -3569,6 +3583,8 @@ var PS = { };
   exports["applicativeMarkupM"] = applicativeMarkupM;
   exports["bindMarkupM"] = bindMarkupM;
   exports["monadMarkupM"] = monadMarkupM;
+  exports["semigroupAttribute"] = semigroupAttribute;
+  exports["monoidAttribute"] = monoidAttribute;
   exports["attributableMarkupM"] = attributableMarkupM;
   exports["attributableMarkupMF"] = attributableMarkupMF;;
  
@@ -3751,6 +3767,34 @@ var PS = { };
   };
 
   exports.now = now;
+
+  exports.sinceP = function sinceP(constant) {
+    return function(t) {
+      return function(sig) {
+        var out = constant(false);
+        var first = true;
+        var timer = undefined;
+        var tick = function() {
+          out.set(false);
+          timer = undefined;
+        };
+        sig.subscribe(function() {
+          if (first) {
+            first = false;
+            return;
+          }
+          if (timer === undefined) {
+            out.set(true);
+            timer = setTimeout(tick, t);
+          } else {
+            clearTimeout(timer);
+            timer = setTimeout(tick, t);
+          }
+        });
+        return out;
+      }
+    };
+  };
  
 })(PS["Signal.Time"] = PS["Signal.Time"] || {});
 (function(exports) {
@@ -3759,7 +3803,9 @@ var PS = { };
   var $foreign = PS["Signal.Time"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Control_Timer = PS["Control.Timer"];
-  var Signal = PS["Signal"];
+  var Signal = PS["Signal"];     
+  var since = $foreign.sinceP(Signal.constant);
+  exports["since"] = since;
   exports["now"] = $foreign.now;;
  
 })(PS["Signal.Time"] = PS["Signal.Time"] || {});
@@ -3802,7 +3848,9 @@ var PS = { };
   var Prelude = PS["Prelude"];
   var Text_Smolder_Markup = PS["Text.Smolder.Markup"];   
   var style = Text_Smolder_Markup.attribute("style");
-  exports["style"] = style;;
+  var className = Text_Smolder_Markup.attribute("class");
+  exports["style"] = style;
+  exports["className"] = className;;
  
 })(PS["Text.Smolder.HTML.Attributes"] = PS["Text.Smolder.HTML.Attributes"] || {});
 (function(exports) {
@@ -3813,11 +3861,13 @@ var PS = { };
   var Prelude = PS["Prelude"];
   var Data_Array = PS["Data.Array"];
   var Data_Maybe = PS["Data.Maybe"];
+  var Data_Monoid = PS["Data.Monoid"];
   var Data_Foldable = PS["Data.Foldable"];
   var Data_Int = PS["Data.Int"];
   var Data_Traversable = PS["Data.Traversable"];
   var $$Math = PS["Math"];
   var Signal_DOM = PS["Signal.DOM"];
+  var Signal_Time = PS["Signal.Time"];
   var Text_Smolder_HTML = PS["Text.Smolder.HTML"];
   var Text_Smolder_Markup = PS["Text.Smolder.Markup"];
   var Text_Smolder_HTML_Attributes = PS["Text.Smolder.HTML.Attributes"];
@@ -3905,7 +3955,7 @@ var PS = { };
       if (_0 instanceof German) {
           return "german";
       };
-      throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 51, column 1: " + [ _0.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 52, column 1 - line 53, column 1: " + [ _0.constructor.name ]);
   };
   var toHTML = function (c) {
       var hex = Graphics_Drawing_Color.colorString(c);
@@ -3932,7 +3982,7 @@ var PS = { };
       if (_2 instanceof RGB) {
           return "RGB";
       };
-      throw new Error("Failed pattern match at Test.Main line 126, column 1 - line 127, column 1: " + [ _2.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 128, column 1 - line 129, column 1: " + [ _2.constructor.name ]);
   };
   var ui14 = Flare.select("Color domain")(HSL.value)([ RGB.value ])(showDomain);
   var perform = function (_5) {
@@ -3948,7 +3998,7 @@ var PS = { };
       if (_5 instanceof Reset) {
           return Prelude["const"](0);
       };
-      throw new Error("Failed pattern match at Test.Main line 154, column 1 - line 155, column 1: " + [ _5.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 156, column 1 - line 157, column 1: " + [ _5.constructor.name ]);
   };
   var ns = function (l) {
       return Flare.numberSlider(l)(0.0);
@@ -3960,8 +4010,21 @@ var PS = { };
       if (_3 instanceof RGB) {
           return Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(Graphics_Drawing_Color.rgb)(ns("Red")(255.0)(1.0)(200.0)))(ns("Green")(255.0)(1.0)(0.0)))(ns("Blue")(255.0)(1.0)(100.0));
       };
-      throw new Error("Failed pattern match at Test.Main line 134, column 1 - line 137, column 1: " + [ _3.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 136, column 1 - line 139, column 1: " + [ _3.constructor.name ]);
   };
+  var light = function (on) {
+      var arg = (function () {
+          if (on) {
+              return Text_Smolder_HTML_Attributes.className("on");
+          };
+          if (Prelude.otherwise) {
+              return Data_Monoid.mempty(Text_Smolder_Markup.monoidAttribute);
+          };
+          throw new Error("Failed pattern match at Test.Main line 168, column 9 - line 171, column 1: " + [  ]);
+      })();
+      return Text_Smolder_Markup["with"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.div)(arg)(Data_Monoid.mempty(Text_Smolder_Markup.monoidMarkup));
+  };
+  var ui16 = Prelude["<$>"](Flare.functorUI)(light)(Flare.liftSignalFunction(Signal_Time.since(1000.0))(Flare.button("Switch on")(Prelude.unit)(Prelude.unit)));
   var label = function (_4) {
       if (_4 instanceof Increment) {
           return "+ 1";
@@ -3975,7 +4038,7 @@ var PS = { };
       if (_4 instanceof Reset) {
           return "Reset";
       };
-      throw new Error("Failed pattern match at Test.Main line 149, column 1 - line 150, column 1: " + [ _4.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 151, column 1 - line 152, column 1: " + [ _4.constructor.name ]);
   };
   var ui15 = Flare.foldp(Data_Maybe.maybe(Prelude.id(Prelude.categoryFn))(perform))(0)(Flare.buttons([ Increment.value, Decrement.value, Negate.value, Reset.value ])(label));
   var inner = function (_12) {
@@ -4018,7 +4081,7 @@ var PS = { };
       if (_1 instanceof German) {
           return "Hallo";
       };
-      throw new Error("Failed pattern match at Test.Main line 54, column 1 - line 55, column 1: " + [ _1.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 56, column 1 - line 57, column 1: " + [ _1.constructor.name ]);
   };
   var ui6 = Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select("Language")(English.value)([ French.value, German.value ])(toString)))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!"))));
   var graph = function (xs) {
@@ -4064,7 +4127,8 @@ var PS = { };
       Flare.runFlareShow(Prelude.showInt)("controls11")("output11")(ui11)();
       Flare_Smolder.runFlareHTML("controls13")("output13")(ui13)();
       Flare.runFlareWith("controls14a")(inner)(ui14)();
-      return Flare.runFlareShow(Prelude.showInt)("controls15")("output15")(ui15)();
+      Flare.runFlareShow(Prelude.showInt)("controls15")("output15")(ui15)();
+      return Flare_Smolder.runFlareHTML("controls16")("output16")(ui16)();
   };
   exports["Increment"] = Increment;
   exports["Decrement"] = Decrement;
@@ -4076,6 +4140,8 @@ var PS = { };
   exports["French"] = French;
   exports["German"] = German;
   exports["main"] = main;
+  exports["ui16"] = ui16;
+  exports["light"] = light;
   exports["ui15"] = ui15;
   exports["perform"] = perform;
   exports["label"] = label;
