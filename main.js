@@ -1191,8 +1191,7 @@ var PS = { };
   var Data_Monoid = PS["Data.Monoid"];
   var Data_Traversable = PS["Data.Traversable"];
   var Data_Tuple = PS["Data.Tuple"];
-  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];     
-  var $colon = $foreign.cons;
+  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];
   var $dot$dot = $foreign.range;
   var singleton = function (a) {
       return [ a ];
@@ -1213,7 +1212,6 @@ var PS = { };
   exports["mapMaybe"] = mapMaybe;
   exports["concatMap"] = concatMap;
   exports["head"] = head;
-  exports[":"] = $colon;
   exports[".."] = $dot$dot;
   exports["singleton"] = singleton;
   exports["zipWith"] = $foreign.zipWith;
@@ -2123,28 +2121,30 @@ var PS = { };
     }
   );
 
-  exports.cButton = function(label) {
-    return function(initial) {
-      return function(send) {
-        return function() {
-          var div = document.createElement("div");
-          div.className = "flare-input";
+  exports.cButton = function(vPressed) {
+    return function(label) {
+      return function(vDefault) {
+        return function(send) {
+          return function() {
+            var div = document.createElement("div");
+            div.className = "flare-input";
 
-          var button = document.createElement("button");
-          button.id = label;
-          button.className = "flare-input-button";
-          button.appendChild(document.createTextNode(label));
+            var button = document.createElement("button");
+            button.id = label;
+            button.className = "flare-input-button";
+            button.appendChild(document.createTextNode(label));
 
-          button.addEventListener('mousedown', function() {
-            send(true)();
-          });
-          button.addEventListener('mouseup', function() {
-            send(false)();
-          });
+            button.addEventListener('mousedown', function() {
+              send(vPressed)();
+            });
+            button.addEventListener('mouseup', function() {
+              send(vDefault)();
+            });
 
-          div.appendChild(button);
-          return div;
+            div.appendChild(button);
+            return div;
 
+          };
         };
       };
     };
@@ -2353,14 +2353,23 @@ var PS = { };
   var UI = function (x) {
       return x;
   };
+  var $less$times$times$greater = function (_12) {
+      return function (_13) {
+          return UI(function __do() {
+              var _5 = _12();
+              var _4 = _13();
+              return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(Prelude["<>"](Prelude.semigroupArray)(_5.value0)(_4.value0), Prelude["<*>"](Signal.applySignal)(_4.value1)(_5.value1)))();
+          });
+      };
+  };
   var runFlareWith = function (controls) {
       return function (handler) {
-          return function (_6) {
+          return function (_14) {
               return function __do() {
-                  var _4 = _6();
+                  var _8 = _14();
                   $foreign.removeChildren(controls)();
-                  Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(controls))(_4.value0)();
-                  return Signal.runSignal(Prelude.map(Signal.functorSignal)(handler)(_4.value1))();
+                  Data_Foldable.traverse_(Control_Monad_Eff.applicativeEff)(Data_Foldable.foldableArray)($foreign.appendComponent(controls))(_8.value0)();
+                  return Signal.runSignal(Prelude.map(Signal.functorSignal)(handler)(_8.value1))();
               };
           };
       };
@@ -2377,13 +2386,13 @@ var PS = { };
       });
   };
   var functorFlare = new Prelude.Functor(function (f) {
-      return function (_7) {
-          return new Flare(_7.value0, Prelude.map(Signal.functorSignal)(f)(_7.value1));
+      return function (_15) {
+          return new Flare(_15.value0, Prelude.map(Signal.functorSignal)(f)(_15.value1));
       };
   });
   var functorUI = new Prelude.Functor(function (f) {
-      return function (_10) {
-          return UI(Prelude.map(Control_Monad_Eff.functorEff)(Prelude.map(functorFlare)(f))(_10));
+      return function (_18) {
+          return UI(Prelude.map(Control_Monad_Eff.functorEff)(Prelude.map(functorFlare)(f))(_18));
       };
   });
   var runFlareShow = function (__dict_Show_2) {
@@ -2397,9 +2406,9 @@ var PS = { };
   };
   var foldp = function (f) {
       return function (x0) {
-          return function (_5) {
+          return function (_9) {
               return UI(function __do() {
-                  var _1 = _5();
+                  var _1 = _9();
                   return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare(_1.value0, Signal.foldp(f)(x0)(_1.value1)))();
               });
           };
@@ -2409,11 +2418,11 @@ var PS = { };
       return function (id) {
           return function ($$default) {
               return UI(function __do() {
-                  var _3 = Signal_Channel.channel($$default)();
-                  var _2 = createComp(id)($$default)(Signal_Channel.send(_3))();
+                  var _7 = Signal_Channel.channel($$default)();
+                  var _6 = createComp(id)($$default)(Signal_Channel.send(_7))();
                   return (function () {
-                      var signal = Signal_Channel.subscribe(_3);
-                      return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ _2 ], signal));
+                      var signal = Signal_Channel.subscribe(_7);
+                      return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ _6 ], signal));
                   })()();
               });
           };
@@ -2458,22 +2467,26 @@ var PS = { };
   var string = createUI($foreign.cString);
   var string_ = string("");
   var button = function (id) {
-      return createUI($foreign.cButton)(id)(false);
+      return function (vDefault) {
+          return function (vPressed) {
+              return createUI($foreign.cButton(vPressed))(id)(vDefault);
+          };
+      };
   };
   var $$boolean = createUI($foreign.cBoolean);
   var boolean_ = $$boolean("");
   var applyFlare = new Prelude.Apply(function () {
       return functorFlare;
-  }, function (_8) {
-      return function (_9) {
-          return new Flare(Prelude["<>"](Prelude.semigroupArray)(_8.value0)(_9.value0), Prelude["<*>"](Signal.applySignal)(_8.value1)(_9.value1));
+  }, function (_16) {
+      return function (_17) {
+          return new Flare(Prelude["<>"](Prelude.semigroupArray)(_16.value0)(_17.value0), Prelude["<*>"](Signal.applySignal)(_16.value1)(_17.value1));
       };
   });
   var applyUI = new Prelude.Apply(function () {
       return functorUI;
-  }, function (_11) {
-      return function (_12) {
-          return UI(Control_Apply.lift2(Control_Monad_Eff.applyEff)(Prelude.apply(applyFlare))(_11)(_12));
+  }, function (_19) {
+      return function (_20) {
+          return UI(Control_Apply.lift2(Control_Monad_Eff.applyEff)(Prelude.apply(applyFlare))(_19)(_20));
       };
   });
   var semigroupUI = function (__dict_Semigroup_1) {
@@ -2499,22 +2512,11 @@ var PS = { };
   };
   var buttons = function (xs) {
       return function (toString) {
-          var toMaybe = function (x) {
-              return function (_14) {
-                  if (_14) {
-                      return new Data_Maybe.Just(x);
-                  };
-                  if (!_14) {
-                      return Data_Maybe.Nothing.value;
-                  };
-                  throw new Error("Failed pattern match at Flare line 267, column 9 - line 268, column 9: " + [ x.constructor.name, _14.constructor.name ]);
-              };
-          };
           var toButton = function (x) {
-              return Prelude["<$>"](functorUI)(toMaybe(x))(button(toString(x)));
+              return button(toString(x))(Data_Maybe.Nothing.value)(new Data_Maybe.Just(x));
           };
-          return Prelude["<$>"](functorUI)(function (_47) {
-              return Data_Array.head(Data_Array.catMaybes(_47));
+          return Prelude["<$>"](functorUI)(function (_68) {
+              return Data_Array.head(Data_Array.catMaybes(_68));
           })(Data_Traversable.traverse(Data_Traversable.traversableArray)(applicativeUI)(toButton)(xs));
       };
   };
@@ -2543,6 +2545,7 @@ var PS = { };
   exports["numberSlider"] = numberSlider;
   exports["number_"] = number_;
   exports["number"] = number;
+  exports["<**>"] = $less$times$times$greater;
   exports["foldp"] = foldp;
   exports["lift"] = lift;
   exports["functorFlare"] = functorFlare;
@@ -3885,45 +3888,25 @@ var PS = { };
       Reset.value = new Reset();
       return Reset;
   })();
-  var update = function (_5) {
-      return function (xs) {
-          if (_5.add) {
-              return Data_Array[":"](_5.current)(xs);
-          };
-          if (!_5.add) {
-              return xs;
-          };
-          throw new Error("Failed pattern match at Test.Main line 123, column 1 - line 125, column 1: " + [ _5.add.constructor.name ]);
-      };
-  };
   var ui9 = Prelude["&&"](Flare.booleanAlgebraUI(Prelude.booleanAlgebraBoolean))(Flare.boolean_(false))(Flare.boolean_(true));
   var ui8 = Data_Traversable.traverse(Data_Traversable.traversableArray)(Flare.applicativeUI)(Flare.intSlider_(1)(5))(Data_Array[".."](1)(5));
   var ui4 = Prelude["/"](Flare.moduloSemiringUI(Prelude.moduloSemiringNumber))(Flare.number_(5.0))(Flare.number_(2.0));
   var ui3 = Data_Foldable.sum(Data_Foldable.foldableArray)(Flare.semiringUI(Prelude.semiringInt))(Prelude["<$>"](Prelude.functorArray)(Flare.int_)([ 2, 13, 27, 42 ]));
   var ui2 = Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string_("Hello"))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Flare.string_("World")));
+  var ui11 = Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Flare.button("Increment")(0)(1));
   var ui1 = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)($$Math.pow)(Flare.number("Base")(2.0)))(Flare.number("Exponent")(10.0));
-  var toString = function (_2) {
-      if (_2 instanceof English) {
+  var toString = function (_0) {
+      if (_0 instanceof English) {
           return "english";
       };
-      if (_2 instanceof French) {
+      if (_0 instanceof French) {
           return "french";
       };
-      if (_2 instanceof German) {
+      if (_0 instanceof German) {
           return "german";
       };
-      throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 51, column 1: " + [ _2.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 50, column 1 - line 51, column 1: " + [ _0.constructor.name ]);
   };
-  var toInt = function (_4) {
-      if (_4) {
-          return 1;
-      };
-      if (!_4) {
-          return 0;
-      };
-      throw new Error("Failed pattern match at Test.Main line 104, column 1 - line 105, column 1: " + [ _4.constructor.name ]);
-  };
-  var ui11 = Flare.foldp(Prelude["+"](Prelude.semiringInt))(0)(Prelude["<$>"](Flare.functorUI)(toInt)(Flare.button("Increment")));
   var toHTML = function (c) {
       var hex = Graphics_Drawing_Color.colorString(c);
       return Text_Smolder_Markup["with"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.div)(Text_Smolder_HTML_Attributes.style("background-color:" + hex))(Text_Smolder_Markup.text(hex));
@@ -3942,75 +3925,61 @@ var PS = { };
       };
   };
   var ui12 = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(table)(Flare.intSlider_(0)(9)(5)))(Flare.intSlider_(0)(9)(5));
-  var showDomain = function (_6) {
-      if (_6 instanceof HSL) {
+  var showDomain = function (_2) {
+      if (_2 instanceof HSL) {
           return "HSL";
       };
-      if (_6 instanceof RGB) {
+      if (_2 instanceof RGB) {
           return "RGB";
       };
-      throw new Error("Failed pattern match at Test.Main line 133, column 1 - line 134, column 1: " + [ _6.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 126, column 1 - line 127, column 1: " + [ _2.constructor.name ]);
   };
   var ui14 = Flare.select("Color domain")(HSL.value)([ RGB.value ])(showDomain);
-  var perform = function (_9) {
-      if (_9 instanceof Increment) {
+  var perform = function (_5) {
+      if (_5 instanceof Increment) {
           return Prelude.add(Prelude.semiringInt)(1);
       };
-      if (_9 instanceof Decrement) {
+      if (_5 instanceof Decrement) {
           return Prelude.flip(Prelude.sub(Prelude.ringInt))(1);
       };
-      if (_9 instanceof Negate) {
+      if (_5 instanceof Negate) {
           return Prelude.negate(Prelude.ringInt);
       };
-      if (_9 instanceof Reset) {
+      if (_5 instanceof Reset) {
           return Prelude["const"](0);
       };
-      throw new Error("Failed pattern match at Test.Main line 161, column 1 - line 162, column 1: " + [ _9.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 154, column 1 - line 155, column 1: " + [ _5.constructor.name ]);
   };
   var ns = function (l) {
       return Flare.numberSlider(l)(0.0);
   };
-  var uiColor = function (_7) {
-      if (_7 instanceof HSL) {
+  var uiColor = function (_3) {
+      if (_3 instanceof HSL) {
           return Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(Graphics_Drawing_Color.hsl)(ns("Hue")(360.0)(1.0)(180.0)))(ns("Saturation")(1.0)(1.0e-2)(0.5)))(ns("Lightness")(1.0)(1.0e-2)(0.5));
       };
-      if (_7 instanceof RGB) {
+      if (_3 instanceof RGB) {
           return Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(Graphics_Drawing_Color.rgb)(ns("Red")(255.0)(1.0)(200.0)))(ns("Green")(255.0)(1.0)(0.0)))(ns("Blue")(255.0)(1.0)(100.0));
       };
-      throw new Error("Failed pattern match at Test.Main line 141, column 1 - line 144, column 1: " + [ _7.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 134, column 1 - line 137, column 1: " + [ _3.constructor.name ]);
   };
-  var label = function (_8) {
-      if (_8 instanceof Increment) {
+  var label = function (_4) {
+      if (_4 instanceof Increment) {
           return "+ 1";
       };
-      if (_8 instanceof Decrement) {
+      if (_4 instanceof Decrement) {
           return "- 1";
       };
-      if (_8 instanceof Negate) {
+      if (_4 instanceof Negate) {
           return "+/-";
       };
-      if (_8 instanceof Reset) {
+      if (_4 instanceof Reset) {
           return "Reset";
       };
-      throw new Error("Failed pattern match at Test.Main line 156, column 1 - line 157, column 1: " + [ _8.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 149, column 1 - line 150, column 1: " + [ _4.constructor.name ]);
   };
   var ui15 = Flare.foldp(Data_Maybe.maybe(Prelude.id(Prelude.categoryFn))(perform))(0)(Flare.buttons([ Increment.value, Decrement.value, Negate.value, Reset.value ])(label));
-  var inputs = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(function (_0) {
-      return function (_1) {
-          return {
-              current: _0, 
-              add: _1
-          };
-      };
-  })(Flare.string("Add item:")("Orange")))(Flare.button("Add"));
-  var list = Flare.foldp(update)([ "Apple", "Banana" ])(inputs);
-  var ui13 = Prelude["<$>"](Flare.functorUI)(function (_22) {
-      return Text_Smolder_HTML.ul(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(function (_23) {
-          return Text_Smolder_HTML.li(Text_Smolder_Markup.text(_23));
-      })(_22));
-  })(list);
-  var inner = function (_24) {
-      return Flare_Smolder.runFlareHTML("controls14b")("output14")(Prelude.map(Flare.functorUI)(toHTML)(uiColor(_24)));
+  var inner = function (_12) {
+      return Flare_Smolder.runFlareHTML("controls14b")("output14")(Prelude.map(Flare.functorUI)(toHTML)(uiColor(_12)));
   };
   var plot = function (m) {
       return function (n1) {
@@ -4039,17 +4008,17 @@ var PS = { };
       };
   };
   var ui7 = Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(plot)(Flare.numberSlider("m")(0.0)(10.0)(1.0)(7.0)))(Flare.numberSlider("n1")(1.0)(10.0)(0.1)(4.0)))(Flare.numberSlider("s")(4.0)(16.0)(0.1)(14.0)))(Flare.lift(Signal_DOM.animationFrame));
-  var greet = function (_3) {
-      if (_3 instanceof English) {
+  var greet = function (_1) {
+      if (_1 instanceof English) {
           return "Hello";
       };
-      if (_3 instanceof French) {
+      if (_1 instanceof French) {
           return "Salut";
       };
-      if (_3 instanceof German) {
+      if (_1 instanceof German) {
           return "Hallo";
       };
-      throw new Error("Failed pattern match at Test.Main line 54, column 1 - line 55, column 1: " + [ _3.constructor.name ]);
+      throw new Error("Failed pattern match at Test.Main line 54, column 1 - line 55, column 1: " + [ _1.constructor.name ]);
   };
   var ui6 = Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude["<$>"](Flare.functorUI)(greet)(Flare.select("Language")(English.value)([ French.value, German.value ])(toString)))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Prelude.pure(Flare.applicativeUI)(" "))(Prelude["<>"](Flare.semigroupUI(Prelude.semigroupString))(Flare.string("Name")("Pierre"))(Prelude.pure(Flare.applicativeUI)("!"))));
   var graph = function (xs) {
@@ -4073,6 +4042,13 @@ var PS = { };
       };
   };
   var ui5 = Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(coloredCircle)(Flare.numberSlider("Hue")(0.0)(360.0)(1.0)(140.0)))(Flare.numberSlider("Radius")(2.0)(45.0)(0.1)(25.0));
+  var actions = Flare["<**>"](Flare.string("Add item:")("Orange"))(Flare.button("Add")(Prelude.flip(Prelude["const"]))(Data_Array.cons));
+  var list = Flare.foldp(Prelude.id(Prelude.categoryFn))([ "Apple", "Banana" ])(actions);
+  var ui13 = Prelude["<$>"](Flare.functorUI)(function (_13) {
+      return Text_Smolder_HTML.ul(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(function (_14) {
+          return Text_Smolder_HTML.li(Text_Smolder_Markup.text(_14));
+      })(_13));
+  })(list);
   var main = function __do() {
       Flare.runFlareShow(Prelude.showNumber)("controls1")("output1")(ui1)();
       Flare.runFlare("controls2")("output2")(ui2)();
@@ -4111,12 +4087,10 @@ var PS = { };
   exports["showDomain"] = showDomain;
   exports["ui13"] = ui13;
   exports["list"] = list;
-  exports["update"] = update;
-  exports["inputs"] = inputs;
+  exports["actions"] = actions;
   exports["ui12"] = ui12;
   exports["table"] = table;
   exports["ui11"] = ui11;
-  exports["toInt"] = toInt;
   exports["ui10"] = ui10;
   exports["graph"] = graph;
   exports["ui9"] = ui9;

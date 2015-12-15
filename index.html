@@ -126,10 +126,7 @@ ui = graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
 
         <h3>Example 11: Buttons</h3>
 <pre>
-toInt true  = 1
-toInt false = 0
-
-ui = foldp (+) 0 (toInt <$> button "Increment")
+ui = foldp (+) 0 (button "Increment" 0 1)
 </pre>
         <div id="controls11"></div>
         <div id="output11"></div>
@@ -147,13 +144,9 @@ ui = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
 
         <h3>Example 13: Adding items to a list</h3>
 <pre>
-inputs = { current: _ , add: _ }
-           <$> string "Add item:" "Orange"
-           <*> button "Add"
+actions = string "Add item:" "Orange" <**> button "Add" (flip const) cons
 
-update { current, add } xs = if add then current : xs else xs
-
-list = foldp update ["Apple", "Banana"] inputs
+list = foldp id ["Apple", "Banana"] actions
 
 ui = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 </pre>
