@@ -13,9 +13,9 @@ import Math (pow, sin, cos, pi, abs)
 import Signal.DOM
 import Signal.Time
 
-import qualified Text.Smolder.HTML as H
-import qualified Text.Smolder.Markup as H
-import qualified Text.Smolder.HTML.Attributes as A
+import Text.Smolder.HTML as H
+import Text.Smolder.Markup as H
+import Text.Smolder.HTML.Attributes as A
 
 import Flare
 import Flare.Drawing

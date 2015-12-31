@@ -27,6 +27,7 @@ module Flare
   , select_
   , radioGroup
   , radioGroup_
+  , fieldset
   , (<**>)
   , wrap
   , lift
@@ -51,7 +52,7 @@ import Control.Monad.Eff
 import DOM
 import DOM.Node.Types (Element())
 
-import qualified Signal as S
+import Signal as S
 import Signal.Channel
 
 type ElementId = String
@@ -269,6 +270,14 @@ radioGroup id default xs toString = createUI (cRadioGroup xs toString) id defaul
 -- | Like `radioGroup`, but without a label.
 radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 radioGroup_ = radioGroup ""
+
+foreign import toFieldset :: Label -> Array Element -> Element
+
+-- | Group the components of a UI inside a fieldset element with a given title.
+fieldset :: forall e a. Label -> UI e a -> UI e a
+fieldset label (UI setup) = UI $ do
+  (Flare cs sig) <- setup
+  return $ Flare [toFieldset label cs] sig
 
 
 infixl 4 <**>

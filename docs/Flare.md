@@ -265,6 +265,14 @@ radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 
 Like `radioGroup`, but without a label.
 
+#### `fieldset`
+
+``` purescript
+fieldset :: forall e a. Label -> UI e a -> UI e a
+```
+
+Group the components of a UI inside a fieldset element with a given title.
+
 #### `(<**>)`
 
 ``` purescript

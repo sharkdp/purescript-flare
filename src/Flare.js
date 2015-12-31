@@ -267,4 +267,22 @@ exports.cRadioGroup = function(xs) {
   };
 };
 
+exports.toFieldset = function(label) {
+  return function(elements) {
+    var fieldset = document.createElement("fieldset");
+
+    if (label !== "") {
+      var legend = document.createElement("legend");
+      legend.appendChild(document.createTextNode(label));
+      fieldset.appendChild(legend);
+    }
+
+    for (var i = 0; i < elements.length; i++) {
+      fieldset.appendChild(elements[i]);
+    }
+
+    return fieldset;
+  };
+};
+
 // vim: ts=2:sw=2
