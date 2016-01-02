@@ -351,6 +351,6 @@ runFlareShow :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff 
 ```
 
 Like `runFlare` but uses `show` to convert the contained value to a
-`String` before rendering to the DOM.
+`String` before rendering to the DOM (useful for testing).
 
 

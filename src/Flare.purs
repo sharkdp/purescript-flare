@@ -33,6 +33,7 @@ module Flare
   , lift
   , liftSF
   , foldp
+  , setupFlare
   , runFlareWith
   , runFlare
   , runFlareShow
@@ -320,6 +321,16 @@ liftSF f (UI setup) = UI do
 foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
 foldp f x0 = liftSF (S.foldp f x0)
 
+-- | Low level function to get direct access to the HTML elements and the
+-- | `Signal` inside a Flare UI.
+setupFlare :: forall e a. UI e a
+            -> Eff (chan :: Chan, dom :: DOM | e)
+                   { components :: Array Element
+                   , signal :: S.Signal a }
+setupFlare (UI setupUI) = do
+  (Flare components signal) <- setupUI
+  return { components, signal }
+
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
 -- | function argument will be mapped over the `Signal` inside the `Flare`.
@@ -344,7 +355,7 @@ runFlare :: forall e.
 runFlare controls target = runFlareWith controls (renderString target)
 
 -- | Like `runFlare` but uses `show` to convert the contained value to a
--- | `String` before rendering to the DOM.
+-- | `String` before rendering to the DOM (useful for testing).
 runFlareShow :: forall e a. (Show a)
              => ElementId
              -> ElementId
