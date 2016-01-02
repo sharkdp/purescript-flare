@@ -324,6 +324,15 @@ Create a past dependent component. The fold-function takes the current
 value of the component and the previous value of the output to produce
 the new value of the output.
 
+#### `setupFlare`
+
+``` purescript
+setupFlare :: forall e a. UI e a -> Eff (chan :: Chan, dom :: DOM | e) { components :: Array Element, signal :: Signal a }
+```
+
+Low level function to get direct access to the HTML elements and the
+`Signal` inside a Flare UI.
+
 #### `runFlareWith`
 
 ``` purescript
