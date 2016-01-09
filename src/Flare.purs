@@ -148,9 +148,9 @@ foreign import cRadioGroup :: forall a. Array a -> (a -> String) -> CreateCompon
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
 createUI :: forall e a. (CreateComponent a) -> Label -> a -> UI e a
-createUI createComp id default = UI $ do
+createUI createComp label default = UI $ do
   chan <- channel default
-  comp <- createComp id default (send chan)
+  comp <- createComp label default (send chan)
   let signal = subscribe chan
   return $ Flare [comp] signal
 
@@ -167,7 +167,7 @@ number_ = number ""
 -- | minimum value, maximum value, step size as well as default value.
 -- | The returned value is guaranteed to be within the given range.
 numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
-numberRange id min max step default = createUI (cNumberRange "number" min max step) id default
+numberRange label min max step default = createUI (cNumberRange "number" min max step) label default
 
 -- | Like `numberRange`, but without a label.
 numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
@@ -176,7 +176,7 @@ numberRange_ = numberRange ""
 -- | Creates a slider for a `Number` input from a given label,
 -- | minimum value, maximum value, step size as well as default value.
 numberSlider :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
-numberSlider id min max step default = createUI (cNumberRange "range" min max step) id default
+numberSlider label min max step default = createUI (cNumberRange "range" min max step) label default
 
 -- | Like `numberSlider`, but without a label.
 numberSlider_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
@@ -186,7 +186,7 @@ numberSlider_ = numberSlider ""
 -- | value. The returned value is guaranteed to be within the allowed integer
 -- | range.
 int :: forall e. Label -> Int -> UI e Int
-int id = createUI (cIntRange "number" bottom top) id
+int label = createUI (cIntRange "number" bottom top) label
 
 -- | Like `int`, but without a label.
 int_ :: forall e. Int -> UI e Int
@@ -196,7 +196,7 @@ int_ = int ""
 -- | maximum values as well as a default value. The returned value is
 -- | guaranteed to be within the given range.
 intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
-intRange id min max default = createUI (cIntRange "number" min max) id default
+intRange label min max default = createUI (cIntRange "number" min max) label default
 
 -- | Like `intRange`, but without a label.
 intRange_ :: forall e. Int -> Int -> Int -> UI e Int
@@ -205,7 +205,7 @@ intRange_ = intRange ""
 -- | Creates a slider for an `Int` input from a given label, minimum and
 -- | maximum values as well as a default value.
 intSlider :: forall e. Label -> Int -> Int -> Int -> UI e Int
-intSlider id min max default = createUI (cIntRange "range" min max) id default
+intSlider label min max default = createUI (cIntRange "range" min max) label default
 
 -- | Like `intSlider`, but without a label.
 intSlider_ :: forall e. Int -> Int -> Int -> UI e Int
@@ -233,7 +233,7 @@ boolean_ = boolean ""
 -- | disabled. Takes a label, the initial state (enabled or disabled) and
 -- | the default value `x`.
 optional :: forall a e. Label -> Boolean -> a -> UI e (Maybe a)
-optional id enabled x = ret <$> boolean id enabled
+optional label enabled x = ret <$> boolean label enabled
   where ret true = (Just x)
         ret false = Nothing
 
@@ -244,7 +244,7 @@ optional_ = optional ""
 -- | Creates a button which yields the first value in the default state and
 -- | the second value when it is pressed.
 button :: forall a e. Label -> a -> a -> UI e a
-button id vDefault vPressed = createUI (cButton vPressed) id vDefault
+button label vDefault vPressed = createUI (cButton vPressed) label vDefault
 
 -- | Create a button for each element of the array. The whole component
 -- | returns `Nothing` if none of the buttons is pressed and `Just x` if
@@ -256,7 +256,7 @@ buttons xs toString = (head <<< catMaybes) <$> traverse toButton xs
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
 select :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
-select id default xs toString = createUI (cSelect xs toString) id default
+select label default xs toString = createUI (cSelect xs toString) label default
 
 -- | Like `select`, but without a label.
 select_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
@@ -266,7 +266,7 @@ select_ = select ""
 -- | first option is selected by default. The rest of the options is given as
 -- | an array.
 radioGroup :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
-radioGroup id default xs toString = createUI (cRadioGroup xs toString) id default
+radioGroup label default xs toString = createUI (cRadioGroup xs toString) label default
 
 -- | Like `radioGroup`, but without a label.
 radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a

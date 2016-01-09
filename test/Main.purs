@@ -73,8 +73,8 @@ plot m n1 s time =
             points = 400
             n2 = s + 3.0 * sin (0.005 * time)
             n3 = s + 3.0 * cos (0.005 * time)
-            radius phi = 20.0 * pow inner (- 1.0 / n1)
-              where inner = first + second
+            radius phi = 20.0 * pow expr (- 1.0 / n1)
+              where expr = first + second
                     first = pow (abs (cos (m * phi / 4.0))) n2
                     second = pow (abs (sin (m * phi / 4.0))) n3
 

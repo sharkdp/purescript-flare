@@ -31,23 +31,34 @@ exports.appendComponent = function(target) {
   };
 };
 
+// This function maintains a global state `window.flareID` to generate unique
+// DOM element IDs. It is only called from functions with a DOM effect.
+function getUniqueID() {
+  if (window.flareID === undefined) {
+    window.flareID = 0;
+  }
+  window.flareID = window.flareID + 1;
+  return "flare-component-" + window.flareID.toString();
+}
+
 function createComponent(inputType, elementCallback, eventType, eventListener) {
-  return function(id) {
+  return function(label) {
     return function(initial) {
       return function(send) {
         return function() {
+          var uid = getUniqueID();
           var el = elementCallback(initial);
           el.className = "flare-input-" + inputType;
+          el.id = uid;
 
           var div = document.createElement("div");
           div.className = "flare-input";
 
-          if (id !== "") {
-            el.id = id;
-            var label = document.createElement("label");
-            label.htmlFor = id;
-            label.appendChild(document.createTextNode(id));
-            div.appendChild(label);
+          if (label !== "") {
+            var labelEl = document.createElement("label");
+            labelEl.htmlFor = uid;
+            labelEl.appendChild(document.createTextNode(label));
+            div.appendChild(labelEl);
           }
 
           div.appendChild(el);
@@ -171,7 +182,7 @@ exports.cButton = function(vPressed) {
           div.className = "flare-input";
 
           var button = document.createElement("button");
-          button.id = label;
+          button.id = getUniqueID();
           button.className = "flare-input-button";
           button.appendChild(document.createTextNode(label));
 
@@ -221,42 +232,43 @@ exports.cSelect = function(xs) {
 
 exports.cRadioGroup = function(xs) {
   return function(toString) {
-    return function(id) {
+    return function(label) {
+      var uid = getUniqueID();
       return createComponent("radioGroup",
         function(initial) {
           var fieldset = document.createElement("fieldset");
 
-          if (id !== "") {
+          if (label !== "") {
             var legend = document.createElement("legend");
-            legend.appendChild(document.createTextNode(id));
+            legend.appendChild(document.createTextNode(label));
             fieldset.appendChild(legend);
           }
 
-          var x, xid, op, label;
+          var x, xid, op, labelEl;
           for (var i = 0; i < xs.length + 1; i++) {
             x = (i === 0) ? initial : xs[i - 1];
-            xid = id + "-" + i.toString();
+            xid = uid + "-" + i.toString();
 
             op = document.createElement("input");
             op.type = "radio";
-            op.name = id;
+            op.name = uid;
             op.id = xid;
             if (i === 0) {
               op.checked = "checked";
             }
             fieldset.appendChild(op);
 
-            label = document.createElement("label");
-            label.appendChild(document.createTextNode(toString(x)));
-            label.htmlFor = xid;
-            fieldset.appendChild(label);
+            labelEl = document.createElement("label");
+            labelEl.appendChild(document.createTextNode(toString(x)));
+            labelEl.htmlFor = xid;
+            fieldset.appendChild(labelEl);
           }
 
           return fieldset;
         },
         "change",
         function(t, initial) {
-          var ix = parseInt(t.id.substr(id.length + 1), 10);
+          var ix = parseInt(t.id.substr(uid.length + 1), 10);
           if (ix === 0) {
             return initial;
           }
