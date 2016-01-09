@@ -176,6 +176,23 @@ string_ :: forall e. String -> UI e String
 
 Like `string`, but without a label.
 
+#### `stringPattern`
+
+``` purescript
+stringPattern :: forall e. Label -> String -> String -> UI e String
+```
+
+Creates a text field for a `String` input from a given label, validation
+pattern (HTML5 `pattern` attribute), and a default value.
+
+#### `stringPattern_`
+
+``` purescript
+stringPattern_ :: forall e. String -> String -> UI e String
+```
+
+Like `stringPattern`, but without a label.
+
 #### `boolean`
 
 ``` purescript

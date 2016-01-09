@@ -17,6 +17,8 @@ module Flare
   , intSlider_
   , string
   , string_
+  , stringPattern
+  , stringPattern_
   , boolean
   , boolean_
   , optional
@@ -140,6 +142,7 @@ foreign import cNumber :: CreateComponent Number
 foreign import cNumberRange :: String -> Number -> Number -> Number -> CreateComponent Number
 foreign import cIntRange :: String -> Int -> Int -> CreateComponent Int
 foreign import cString :: CreateComponent String
+foreign import cStringPattern :: String -> CreateComponent String
 foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: forall a. a -> CreateComponent a
 foreign import cSelect :: forall a. Array a -> (a -> String) -> CreateComponent a
@@ -219,6 +222,15 @@ string = createUI cString
 -- | Like `string`, but without a label.
 string_ :: forall e. String -> UI e String
 string_ = string ""
+
+-- | Creates a text field for a `String` input from a given label, validation
+-- | pattern (HTML5 `pattern` attribute), and a default value.
+stringPattern :: forall e. Label -> String -> String -> UI e String
+stringPattern label pattern default = createUI (cStringPattern pattern) label default
+
+-- | Like `stringPattern`, but without a label.
+stringPattern_ :: forall e. String -> String -> UI e String
+stringPattern_ = stringPattern ""
 
 -- | Creates a checkbox for a `Boolean` input from a given label and default
 -- | value.

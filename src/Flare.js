@@ -160,6 +160,23 @@ exports.cString = createComponent("string",
   }
 );
 
+exports.cStringPattern = function(pattern) {
+  return createComponent("string-pattern",
+    function(initial) {
+      var input = document.createElement("input");
+      input.type = "text";
+      input.pattern = pattern;
+      input.required = true;
+      input.value = initial;
+      return input;
+    },
+    "input",
+    function(t, initial) {
+      return t.value;
+    }
+  );
+};
+
 exports.cBoolean = createComponent("boolean",
   function(initial) {
     var input = document.createElement("input");
