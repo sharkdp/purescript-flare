@@ -30,6 +30,7 @@ module Flare
   , radioGroup
   , radioGroup_
   , fieldset
+  , applyUIFlipped
   , (<**>)
   , wrap
   , lift
@@ -44,19 +45,19 @@ module Flare
 import Prelude
 
 import Data.Array (head, catMaybes)
-import Data.Maybe
-import Data.Monoid
+import Data.Maybe (Maybe(..))
+import Data.Monoid (class Monoid, mempty)
 import Data.Foldable (traverse_)
 import Data.Traversable (traverse)
 
-import Control.Apply
-import Control.Monad.Eff
+import Control.Apply (lift2)
+import Control.Monad.Eff (Eff)
 
-import DOM
+import DOM (DOM)
 import DOM.Node.Types (Element())
 
 import Signal as S
-import Signal.Channel
+import Signal.Channel (Chan, subscribe, send, channel)
 
 type ElementId = String
 type Label = String
@@ -292,16 +293,15 @@ fieldset label (UI setup) = UI $ do
   (Flare cs sig) <- setup
   return $ Flare [toFieldset label cs] sig
 
-
-infixl 4 <**>
-
 -- | A flipped version of `<*>` for `UI` that arranges the components in the
 -- | order of appearance.
-(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
-(<**>) (UI setup1) (UI setup2) = UI $ do
+applyUIFlipped :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+applyUIFlipped (UI setup1) (UI setup2) = UI $ do
   (Flare cs1 sig1) <- setup1
   (Flare cs2 sig2) <- setup2
   return $ Flare (cs1 <> cs2) (sig2 <*> sig1)
+
+infixl 4 applyUIFlipped as <**>
 
 -- | Encapsulate a `Signal` within a `UI` component.
 wrap :: forall e a. (S.Signal a) -> UI e a

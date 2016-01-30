@@ -290,16 +290,22 @@ fieldset :: forall e a. Label -> UI e a -> UI e a
 
 Group the components of a UI inside a fieldset element with a given title.
 
-#### `(<**>)`
+#### `applyUIFlipped`
 
 ``` purescript
-(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+applyUIFlipped :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
 ```
-
-_left-associative / precedence 4_
 
 A flipped version of `<*>` for `UI` that arranges the components in the
 order of appearance.
+
+#### `(<**>)`
+
+``` purescript
+infixl 4 applyUIFlipped as <**>
+```
+
+_left-associative / precedence 4_
 
 #### `wrap`
 

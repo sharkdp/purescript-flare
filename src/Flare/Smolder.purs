@@ -4,14 +4,12 @@ module Flare.Smolder
 
 import Prelude
 
-import Control.Monad.Eff
-
-import DOM
+import Control.Monad.Eff (Eff)
+import DOM (DOM)
+import Signal.Channel (Chan)
 
 import Text.Smolder.Markup (Markup())
 import Text.Smolder.Renderer.String (render)
-
-import Signal.Channel
 
 import Flare
 

@@ -5,17 +5,14 @@ module Flare.Drawing
 
 import Prelude
 
-import Control.Monad.Eff
-
-import Data.Maybe
+import Control.Monad.Eff (Eff)
+import DOM (DOM)
+import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', isJust, isNothing, maybe, maybe')
+import Signal.Channel (Chan, Channel, channel, send, subscribe)
 
 import Graphics.Drawing
 import Graphics.Canvas (getCanvasElementById, getContext2D, Canvas(),
                         getCanvasWidth, getCanvasHeight, clearRect)
-
-import DOM
-
-import Signal.Channel
 
 import Flare
 

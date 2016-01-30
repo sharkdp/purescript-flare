@@ -2,16 +2,16 @@ module Test.Main where
 
 import Prelude
 
-import Data.Array
-import Data.Maybe
-import Data.Monoid
-import Data.Foldable
-import Data.Int
-import Data.Traversable
+import Data.Array (cons, (..), length, zipWith)
+import Data.Maybe (maybe)
+import Data.Monoid (mempty)
+import Data.Foldable (foldMap, sum)
+import Data.Int (toNumber)
+import Data.Traversable (traverse)
 import Math (pow, sin, cos, pi, abs)
 
-import Signal.DOM
-import Signal.Time
+import Signal.DOM (animationFrame)
+import Signal.Time (since)
 
 import Text.Smolder.HTML as H
 import Text.Smolder.Markup as H
