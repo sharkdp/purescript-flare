@@ -3,7 +3,7 @@
 #### `runFlareDrawing`
 
 ``` purescript
-runFlareDrawing :: forall e. ElementId -> ElementId -> UI (canvas :: Canvas | e) Drawing -> Eff (dom :: DOM, chan :: Chan, canvas :: Canvas | e) Unit
+runFlareDrawing :: forall e. ElementId -> ElementId -> UI (canvas :: Canvas | e) Drawing -> Eff (dom :: DOM, channel :: CHANNEL, canvas :: Canvas | e) Unit
 ```
 
 Renders a Flare UI with a `Drawing` as output. The first ID specifies
@@ -19,10 +19,11 @@ canvas for rendering.
 data Color
 ```
 
-Colors.
+The representation of a color.
 
 ##### Instances
 ``` purescript
+Show Color
 Eq Color
 ```
 
@@ -122,23 +123,22 @@ Monoid Shape
 Eq Shape
 ```
 
-#### `aqua`
-
-``` purescript
-aqua :: Color
-```
-
 #### `black`
 
 ``` purescript
 black :: Color
 ```
 
-#### `blue`
+The color black.
+
+#### `brightness`
 
 ``` purescript
-blue :: Color
+brightness :: Color -> Number
 ```
+
+The percieved brightness of the color (A number between 0.0 and 1.0).
+See: https://www.w3.org/TR/AERT#color-contrast
 
 #### `circle`
 
@@ -164,13 +164,21 @@ closed :: forall f. (Foldable f) => f Point -> Shape
 
 Create a _closed_ path.
 
-#### `colorString`
+#### `complementary`
 
 ``` purescript
-colorString :: Color -> String
+complementary :: Color -> Color
 ```
 
-Render a color as a HTML color string.
+Get the complementary color (hue rotated by 180°).
+
+#### `cssStringHSLA`
+
+``` purescript
+cssStringHSLA :: Color -> String
+```
+
+The CSS representation of the color in the form `hsl(..)` or `hsla(...)`.
 
 #### `darken`
 
@@ -178,7 +186,19 @@ Render a color as a HTML color string.
 darken :: Number -> Color -> Color
 ```
 
-Darken a color by the specified amount between 0 and 1.
+Darken a color by subtracting a certain amount (number between -1.0 and
+1.0) from the lightness channel. If the number is negative, the color is
+lightened.
+
+#### `desaturate`
+
+``` purescript
+desaturate :: Number -> Color -> Color
+```
+
+Decrease the saturation of a color by subtracting a certain amount (number
+between -1.0 and 1.0) from the saturation channel. If the number is
+negative, the color is saturated.
 
 #### `everywhere`
 
@@ -212,23 +232,13 @@ fontString :: Font -> String
 
 Turn a `Font` into a `String` which can be used with `Graphics.Canvas.setFont`.
 
-#### `fuchsia`
+#### `grayscale`
 
 ``` purescript
-fuchsia :: Color
+grayscale :: Number -> Color
 ```
 
-#### `gray`
-
-``` purescript
-gray :: Color
-```
-
-#### `green`
-
-``` purescript
-green :: Color
-```
+Create a gray tone from a lightness values (0.0 is black, 1.0 is white).
 
 #### `hsl`
 
@@ -236,7 +246,27 @@ green :: Color
 hsl :: Number -> Number -> Number -> Color
 ```
 
-Create a `Color` from hue (0.0-360.0), saturation (0.0-1) and lightness (0.0-1) values.
+Create a `Color` from hue, saturation and lightness values. The hue is
+given in degrees, as a `Number` between 0.0 and 360.0. Both saturation and
+lightness are numbers between 0.0 and 1.0.
+
+#### `hsla`
+
+``` purescript
+hsla :: Number -> Number -> Number -> Number -> Color
+```
+
+Create a `Color` from hue, saturation, lightness and alpha values. The
+hue is given in degrees, as a `Number` between 0.0 and 360.0. Saturation,
+lightness and alpha are numbers between 0.0 and 1.0.
+
+#### `isLight`
+
+``` purescript
+isLight :: Color -> Boolean
+```
+
+Determine whether a color is perceived as a light color.
 
 #### `lighten`
 
@@ -244,13 +274,9 @@ Create a `Color` from hue (0.0-360.0), saturation (0.0-1) and lightness (0.0-1) 
 lighten :: Number -> Color -> Color
 ```
 
-Lighten a color by the specified amount between 0 and 1.
-
-#### `lime`
-
-``` purescript
-lime :: Color
-```
+Lighten a color by adding a certain amount (number between -1.0 and 1.0)
+to the lightness channel. If the number is negative, the color is
+darkened.
 
 #### `lineWidth`
 
@@ -259,24 +285,6 @@ lineWidth :: Number -> OutlineStyle
 ```
 
 Set the line width.
-
-#### `maroon`
-
-``` purescript
-maroon :: Color
-```
-
-#### `navy`
-
-``` purescript
-navy :: Color
-```
-
-#### `olive`
-
-``` purescript
-olive :: Color
-```
 
 #### `outlineColor`
 
@@ -302,12 +310,6 @@ path :: forall f. (Foldable f) => f Point -> Shape
 
 Create a path.
 
-#### `purple`
-
-``` purescript
-purple :: Color
-```
-
 #### `rectangle`
 
 ``` purescript
@@ -316,35 +318,47 @@ rectangle :: Number -> Number -> Number -> Number -> Shape
 
 Create a rectangle from the left, top, width and height parameters.
 
-#### `red`
-
-``` purescript
-red :: Color
-```
-
 #### `render`
 
 ``` purescript
 render :: forall eff. Context2D -> Drawing -> Eff (canvas :: Canvas | eff) Unit
 ```
 
-Render a `Drawing` to a canvas.  
+Render a `Drawing` to a canvas.
 
 #### `rgb`
 
 ``` purescript
-rgb :: Number -> Number -> Number -> Color
+rgb :: Int -> Int -> Int -> Color
 ```
 
-Create a `Color` from RGB values between 0.0 and 255.0.
+Create a `Color` from RGB values between 0 and 255.
+
+#### `rgb'`
+
+``` purescript
+rgb' :: Number -> Number -> Number -> Color
+```
+
+Create a `Color` from RGB values between 0.0 and 1.0.
 
 #### `rgba`
 
 ``` purescript
-rgba :: Number -> Number -> Number -> Number -> Color
+rgba :: Int -> Int -> Int -> Number -> Color
 ```
 
-Create a `Color` from RGBA values between 0.0 and 255.0 (rgb), 0.0 and 1.0 (a)
+Create a `Color` from integer RGB values between 0 and 255 and a floating
+point alpha value between 0.0 and 1.0.
+
+#### `rgba'`
+
+``` purescript
+rgba' :: Number -> Number -> Number -> Number -> Color
+```
+
+Create a `Color` from RGB values between 0.0 and 1.0 and an alpha value
+between 0.0 and 1.0.
 
 #### `rotate`
 
@@ -353,6 +367,16 @@ rotate :: Number -> Drawing -> Drawing
 ```
 
 Apply a rotation by providing the angle.
+
+#### `saturate`
+
+``` purescript
+saturate :: Number -> Color -> Color
+```
+
+Increase the saturation of a color by adding a certain amount (number
+between -1.0 and 1.0) to the saturation channel. If the number is
+negative, the color is desaturated.
 
 #### `scale`
 
@@ -394,18 +418,6 @@ shadowOffset :: Number -> Number -> Shadow
 
 Set the shadow blur.
 
-#### `silver`
-
-``` purescript
-silver :: Color
-```
-
-#### `teal`
-
-``` purescript
-teal :: Color
-```
-
 #### `text`
 
 ``` purescript
@@ -413,6 +425,32 @@ text :: Font -> Number -> Number -> FillStyle -> String -> Drawing
 ```
 
 Render some text.
+
+#### `toHSLA`
+
+``` purescript
+toHSLA :: Color -> { h :: Number, s :: Number, l :: Number, a :: Number }
+```
+
+Convert a `Color` to its hue, saturation, lightness and alpha values.
+
+#### `toRGBA`
+
+``` purescript
+toRGBA :: Color -> { r :: Int, g :: Int, b :: Int, a :: Number }
+```
+
+Convert a `Color` to its red, green, blue and alpha values. The RGB values
+are integers in the range from 0 to 255.
+
+#### `toRGBA'`
+
+``` purescript
+toRGBA' :: Color -> { r :: Number, g :: Number, b :: Number, a :: Number }
+```
+
+Convert a `Color` to its red, green, blue and alpha values. All values
+are numbers in the range from 0.0 to 1.0.
 
 #### `translate`
 
@@ -428,9 +466,5 @@ Apply a translation by providing the x and y distances.
 white :: Color
 ```
 
-#### `yellow`
-
-``` purescript
-yellow :: Color
-```
+The color white.
 

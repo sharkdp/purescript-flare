@@ -129,16 +129,17 @@ showDomain HSL = "HSL"
 showDomain RGB = "RGB"
 
 toHTML c = H.div `H.with` (A.style $ "background-color:" ++ hex) $ H.text hex
-  where hex = colorString c
+  where hex = cssStringHSLA c
 
 ns l = numberSlider l 0.0
+is l = intSlider l 0 255
 
 uiColor HSL = hsl <$> ns "Hue"        360.0  1.0 180.0
                   <*> ns "Saturation"   1.0 0.01   0.5
                   <*> ns "Lightness"    1.0 0.01   0.5
-uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
-                  <*> ns "Green"      255.0  1.0   0.0
-                  <*> ns "Blue"       255.0  1.0 100.0
+uiColor RGB = rgb <$> is "Red"   200
+                  <*> is "Green"   0
+                  <*> is "Blue"  100
 
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 

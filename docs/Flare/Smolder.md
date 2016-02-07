@@ -3,7 +3,7 @@
 #### `runFlareHTML`
 
 ``` purescript
-runFlareHTML :: forall e. ElementId -> ElementId -> UI e Markup -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareHTML :: forall e. ElementId -> ElementId -> UI e Markup -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 ```
 
 Renders a Flare UI with `Markup` as output. The first ID specifies

@@ -6,7 +6,7 @@ import Prelude
 
 import Control.Monad.Eff (Eff)
 import DOM (DOM)
-import Signal.Channel (Chan)
+import Signal.Channel (CHANNEL)
 
 import Text.Smolder.Markup (Markup())
 import Text.Smolder.Renderer.String (render)
@@ -19,6 +19,6 @@ import Flare
 runFlareHTML :: forall e. ElementId
                 -> ElementId
                 -> UI e Markup
-                -> Eff (dom :: DOM, chan :: Chan | e) Unit
+                -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 runFlareHTML controls target =
   runFlare controls target <<< map render

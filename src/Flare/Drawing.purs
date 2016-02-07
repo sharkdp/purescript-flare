@@ -8,7 +8,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import DOM (DOM)
 import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', isJust, isNothing, maybe, maybe')
-import Signal.Channel (Chan, Channel, channel, send, subscribe)
+import Signal.Channel (CHANNEL, Channel, channel, send, subscribe)
 
 import Graphics.Drawing
 import Graphics.Canvas (getCanvasElementById, getContext2D, Canvas(),
@@ -22,7 +22,7 @@ import Flare
 runFlareDrawing :: forall e. ElementId
                 -> ElementId
                 -> UI (canvas :: Canvas | e) Drawing
-                -> Eff (dom :: DOM, chan :: Chan, canvas :: Canvas | e) Unit
+                -> Eff (dom :: DOM, channel :: CHANNEL, canvas :: Canvas | e) Unit
 runFlareDrawing controls canvasID ui = do
   Just canvas <- getCanvasElementById canvasID
   ctx <- getContext2D canvas

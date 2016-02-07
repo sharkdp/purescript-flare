@@ -57,7 +57,7 @@ import DOM (DOM)
 import DOM.Node.Types (Element())
 
 import Signal as S
-import Signal.Channel (Chan, subscribe, send, channel)
+import Signal.Channel (CHANNEL, subscribe, send, channel)
 
 type ElementId = String
 type Label = String
@@ -78,7 +78,7 @@ instance applicativeFlare :: Applicative Flare where
 -- | The main data type for a Flare UI. It encapsulates the `Eff` action
 -- | which is to be run when setting up the input elements and corresponding
 -- | signals.
-newtype UI e a = UI (Eff (dom :: DOM, chan :: Chan | e) (Flare a))
+newtype UI e a = UI (Eff (dom :: DOM, channel :: CHANNEL | e) (Flare a))
 
 instance functorUI :: Functor (UI e) where
   map f (UI a) = UI $ map (map f) a
@@ -136,8 +136,8 @@ foreign import renderString :: forall e. ElementId
 
 type CreateComponent a = forall e. Label
                          -> a
-                         -> (a -> Eff (chan :: Chan) Unit)
-                         -> Eff (dom :: DOM, chan :: Chan | e) Element
+                         -> (a -> Eff (channel :: CHANNEL) Unit)
+                         -> Eff (dom :: DOM, channel :: CHANNEL | e) Element
 
 foreign import cNumber :: CreateComponent Number
 foreign import cNumberRange :: String -> Number -> Number -> Number -> CreateComponent Number
@@ -308,7 +308,7 @@ wrap :: forall e a. (S.Signal a) -> UI e a
 wrap sig = UI $ return $ Flare [] sig
 
 -- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
-lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (S.Signal a) -> UI e a
+lift :: forall e a. Eff (channel :: CHANNEL, dom :: DOM | e) (S.Signal a) -> UI e a
 lift msig = UI $ do
   sig <- msig
   return $ Flare [] sig
@@ -336,7 +336,7 @@ foldp f x0 = liftSF (S.foldp f x0)
 -- | Low level function to get direct access to the HTML elements and the
 -- | `Signal` inside a Flare UI.
 setupFlare :: forall e a. UI e a
-            -> Eff (chan :: Chan, dom :: DOM | e)
+            -> Eff (channel :: CHANNEL, dom :: DOM | e)
                    { components :: Array Element
                    , signal :: S.Signal a }
 setupFlare (UI setupUI) = do
@@ -347,9 +347,9 @@ setupFlare (UI setupUI) = do
 -- | specifies the HTML element to which the controls are attached. The
 -- | function argument will be mapped over the `Signal` inside the `Flare`.
 runFlareWith :: forall e a. ElementId
-             -> (a -> Eff (dom :: DOM, chan :: Chan | e) Unit)
+             -> (a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit)
              -> UI e a
-             -> Eff (dom :: DOM, chan :: Chan | e) Unit
+             -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 runFlareWith controls handler (UI setupUI) = do
   (Flare components signal) <- setupUI
   removeChildren controls
@@ -363,7 +363,7 @@ runFlare :: forall e.
             ElementId
          -> ElementId
          -> UI e String
-         -> Eff (dom :: DOM, chan :: Chan | e) Unit
+         -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 runFlare controls target = runFlareWith controls (renderString target)
 
 -- | Like `runFlare` but uses `show` to convert the contained value to a
@@ -372,5 +372,5 @@ runFlareShow :: forall e a. (Show a)
              => ElementId
              -> ElementId
              -> UI e a
-             -> Eff (dom :: DOM, chan :: Chan | e) Unit
+             -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 runFlareShow controls target ui = runFlare controls target (show <$> ui)

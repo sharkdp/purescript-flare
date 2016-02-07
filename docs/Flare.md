@@ -318,7 +318,7 @@ Encapsulate a `Signal` within a `UI` component.
 #### `lift`
 
 ``` purescript
-lift :: forall e a. Eff (chan :: Chan, dom :: DOM | e) (Signal a) -> UI e a
+lift :: forall e a. Eff (channel :: CHANNEL, dom :: DOM | e) (Signal a) -> UI e a
 ```
 
 Lift a `Signal` inside the `Eff` monad to a `UI` component.
@@ -350,7 +350,7 @@ the new value of the output.
 #### `setupFlare`
 
 ``` purescript
-setupFlare :: forall e a. UI e a -> Eff (chan :: Chan, dom :: DOM | e) { components :: Array Element, signal :: Signal a }
+setupFlare :: forall e a. UI e a -> Eff (channel :: CHANNEL, dom :: DOM | e) { components :: Array Element, signal :: Signal a }
 ```
 
 Low level function to get direct access to the HTML elements and the
@@ -359,7 +359,7 @@ Low level function to get direct access to the HTML elements and the
 #### `runFlareWith`
 
 ``` purescript
-runFlareWith :: forall e a. ElementId -> (a -> Eff (dom :: DOM, chan :: Chan | e) Unit) -> UI e a -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareWith :: forall e a. ElementId -> (a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit) -> UI e a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 ```
 
 Renders a Flare UI to the DOM and sets up all event handlers. The ID
@@ -369,7 +369,7 @@ function argument will be mapped over the `Signal` inside the `Flare`.
 #### `runFlare`
 
 ``` purescript
-runFlare :: forall e. ElementId -> ElementId -> UI e String -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlare :: forall e. ElementId -> ElementId -> UI e String -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 ```
 
 Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
@@ -379,7 +379,7 @@ attached, respectively.
 #### `runFlareShow`
 
 ``` purescript
-runFlareShow :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff (dom :: DOM, chan :: Chan | e) Unit
+runFlareShow :: forall e a. (Show a) => ElementId -> ElementId -> UI e a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 ```
 
 Like `runFlare` but uses `show` to convert the contained value to a

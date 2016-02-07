@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "purescript-dom": "^0.2.6",
-    "purescript-signal": "^4.2.0",
+    "purescript-signal": "^5.0.0",
     "purescript-foldable-traversable": "^0.4.1",
-    "purescript-canvas": "^0.3.4",
-    "purescript-drawing": "^0.3.7",
+    "purescript-canvas": "^0.4.0",
+    "purescript-drawing": "^0.4.0",
     "purescript-smolder": "^3.0.1"
   }
 }
