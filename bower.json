@@ -20,6 +20,7 @@
     "purescript-signal": "^5.0.0",
     "purescript-foldable-traversable": "^0.4.1",
     "purescript-canvas": "^0.4.0",
+    "purescript-colors": "^0.1.4",
     "purescript-drawing": "^0.4.0",
     "purescript-smolder": "^3.0.1"
   }

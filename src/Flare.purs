@@ -29,6 +29,8 @@ module Flare
   , select_
   , radioGroup
   , radioGroup_
+  , color
+  , color_
   , fieldset
   , applyUIFlipped
   , (<**>)
@@ -45,13 +47,15 @@ module Flare
 import Prelude
 
 import Data.Array (head, catMaybes)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Monoid (class Monoid, mempty)
 import Data.Foldable (traverse_)
 import Data.Traversable (traverse)
 
 import Control.Apply (lift2)
 import Control.Monad.Eff (Eff)
+
+import Color (Color, toHexString, fromHexString)
 
 import DOM (DOM)
 import DOM.Node.Types (Element())
@@ -148,6 +152,7 @@ foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: forall a. a -> CreateComponent a
 foreign import cSelect :: forall a. Array a -> (a -> String) -> CreateComponent a
 foreign import cRadioGroup :: forall a. Array a -> (a -> String) -> CreateComponent a
+foreign import cColor :: CreateComponent String
 
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
@@ -284,6 +289,15 @@ radioGroup label default xs toString = createUI (cRadioGroup xs toString) label 
 -- | Like `radioGroup`, but without a label.
 radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 radioGroup_ = radioGroup ""
+
+-- | Creates a color picker input field from a label and default `Color`.
+color :: forall e. Label -> Color -> UI e Color
+color label default = (fromMaybe default <<< fromHexString) <$>
+                        createUI cColor label (toHexString default)
+
+-- | Like `color`, but without a label.
+color_ :: forall e. Color -> UI e Color
+color_ = color ""
 
 foreign import toFieldset :: Label -> Array Element -> Element
 

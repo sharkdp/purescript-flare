@@ -62,8 +62,8 @@ ui6 = (greet <$> (select "Language" English [French, German] toString))
 
 -- Example 7
 
-plot m n1 s time =
-      filled (fillColor (hsl 333.0 0.6 0.5)) $
+plot m n1 s col time =
+      filled (fillColor col) $
         path (map point angles)
 
       where point phi = { x: 100.0 + radius phi * cos phi
@@ -81,6 +81,7 @@ plot m n1 s time =
 ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0  7.0)
            <*> (numberSlider "n1" 1.0 10.0 0.1  4.0)
            <*> (numberSlider "s"  4.0 16.0 0.1 14.0)
+           <*> (color "Color" (hsl 333.0 0.6 0.5))
            <*> lift animationFrame
 
 -- Example 8

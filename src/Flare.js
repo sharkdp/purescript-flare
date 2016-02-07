@@ -314,4 +314,17 @@ exports.toFieldset = function(label) {
   };
 };
 
+exports.cColor = createComponent("color",
+  function(initial) {
+    var input = document.createElement("input");
+    input.type = "color";
+    input.value = initial;
+    return input;
+  },
+  "input",
+  function(t, initial) {
+    return t.value;
+  }
+);
+
 // vim: ts=2:sw=2
