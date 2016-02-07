@@ -282,6 +282,22 @@ radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
 
 Like `radioGroup`, but without a label.
 
+#### `color`
+
+``` purescript
+color :: forall e. Label -> Color -> UI e Color
+```
+
+Creates a color picker input field from a label and default `Color`.
+
+#### `color_`
+
+``` purescript
+color_ :: forall e. Color -> UI e Color
+```
+
+Like `color`, but without a label.
+
 #### `fieldset`
 
 ``` purescript

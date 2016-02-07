@@ -232,6 +232,16 @@ fontString :: Font -> String
 
 Turn a `Font` into a `String` which can be used with `Graphics.Canvas.setFont`.
 
+#### `fromHexString`
+
+``` purescript
+fromHexString :: String -> Maybe Color
+```
+
+Parse a hexadecimal RGB code of the form `#rgb` or `#rrggbb`, where the
+hexadecimal digits are of the format [0-9a-f] (case insensitive). Returns
+`Nothing` if the string is in a wrong format.
+
 #### `grayscale`
 
 ``` purescript
@@ -433,6 +443,17 @@ toHSLA :: Color -> { h :: Number, s :: Number, l :: Number, a :: Number }
 ```
 
 Convert a `Color` to its hue, saturation, lightness and alpha values.
+
+#### `toHexString`
+
+``` purescript
+toHexString :: Color -> String
+```
+
+Return a hexadecimal representation of the color in the form `#rrggbb`,
+where `rr`, `gg` and `bb` refer to hexadecimal digits corresponding to
+the RGB channel values between `00` and `ff`. The alpha channel is not
+represented.
 
 #### `toRGBA`
 
