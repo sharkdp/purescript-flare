@@ -16,12 +16,11 @@
     "url": "git://github.com/sharkdp/purescript-flare.git"
   },
   "dependencies": {
-    "purescript-dom": "^0.2.6",
-    "purescript-signal": "^5.0.0",
-    "purescript-foldable-traversable": "^0.4.1",
-    "purescript-canvas": "^0.4.0",
-    "purescript-colors": "^0.1.4",
-    "purescript-drawing": "^0.4.0",
-    "purescript-smolder": "^3.0.1"
+    "purescript-foldable-traversable": "^1.0.0",
+    "purescript-dom": "^1.0.0",
+    "purescript-signal": "^6.0.0",
+    "purescript-canvas": "^1.0.0",
+    "purescript-drawing": "https://github.com/sharkdp/purescript-drawing.git#0.9-updates",
+    "purescript-smolder": "^4.0.0"
   }
 }

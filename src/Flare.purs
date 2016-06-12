@@ -91,39 +91,13 @@ instance applyUI :: Apply (UI e) where
   apply (UI a1) (UI a2) = UI $ lift2 apply a1 a2
 
 instance applicativeUI :: Applicative (UI e) where
-  pure x = UI $ return (pure x)
+  pure x = UI $ pure (pure x)
 
 instance semigroupUI :: (Semigroup a) => Semigroup (UI e a) where
   append = lift2 append
 
 instance monoidUI :: (Monoid a) => Monoid (UI e a) where
   mempty = pure mempty
-
-instance semiringUI :: (Semiring a) => Semiring (UI e a) where
-  one = pure one
-  mul = lift2 mul
-  zero = pure zero
-  add = lift2 add
-
-instance ringUI :: (Ring a) => Ring (UI e a) where
-  sub = lift2 sub
-
-instance moduloSemiringUI :: (ModuloSemiring a) => ModuloSemiring (UI e a) where
-  mod = lift2 mod
-  div = lift2 div
-
-instance divisionRingUI :: (DivisionRing a) => DivisionRing (UI e a)
-
-instance numUI :: (Num a) => Num (UI e a)
-
-instance boundedUI :: (Bounded a) => Bounded (UI e a) where
-  top = pure top
-  bottom = pure bottom
-
-instance booleanAlgebraUI :: (BooleanAlgebra a) => BooleanAlgebra (UI e a) where
-  conj = lift2 conj
-  disj = lift2 disj
-  not = map not
 
 -- | Remove all children from a given parent element.
 foreign import removeChildren :: forall e. ElementId
@@ -161,7 +135,7 @@ createUI createComp label default = UI $ do
   chan <- channel default
   comp <- createComp label default (send chan)
   let signal = subscribe chan
-  return $ Flare [comp] signal
+  pure $ Flare [comp] signal
 
 -- | Creates an input field for a `Number` from a given label and default
 -- | value.
@@ -305,7 +279,7 @@ foreign import toFieldset :: Label -> Array Element -> Element
 fieldset :: forall e a. Label -> UI e a -> UI e a
 fieldset label (UI setup) = UI $ do
   (Flare cs sig) <- setup
-  return $ Flare [toFieldset label cs] sig
+  pure $ Flare [toFieldset label cs] sig
 
 -- | A flipped version of `<*>` for `UI` that arranges the components in the
 -- | order of appearance.
@@ -313,19 +287,19 @@ applyUIFlipped :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
 applyUIFlipped (UI setup1) (UI setup2) = UI $ do
   (Flare cs1 sig1) <- setup1
   (Flare cs2 sig2) <- setup2
-  return $ Flare (cs1 <> cs2) (sig2 <*> sig1)
+  pure $ Flare (cs1 <> cs2) (sig2 <*> sig1)
 
 infixl 4 applyUIFlipped as <**>
 
 -- | Encapsulate a `Signal` within a `UI` component.
 wrap :: forall e a. (S.Signal a) -> UI e a
-wrap sig = UI $ return $ Flare [] sig
+wrap sig = UI $ pure $ Flare [] sig
 
 -- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
 lift :: forall e a. Eff (channel :: CHANNEL, dom :: DOM | e) (S.Signal a) -> UI e a
 lift msig = UI $ do
   sig <- msig
-  return $ Flare [] sig
+  pure $ Flare [] sig
 
 -- | Lift a function from `Signal a` to `Signal b` to a function from
 -- | `UI e a` to `UI e b` without affecting the components. For example:
@@ -339,7 +313,7 @@ liftSF :: forall e a b. (S.Signal a -> S.Signal b)
        -> UI e b
 liftSF f (UI setup) = UI do
   (Flare comp sig) <- setup
-  return $ Flare comp (f sig)
+  pure $ Flare comp (f sig)
 
 -- | Create a past dependent component. The fold-function takes the current
 -- | value of the component and the previous value of the output to produce
@@ -355,7 +329,7 @@ setupFlare :: forall e a. UI e a
                    , signal :: S.Signal a }
 setupFlare (UI setupUI) = do
   (Flare components signal) <- setupUI
-  return { components, signal }
+  pure { components, signal }
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The

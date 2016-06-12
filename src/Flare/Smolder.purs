@@ -11,7 +11,7 @@ import Signal.Channel (CHANNEL)
 import Text.Smolder.Markup (Markup())
 import Text.Smolder.Renderer.String (render)
 
-import Flare
+import Flare (UI, ElementId, runFlare)
 
 -- | Renders a Flare UI with `Markup` as output. The first ID specifies
 -- | the DOM element for the controls while the second ID specifies the

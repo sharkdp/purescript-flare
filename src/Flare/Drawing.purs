@@ -3,28 +3,30 @@ module Flare.Drawing
   , module Graphics.Drawing
   ) where
 
-import Prelude
+import Prelude (Unit, bind)
 
 import Control.Monad.Eff (Eff)
 import DOM (DOM)
-import Data.Maybe (Maybe(..), fromMaybe, fromMaybe', isJust, isNothing, maybe, maybe')
-import Signal.Channel (CHANNEL, Channel, channel, send, subscribe)
+import Data.Maybe (fromJust)
+import Signal.Channel (CHANNEL)
+import Partial.Unsafe (unsafePartial)
 
 import Graphics.Drawing
-import Graphics.Canvas (getCanvasElementById, getContext2D, Canvas(),
+import Graphics.Canvas (getCanvasElementById, getContext2D, CANVAS,
                         getCanvasWidth, getCanvasHeight, clearRect)
 
-import Flare
+import Flare (UI, ElementId, runFlareWith)
 
 -- | Renders a Flare UI with a `Drawing` as output. The first ID specifies
 -- | the DOM element for the controls while the second ID specifies the
 -- | canvas for rendering.
 runFlareDrawing :: forall e. ElementId
                 -> ElementId
-                -> UI (canvas :: Canvas | e) Drawing
-                -> Eff (dom :: DOM, channel :: CHANNEL, canvas :: Canvas | e) Unit
+                -> UI (canvas :: CANVAS | e) Drawing
+                -> Eff (dom :: DOM, channel :: CHANNEL, canvas :: CANVAS | e) Unit
 runFlareDrawing controls canvasID ui = do
-  Just canvas <- getCanvasElementById canvasID
+  mcanvas <- getCanvasElementById canvasID
+  let canvas = unsafePartial (fromJust mcanvas)
   ctx <- getContext2D canvas
 
   w <- getCanvasWidth canvas

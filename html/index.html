@@ -27,16 +27,16 @@ string_ "Hello" <> pure " " <> string_ "World"
         <div id="controls2"></div>
         <div id="output2"></div>
 
-        <h3>Example 3: Semiring instance</h3>
+        <h3>Example 3: Traverse</h3>
 <pre>
-sum (int_ <$> [2, 13, 27, 42])
+sum <$> traverse int_ [2, 13, 27, 42]
 </pre>
         <div id="controls3"></div>
         <div id="output3"></div>
 
         <h3>Example 4: More calculations</h3>
 <pre>
-number_ 5.0 / number_ 2.0
+lift2 (/) (number_ 5.0) (number_ 2.0)
 </pre>
         <div id="controls4"></div>
         <div id="output4"></div>
@@ -104,9 +104,9 @@ traverse (intSlider_ 1 5) (1..5)
         <div id="controls8"></div>
         <div id="output8"></div>
 
-        <h3>Example 9: BooleanAlgebra instance</h3>
+        <h3>Example 9: Checkboxes</h3>
 <pre>
-boolean_ false && boolean_ true
+lift2 (&&) (boolean_ false) (boolean_ true)
 </pre>
         <div id="controls9"></div>
         <div id="output9"></div>
