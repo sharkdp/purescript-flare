@@ -20,7 +20,8 @@
     "purescript-dom": "^1.0.0",
     "purescript-signal": "^6.0.0",
     "purescript-canvas": "^1.0.0",
-    "purescript-drawing": "https://github.com/sharkdp/purescript-drawing.git#0.9-updates",
-    "purescript-smolder": "^4.0.0"
+    "purescript-drawing": "^1.0.0",
+    "purescript-smolder": "^4.0.0",
+    "purescript-nonempty": "^1.0.0"
   }
 }
