@@ -46,11 +46,13 @@ module Flare
 
 import Prelude
 
-import Data.Array (head, catMaybes)
+import Data.Array (fromFoldable)
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe.First (First(..), runFirst)
 import Data.Monoid (class Monoid, mempty)
-import Data.Foldable (traverse_)
-import Data.Traversable (traverse)
+import Data.Foldable (class Foldable, traverse_, foldMap)
+import Data.Traversable (class Traversable, traverse)
 
 import Control.Apply (lift2)
 import Control.Monad.Eff (Eff)
@@ -238,30 +240,34 @@ optional_ = optional ""
 button :: forall a e. Label -> a -> a -> UI e a
 button label vDefault vPressed = createUI (cButton vPressed) label vDefault
 
--- | Create a button for each element of the array. The whole component
--- | returns `Nothing` if none of the buttons is pressed and `Just x` if
--- | the button corresponding to the element `x` is pressed.
-buttons :: forall a e. Array a -> (a -> String) -> UI e (Maybe a)
-buttons xs toString = (head <<< catMaybes) <$> traverse toButton xs
-  where toButton x = button (toString x) Nothing (Just x)
+-- | Create a button for each element of the given container. The whole
+-- | component returns `Nothing` if none of the buttons is pressed and `Just x`
+-- | if the button corresponding to the element `x` is pressed.
+buttons :: forall f a e. Traversable f => f a -> (a -> String) -> UI e (Maybe a)
+buttons xs toString =  (runFirst <<< foldMap First) <$> traverse toButton xs
+  where
+    toButton :: forall eff. a -> UI eff (Maybe a)
+    toButton x = button (toString x) Nothing (Just x)
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
-select :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
-select label default xs toString = createUI (cSelect xs toString) label default
+select :: forall e f a. Foldable f => Label -> NonEmpty f a -> (a -> String) -> UI e a
+select label (default :| xs) toString =
+  createUI (cSelect (fromFoldable xs) toString) label default
 
 -- | Like `select`, but without a label.
-select_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
+select_ :: forall e f a. Foldable f => NonEmpty f a -> (a -> String) -> UI e a
 select_ = select ""
 
 -- | Creates a group of radio buttons to choose from a list of options. The
 -- | first option is selected by default. The rest of the options is given as
 -- | an array.
-radioGroup :: forall e a. Label -> a -> Array a -> (a -> String) -> UI e a
-radioGroup label default xs toString = createUI (cRadioGroup xs toString) label default
+radioGroup :: forall e f a. Foldable f => Label -> NonEmpty f a -> (a -> String) -> UI e a
+radioGroup label (default :| xs) toString =
+  createUI (cRadioGroup (fromFoldable xs) toString) label default
 
 -- | Like `radioGroup`, but without a label.
-radioGroup_ :: forall e a. a -> Array a -> (a -> String) -> UI e a
+radioGroup_ :: forall e f a. Foldable f => NonEmpty f a -> (a -> String) -> UI e a
 radioGroup_ = radioGroup ""
 
 -- | Creates a color picker input field from a label and default `Color`.

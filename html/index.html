@@ -64,7 +64,7 @@ greet English = "Hello"
 greet French  = "Salut"
 greet German  = "Hallo"
 
-ui = (greet <$> (select "Language" English [French, German] toString))
+ui = (greet <$> (select "Language" (English :| [French, German]) toString))
      <> pure " " <> string "Name" "Pierre" <> pure "!"
 </pre>
         <div id="controls6"></div>
@@ -175,7 +175,7 @@ uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
 
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
-ui = select "Color domain" HSL [RGB] showDomain
+ui = select "Color domain" (HSL :| [RGB]) showDomain
 
 main = runFlareWith "controls14a" inner ui
 </pre>

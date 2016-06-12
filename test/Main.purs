@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Apply (lift2)
 import Data.Array (cons, (..), length, zipWith)
+import Data.NonEmpty ((:|))
 import Data.Maybe (maybe)
 import Data.Monoid (mempty)
 import Data.Foldable (foldMap, sum)
@@ -78,7 +79,7 @@ greet French  = "Salut"
 greet German  = "Hallo"
 
 ui6 :: forall e. UI e String
-ui6 = (greet <$> (select "Language" English [French, German] toString))
+ui6 = (greet <$> (select "Language" (English :| [French, German]) toString))
       <> pure " " <> string "Name" "Pierre" <> pure "!"
 
 -- Example 7
@@ -185,7 +186,7 @@ inner :: forall e. Domain -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
 ui14 :: forall e. UI e Domain
-ui14 = select "Color domain" HSL [RGB] showDomain
+ui14 = select "Color domain" (HSL :| [RGB]) showDomain
 
 -- Example 15
 
