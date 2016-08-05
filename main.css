@@ -27,6 +27,7 @@ input:invalid {
 
 input[type="range"] {
     width: 150px;
+    border: 1px solid transparent;
 }
 
 label {

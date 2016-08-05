@@ -27,16 +27,16 @@ string_ "Hello" <> pure " " <> string_ "World"
         <div id="controls2"></div>
         <div id="output2"></div>
 
-        <h3>Example 3: Semiring instance</h3>
+        <h3>Example 3: Traverse</h3>
 <pre>
-sum (int_ <$> [2, 13, 27, 42])
+sum <$> traverse int_ [2, 13, 27, 42]
 </pre>
         <div id="controls3"></div>
         <div id="output3"></div>
 
         <h3>Example 4: More calculations</h3>
 <pre>
-number_ 5.0 / number_ 2.0
+lift2 (/) (number_ 5.0) (number_ 2.0)
 </pre>
         <div id="controls4"></div>
         <div id="output4"></div>
@@ -64,7 +64,7 @@ greet English = "Hello"
 greet French  = "Salut"
 greet German  = "Hallo"
 
-ui = (greet <$> (select "Language" English [French, German] toString))
+ui = (greet <$> (select "Language" (English :| [French, German]) toString))
      <> pure " " <> string "Name" "Pierre" <> pure "!"
 </pre>
         <div id="controls6"></div>
@@ -104,9 +104,9 @@ traverse (intSlider_ 1 5) (1..5)
         <div id="controls8"></div>
         <div id="output8"></div>
 
-        <h3>Example 9: BooleanAlgebra instance</h3>
+        <h3>Example 9: Checkboxes</h3>
 <pre>
-boolean_ false && boolean_ true
+lift2 (&&) (boolean_ false) (boolean_ true)
 </pre>
         <div id="controls9"></div>
         <div id="output9"></div>
@@ -136,7 +136,7 @@ ui = foldp (+) 0 (button "Increment" 0 1)
 <pre>
 table h w = H.table $ foldMap row (0 .. h)
   where row i = H.tr $ foldMap (cell i) (0 .. w)
-        cell i j = H.td (H.text (show i ++ "," ++ show j))
+        cell i j = H.td (H.text (show i &lt;&gt; "," &lt;&gt; show j))
 
 ui = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
 </pre>
@@ -161,7 +161,7 @@ data Domain = HSL | RGB
 showDomain HSL = "HSL"
 showDomain RGB = "RGB"
 
-toHTML c = H.div `H.with` (A.style $ "background-color:" ++ hex) $ H.text hex
+toHTML c = H.div `H.with` (A.style $ "background-color:" &lt;&gt; hex) $ H.text hex
   where hex = colorString c
 
 ns l = numberSlider l 0.0
@@ -175,7 +175,7 @@ uiColor RGB = rgb <$> ns "Red"        255.0  1.0 200.0
 
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
-ui = select "Color domain" HSL [RGB] showDomain
+ui = select "Color domain" (HSL :| [RGB]) showDomain
 
 main = runFlareWith "controls14a" inner ui
 </pre>
