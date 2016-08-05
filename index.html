@@ -215,6 +215,19 @@ ui = light <$> liftSF (since 1000.0) (button "Switch on" unit unit)
         <div id="controls16"></div>
         <div id="output16"></div>
 
+        <h3>Example 17: Date input</h3>
+<pre>
+ui = showDiff &lt;$&gt; date &quot;Date 1&quot; (fromMaybe bottom date1)
+              &lt;*&gt; date &quot;Date 2&quot; (fromMaybe bottom date2)
+  where
+    date1 = canonicalDate &lt;$&gt; toEnum 1986 &lt;*&gt; toEnum 7 &lt;*&gt; toEnum 3
+    date2 = canonicalDate &lt;$&gt; toEnum 2016 &lt;*&gt; toEnum 8 &lt;*&gt; toEnum 5
+    showDiff d1 d2 = &quot;Days between the dates: &quot; &lt;&gt;
+                     show (round $ abs $ unDays $ diff d1 d2)
+</pre>
+        <div id="controls17"></div>
+        <div id="output17"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>
