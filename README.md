@@ -1,7 +1,7 @@
 ## Flare
 
 Flare is a special-purpose UI library for
-[Purescript](https://github.com/purescript/purescript). It is built on top
+[PureScript](https://github.com/purescript/purescript). It is built on top
 of [purescript-signal](https://github.com/bodil/purescript-signal) and uses
 Applicative-style programming to combine predefined input fields to a reactive
 user interface. Flare is inspired by the Haskell library
@@ -19,6 +19,7 @@ The main design-criterion of this library is ease of use.
 - [purescript-flarecheck](https://github.com/sharkdp/purescript-flarecheck) - QuickCheck-style interactive tests
 - [purescript-flaredoc](https://github.com/sharkdp/purescript-flaredoc/) - Interactive documentation using FlareCheck (see [-arrays](http://sharkdp.github.io/purescript-flaredoc/), [-strings](http://sharkdp.github.io/purescript-strings/), [-colors](http://sharkdp.github.io/purescript-colors/))
 - [purescript-isometric](http://sharkdp.github.io/purescript-isometric/) - Interactive 3D rendering
+- [Nature invented it first](http://nosubstance.me/post/nature-invented-it-first/) - Blog post with interactive animation
 
 ## Building
 ```
