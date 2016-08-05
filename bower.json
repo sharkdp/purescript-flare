@@ -17,11 +17,12 @@
   },
   "dependencies": {
     "purescript-foldable-traversable": "^1.0.0",
-    "purescript-dom": "^1.0.0",
-    "purescript-signal": "^6.0.0",
+    "purescript-dom": "^2.0.0",
+    "purescript-signal": "^6.1.0",
     "purescript-canvas": "^1.0.0",
     "purescript-drawing": "^1.0.0",
     "purescript-smolder": "^4.0.0",
-    "purescript-nonempty": "^1.0.0"
+    "purescript-nonempty": "^1.0.0",
+    "purescript-datetime": "^1.0.0"
   }
 }

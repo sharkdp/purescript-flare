@@ -6,11 +6,14 @@ import Control.Monad.Eff (Eff)
 import Control.Apply (lift2)
 import Data.Array (cons, (..), length, zipWith)
 import Data.NonEmpty ((:|))
-import Data.Maybe (maybe)
+import Data.Maybe (maybe, fromMaybe)
 import Data.Monoid (mempty)
+import Data.Enum (toEnum)
 import Data.Foldable (foldMap, sum)
-import Data.Int (toNumber)
+import Data.Int (toNumber, round)
 import Data.Traversable (traverse)
+import Data.Date (canonicalDate, diff)
+import Data.Time.Duration (unDays)
 import Math (pow, sin, cos, pi, abs)
 
 import DOM (DOM)
@@ -27,7 +30,8 @@ import Text.Smolder.HTML.Attributes as A
 
 import Flare (UI, runFlareShow, runFlareWith, runFlare, button, liftSF, buttons,
               foldp, select, intSlider, numberSlider, string, intSlider_,
-              boolean_, lift, color, number_, int_, string_, number, (<**>))
+              boolean_, lift, color, number_, int_, string_, number, (<**>),
+              date)
 import Flare.Drawing (Color, Drawing, runFlareDrawing, rgb, hsl, cssStringHSLA,
                       path, lineWidth, black, outlineColor, outlined, fillColor,
                       filled, circle)
@@ -218,6 +222,16 @@ light on = H.with H.div arg mempty
 ui16 :: forall e. UI e H.Markup
 ui16 = light <$> liftSF (since 1000.0) (button "Switch on" unit unit)
 
+-- Example 17
+
+ui17 :: forall e. UI e String
+ui17 = showDiff <$> date "Date 1" (fromMaybe bottom date1)
+                <*> date "Date 2" (fromMaybe bottom date2)
+  where
+    date1 = canonicalDate <$> toEnum 1986 <*> toEnum 7 <*> toEnum 3
+    date2 = canonicalDate <$> toEnum 2016 <*> toEnum 8 <*> toEnum 5
+    showDiff d1 d2 = "Days between the dates: " <> show (round $ abs $ unDays $ diff d1 d2)
+
 
 -- Render everything to the DOM
 
@@ -239,3 +253,4 @@ main = do
   runFlareWith    "controls14a"     inner  ui14
   runFlareShow    "controls15"  "output15" ui15
   runFlareHTML    "controls16"  "output16" ui16
+  runFlare        "controls17"  "output17" ui17

@@ -327,4 +327,48 @@ exports.cColor = createComponent("color",
   }
 );
 
+function padNumber(num) {
+  var str = num.toString();
+  if (str.length == 1) {
+    str = "0" + str;
+  }
+  return str;
+}
+
+exports.cDate = createComponent("date",
+  function(initial) {
+    var input = document.createElement("input");
+    input.type = "date";
+    input.value = initial.year.toString() + "-" +
+                  padNumber(initial.month) + "-" +
+                  padNumber(initial.day);
+    return input;
+  },
+  "input",
+  function(t, initial) {
+    var parts = t.value.split("-");
+    return { year: parseInt(parts[0], 10),
+             month: parseInt(parts[1], 10),
+             day: parseInt(parts[2])
+           };
+  }
+);
+
+exports.cTime = createComponent("time",
+  function(initial) {
+    var input = document.createElement("input");
+    input.type = "time";
+    input.value = padNumber(initial.hours.toString()) + ":" +
+                  padNumber(initial.minutes.toString());
+    return input;
+  },
+  "input",
+  function(t, initial) {
+    var parts = t.value.split(":");
+    return { hours: parseInt(parts[0], 10),
+             minutes: parseInt(parts[1], 10)
+           };
+  }
+);
+
 // vim: ts=2:sw=2

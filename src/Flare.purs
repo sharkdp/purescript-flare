@@ -31,6 +31,10 @@ module Flare
   , radioGroup_
   , color
   , color_
+  , date
+  , date_
+  , time
+  , time_
   , fieldset
   , applyUIFlipped
   , (<**>)
@@ -53,6 +57,10 @@ import Data.Maybe.First (First(..), runFirst)
 import Data.Monoid (class Monoid, mempty)
 import Data.Foldable (class Foldable, traverse_, foldMap)
 import Data.Traversable (class Traversable, traverse)
+import Data.Enum (toEnum, fromEnum)
+import Data.Date (Date, exactDate)
+import Data.Date as Date
+import Data.Time (Time(..))
 
 import Control.Apply (lift2)
 import Control.Monad.Eff (Eff)
@@ -129,6 +137,12 @@ foreign import cButton :: forall a. a -> CreateComponent a
 foreign import cSelect :: forall a. Array a -> (a -> String) -> CreateComponent a
 foreign import cRadioGroup :: forall a. Array a -> (a -> String) -> CreateComponent a
 foreign import cColor :: CreateComponent String
+
+type DateRec = { year :: Int, month :: Int, day :: Int }
+type TimeRec = { hours :: Int, minutes :: Int }
+
+foreign import cDate :: CreateComponent DateRec
+foreign import cTime :: CreateComponent TimeRec
 
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
@@ -278,6 +292,40 @@ color label default = (fromMaybe default <<< fromHexString) <$>
 -- | Like `color`, but without a label.
 color_ :: forall e. Color -> UI e Color
 color_ = color ""
+
+-- | Creates a date input field from a label and default `Date`.
+date :: forall e. Label -> Date -> UI e Date
+date label default = (fromMaybe default <<< toDate) <$>
+                        createUI cDate label { year: fromEnum (Date.year default)
+                                             , month: fromEnum (Date.month default)
+                                             , day: fromEnum (Date.day default)
+                                             }
+  where
+    toDate :: DateRec -> Maybe Date
+    toDate { year, month, day } = do
+      y <- toEnum year
+      m <- toEnum month
+      d <- toEnum day
+      exactDate y m d
+
+-- | Like `date`, but without a label.
+date_ :: forall e. Date -> UI e Date
+date_ = date ""
+
+-- | Creates a time input field from a label and default `Time`.
+time :: forall e. Label -> Time -> UI e Time
+time label default = (fromMaybe default <<< toTime) <$>
+                       createUI cTime label { hours: 0, minutes: 30 }
+  where
+    toTime :: TimeRec -> Maybe Time
+    toTime { hours, minutes } = Time <$> toEnum hours
+                                     <*> toEnum minutes
+                                     <*> toEnum 0
+                                     <*> toEnum 0
+
+-- | Like `time`, but without a label.
+time_ :: forall e. Time -> UI e Time
+time_ = time ""
 
 foreign import toFieldset :: Label -> Array Element -> Element
 
