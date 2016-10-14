@@ -43,6 +43,7 @@ module Flare
   , liftSF
   , foldp
   , setupFlare
+  , flareWith
   , runFlareWith
   , runFlare
   , runFlareShow
@@ -387,16 +388,25 @@ setupFlare (UI setupUI) = do
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
+-- | handler function argument handles the `Signal` inside the `Flare`.
+flareWith :: forall e a. ElementId
+          -> (S.Signal a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit)
+          -> UI e a
+          -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
+flareWith controls handler (UI setupUI) = do
+  (Flare components signal) <- setupUI
+  removeChildren controls
+  traverse_ (appendComponent controls) components
+  handler signal
+
+-- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
+-- | specifies the HTML element to which the controls are attached. The
 -- | function argument will be mapped over the `Signal` inside the `Flare`.
 runFlareWith :: forall e a. ElementId
              -> (a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit)
              -> UI e a
              -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
-runFlareWith controls handler (UI setupUI) = do
-  (Flare components signal) <- setupUI
-  removeChildren controls
-  traverse_ (appendComponent controls) components
-  S.runSignal (map handler signal)
+runFlareWith controls handler ui = flareWith controls (\sig -> S.runSignal (map handler sig)) ui
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 -- | specify the DOM elements to which the controls and the output will be
