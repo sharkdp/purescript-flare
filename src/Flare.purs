@@ -406,7 +406,7 @@ runFlareWith :: forall e a. ElementId
              -> (a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit)
              -> UI e a
              -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
-runFlareWith controls handler ui = flareWith controls (\sig -> S.runSignal (map handler sig)) ui
+runFlareWith controls handler ui = flareWith controls (S.runSignal <<< map handler) ui
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 -- | specify the DOM elements to which the controls and the output will be
