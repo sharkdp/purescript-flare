@@ -13,13 +13,14 @@ import Data.Foldable (foldMap, sum)
 import Data.Int (toNumber, round)
 import Data.Traversable (traverse)
 import Data.Date (canonicalDate, diff)
-import Data.Time.Duration (unDays)
+import Data.Time.Duration (Days(..))
+import Data.Newtype (un)
 import Math (pow, sin, cos, pi, abs)
 
 import DOM (DOM)
 import Signal.Channel (CHANNEL)
 import Graphics.Canvas (CANVAS)
-import Control.Timer (TIMER)
+import Control.Monad.Eff.Timer (TIMER)
 
 import Signal.DOM (animationFrame)
 import Signal.Time (since)
@@ -141,12 +142,12 @@ ui11 = foldp (+) 0 (button "Increment" 0 1)
 
 -- Example 12
 
-table :: Int -> Int -> H.Markup
+table :: forall e. Int -> Int -> H.Markup e
 table h w = H.table $ foldMap row (0 .. h)
   where row i = H.tr $ foldMap (cell i) (0 .. w)
         cell i j = H.td (H.text (show i <> "," <> show j))
 
-ui12 :: forall e. UI e H.Markup
+ui12 :: forall e e'. UI e (H.Markup e')
 ui12 = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
 
 -- Example 13
@@ -157,7 +158,7 @@ actions = string "Add item:" "Orange" <**> button "Add" (flip const) cons
 list :: forall e. UI e (Array String)
 list = foldp id ["Apple", "Banana"] actions
 
-ui13 :: forall e. UI e H.Markup
+ui13 :: forall e e'. UI e (H.Markup e')
 ui13 = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
 
 -- Example 14
@@ -168,7 +169,7 @@ showDomain :: Domain -> String
 showDomain HSL = "HSL"
 showDomain RGB = "RGB"
 
-toHTML :: Color -> H.Markup
+toHTML :: forall e. Color -> H.Markup e
 toHTML c = H.div `H.with` (A.style $ "background-color:" <> hex) $ H.text hex
   where hex = cssStringHSLA c
 
@@ -214,12 +215,12 @@ ui15 = foldp (maybe id perform) 0 $
 
 -- Example 16
 
-light :: Boolean -> H.Markup
+light :: forall e. Boolean -> H.Markup e
 light on = H.with H.div arg mempty
   where arg | on = A.className "on"
             | otherwise = mempty
 
-ui16 :: forall e. UI e H.Markup
+ui16 :: forall e e'. UI e (H.Markup e')
 ui16 = light <$> liftSF (since 1000.0) (button "Switch on" unit unit)
 
 -- Example 17
@@ -230,7 +231,7 @@ ui17 = showDiff <$> date "Date 1" (fromMaybe bottom date1)
   where
     date1 = canonicalDate <$> toEnum 1986 <*> toEnum 7 <*> toEnum 3
     date2 = canonicalDate <$> toEnum 2016 <*> toEnum 8 <*> toEnum 5
-    showDiff d1 d2 = "Days between the dates: " <> show (round $ abs $ unDays $ diff d1 d2)
+    showDiff d1 d2 = "Days between the dates: " <> show (round $ abs $ un Days $ diff d1 d2)
 
 
 -- Render everything to the DOM
