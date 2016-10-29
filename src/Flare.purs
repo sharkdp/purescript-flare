@@ -52,9 +52,10 @@ module Flare
 import Prelude
 
 import Data.Array (fromFoldable)
+import Data.Newtype (unwrap)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Maybe.First (First(..), runFirst)
+import Data.Maybe.First (First(..))
 import Data.Monoid (class Monoid, mempty)
 import Data.Foldable (class Foldable, traverse_, foldMap)
 import Data.Traversable (class Traversable, traverse)
@@ -259,7 +260,7 @@ button label vDefault vPressed = createUI (cButton vPressed) label vDefault
 -- | component returns `Nothing` if none of the buttons is pressed and `Just x`
 -- | if the button corresponding to the element `x` is pressed.
 buttons :: forall f a e. Traversable f => f a -> (a -> String) -> UI e (Maybe a)
-buttons xs toString =  (runFirst <<< foldMap First) <$> traverse toButton xs
+buttons xs toString =  (unwrap <<< foldMap First) <$> traverse toButton xs
   where
     toButton :: forall eff. a -> UI eff (Maybe a)
     toButton x = button (toString x) Nothing (Just x)
