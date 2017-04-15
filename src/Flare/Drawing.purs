@@ -32,7 +32,7 @@ runFlareDrawing controls canvasID ui = do
   let render' drawing = do
         w <- getCanvasWidth canvas
         h <- getCanvasHeight canvas
-        clearRect ctx { x: 0.0, y: 0.0, w, h }
+        _ <- clearRect ctx { x: 0.0, y: 0.0, w, h }
         render ctx drawing
 
   runFlareWith controls render' ui
