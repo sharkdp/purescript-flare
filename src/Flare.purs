@@ -29,6 +29,8 @@ module Flare
   , select_
   , radioGroup
   , radioGroup_
+  , textarea
+  , textarea_
   , color
   , color_
   , date
@@ -138,6 +140,7 @@ foreign import cBoolean :: CreateComponent Boolean
 foreign import cButton :: forall a. a -> CreateComponent a
 foreign import cSelect :: forall a. Array a -> (a -> String) -> CreateComponent a
 foreign import cRadioGroup :: forall a. Array a -> (a -> String) -> CreateComponent a
+foreign import cTextarea :: CreateComponent String
 foreign import cColor :: CreateComponent String
 
 type DateRec = { year :: Int, month :: Int, day :: Int }
@@ -285,6 +288,15 @@ radioGroup label (default :| xs) toString =
 -- | Like `radioGroup`, but without a label.
 radioGroup_ :: forall e f a. Foldable f => NonEmpty f a -> (a -> String) -> UI e a
 radioGroup_ = radioGroup ""
+
+-- | Creates a textarea field for a `String` input from a given label and
+-- | default value.
+textarea :: forall e. Label -> String -> UI e String
+textarea = createUI cTextarea
+
+-- | Like `textarea`, but without a label.
+textarea_ :: forall e. String -> UI e String
+textarea_ = textarea ""
 
 -- | Creates a color picker input field from a label and default `Color`.
 color :: forall e. Label -> Color -> UI e Color

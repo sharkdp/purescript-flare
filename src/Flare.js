@@ -296,6 +296,19 @@ exports.cRadioGroup = function(xs) {
   };
 };
 
+exports.cTextarea = createComponent("textarea",
+  function(initial) {
+    var textarea = document.createElement("textarea");
+    textarea.value = initial;
+    return textarea;
+  },
+  "input",
+  function(t, initial) {
+    return t.value;
+  }
+);
+
+
 exports.toFieldset = function(label) {
   return function(elements) {
     var fieldset = document.createElement("fieldset");
