@@ -11,9 +11,11 @@ import Data.Monoid (mempty)
 import Data.Enum (toEnum)
 import Data.Foldable (foldMap, sum)
 import Data.Int (toNumber, round)
+import Data.List (List(..), (:))
 import Data.Traversable (traverse)
 import Data.Date (canonicalDate, diff)
 import Data.Time.Duration (Days(..))
+import Data.String (take)
 import Data.Newtype (un)
 import Math (pow, sin, cos, pi, abs)
 
@@ -32,7 +34,7 @@ import Text.Smolder.HTML.Attributes as A
 import Flare (UI, runFlareShow, runFlareWith, runFlare, button, liftSF, buttons,
               foldp, select, intSlider, numberSlider, string, intSlider_,
               boolean_, lift, color, number_, int_, string_, number, (<**>),
-              date)
+              date, resizableList)
 import Flare.Drawing (Color, Drawing, runFlareDrawing, rgb, hsl, cssStringHSLA,
                       path, lineWidth, black, outlineColor, outlined, fillColor,
                       filled, circle)
@@ -233,6 +235,13 @@ ui17 = showDiff <$> date "Date 1" (fromMaybe bottom date1)
     date2 = canonicalDate <$> toEnum 2016 <*> toEnum 8 <*> toEnum 5
     showDiff d1 d2 = "Days between the dates: " <> show (round $ abs $ un Days $ diff d1 d2)
 
+-- Example 18
+
+ui18 :: forall e. UI e String
+ui18 = acronym <$> resizableList "Words" string_ "Really" defaultList
+  where
+    defaultList = "Don't" : "Repeat" : "Yourself" : Nil
+    acronym xs = "Acronym: " <> foldMap (take 1) xs
 
 -- Render everything to the DOM
 
@@ -255,3 +264,4 @@ main = do
   runFlareShow    "controls15"  "output15" ui15
   runFlareHTML    "controls16"  "output16" ui16
   runFlare        "controls17"  "output17" ui17
+  runFlare        "controls18"  "output18" ui18

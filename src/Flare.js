@@ -327,6 +327,75 @@ exports.toFieldset = function(label) {
   };
 };
 
+
+exports.cResizableList = function(prependDefault) {
+  return function(listUi) {
+    return function(label) {
+      return function(defaultList) {
+        return function(send) {
+          return function() {
+            var uid = getUniqueID();
+            var container = document.createElement("div");
+            container.className = "flare-input";
+
+            if (label !== "") {
+              var labelEl = document.createElement("label");
+              labelEl.htmlFor = uid;
+              labelEl.appendChild(document.createTextNode(label));
+              container.appendChild(labelEl);
+            }
+
+            // update to reflect the given list
+            function setList(list) {
+              var content = document.createElement("div");
+              content.id = uid;
+              content.className = "flare-input-list";
+
+              var flare = listUi(list)();  // UI missing +/- buttons at top
+              flare.value1.subscribe(function(val) { send(val)(); });
+
+              // always add plusButton, even for empty lists
+              var plusButton = document.createElement("button");
+              plusButton.appendChild(document.createTextNode("+"));
+              plusButton.addEventListener("click", function () {
+                setList(prependDefault(flare.value1.get()));
+              });
+              content.appendChild(plusButton);
+
+              // if list is non-empty, add its UI components and minusButton
+              if (flare.value0.length > 0) {
+                // relies on fact that tail UI has a single element
+                var tailComponent = flare.value0.pop();
+                var headComponents = flare.value0;
+                headComponents.forEach(function (c) {
+                  // display head on same line as +/- buttons
+                  c.style.display = "inline";
+                  content.appendChild(c);
+                });
+                var minusButton = document.createElement("button");
+                minusButton.appendChild(document.createTextNode("-"));
+                minusButton.addEventListener("click", function () {
+                  setList(flare.value1.get().value1);  // remove head of list
+                });
+                content.appendChild(minusButton);
+                content.appendChild(tailComponent);
+              }
+
+              // fresh content
+              var oldContent = document.getElementById(uid);
+              if (oldContent) container.removeChild(oldContent);
+              container.appendChild(content);
+            }
+
+            setList(defaultList);
+            return container;
+          };
+        };
+      };
+    };
+  };
+};
+
 exports.cColor = createComponent("color",
   function(initial) {
     var input = document.createElement("input");

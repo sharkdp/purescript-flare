@@ -228,6 +228,16 @@ ui = showDiff &lt;$&gt; date &quot;Date 1&quot; (fromMaybe bottom date1)
         <div id="controls17"></div>
         <div id="output17"></div>
 
+        <h3>Example 18: Resizable lists</h3>
+<pre>
+ui = acronym <$> resizableList "Words" string_ "Really" defaultList
+  where
+    defaultList = "Don't" : "Repeat" : "Yourself" : Nil
+    acronym xs = "Acronym: " <> foldMap (take 1) xs
+</pre>
+        <div id="controls18"></div>
+        <div id="output18"></div>
+
         <script type="text/javascript" src="main.js"></script>
     </body>
 </html>
