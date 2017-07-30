@@ -38,6 +38,8 @@ module Flare
   , time
   , time_
   , fieldset
+  , resizableList
+  , resizableList_
   , applyUIFlipped
   , (<**>)
   , wrap
@@ -64,6 +66,7 @@ import Data.Traversable (class Traversable, traverse)
 import Data.Enum (toEnum, fromEnum)
 import Data.Date (Date, exactDate)
 import Data.Date as Date
+import Data.List (List(..), (:))
 import Data.Time (Time(..))
 
 import Control.Apply (lift2)
@@ -348,6 +351,30 @@ fieldset :: forall e a. Label -> UI e a -> UI e a
 fieldset label (UI setup) = UI $ do
   (Flare cs sig) <- setup
   pure $ Flare [toFieldset label cs] sig
+
+foreign import cResizableList :: forall e a. (List a -> List a) ->
+                                 (List a -> UI e (List a)) ->
+                                 CreateComponent (List a)
+
+-- | Creates a resizable `List a` input given a way to construct `a` UIs, a
+-- | default `a`, and a default `List a`.
+resizableList :: forall e a. Label ->
+                 (a -> UI e a) ->
+                 a ->
+                 List a ->
+                 UI e (List a)
+resizableList label aUi defaultA defaultList =
+  createUI (cResizableList prependDefault listUi) label defaultList where
+    prependDefault = Cons defaultA
+    -- a UI missing +/- buttons at the top (which `cResizableList` then adds)
+    listUi = case _ of
+      Nil -> pure Nil
+      hd : tl -> Cons <$> aUi hd
+                      <*> resizableList "" aUi defaultA tl
+
+-- | Like `resizableList`, but without a label.
+resizableList_ :: forall e a. (a -> UI e a) -> a -> List a -> UI e (List a)
+resizableList_ = resizableList ""
 
 -- | A flipped version of `<*>` for `UI` that arranges the components in the
 -- | order of appearance.
