@@ -9,7 +9,7 @@ import Data.NonEmpty ((:|))
 import Data.Maybe (maybe, fromMaybe)
 import Data.Monoid (mempty)
 import Data.Enum (toEnum)
-import Data.Foldable (foldMap, sum)
+import Data.Foldable (foldMap, sum, traverse_)
 import Data.Int (toNumber, round)
 import Data.List (List(..), (:))
 import Data.Traversable (traverse)
@@ -145,8 +145,8 @@ ui11 = foldp (+) 0 (button "Increment" 0 1)
 -- Example 12
 
 table :: forall e. Int -> Int -> H.Markup e
-table h w = H.table $ foldMap row (0 .. h)
-  where row i = H.tr $ foldMap (cell i) (0 .. w)
+table h w = H.table $ traverse_ row (0 .. h)
+  where row i = H.tr $ traverse_ (cell i) (0 .. w)
         cell i j = H.td (H.text (show i <> "," <> show j))
 
 ui12 :: forall e e'. UI e (H.Markup e')
@@ -161,7 +161,7 @@ list :: forall e. UI e (Array String)
 list = foldp id ["Apple", "Banana"] actions
 
 ui13 :: forall e e'. UI e (H.Markup e')
-ui13 = (H.ul <<< foldMap (H.li <<< H.text)) <$> list
+ui13 = (H.ul <<< traverse_ (H.li <<< H.text)) <$> list
 
 -- Example 14
 
@@ -218,7 +218,7 @@ ui15 = foldp (maybe id perform) 0 $
 -- Example 16
 
 light :: forall e. Boolean -> H.Markup e
-light on = H.with H.div arg mempty
+light on = H.with H.div arg (H.text "")
   where arg | on = A.className "on"
             | otherwise = mempty
 

@@ -21,7 +21,7 @@
     "purescript-signal": "^9.0.0",
     "purescript-canvas": "^3.0.0",
     "purescript-drawing": "^3.0.0",
-    "purescript-smolder": "^7.0.0",
+    "purescript-smolder": "^10.0.0",
     "purescript-nonempty": "^4.0.0",
     "purescript-datetime": "^3.0.0"
   }
