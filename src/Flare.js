@@ -23,6 +23,18 @@ exports.removeChildren = function(target) {
   };
 };
 
+exports.createInnerElementP = function(tuple) {
+  return function () {
+    var uid = getUniqueID();
+    var el = document.createElement('div');
+    el.id = uid;
+    // append element to body so it can be found by getElementById.
+    // It will be moved to the right place later when rendering
+    document.body.append(el);
+    return tuple(uid)(el);
+  };
+};
+
 exports.appendComponent = function(target) {
   return function(el) {
     return function() {

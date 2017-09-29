@@ -9,6 +9,7 @@ module Flare
   , numberRange_
   , numberSlider
   , numberSlider_
+  , innerFlare
   , int
   , int_
   , intRange
@@ -68,6 +69,7 @@ import Data.Date (Date, exactDate)
 import Data.Date as Date
 import Data.List (List(..), (:))
 import Data.Time (Time(..))
+import Data.Tuple (Tuple(..))
 
 import Control.Apply (lift2)
 import Control.Monad.Eff (Eff)
@@ -123,6 +125,11 @@ foreign import removeChildren :: forall e. ElementId
 -- | Append a child element to the parent with the specified ID.
 foreign import appendComponent :: forall e. ElementId
                                -> Element -> Eff (dom :: DOM | e) Unit
+
+foreign import createInnerElementP :: forall a e. (ElementId -> Element -> a) -> Eff (dom :: DOM | e) a
+
+createInnerElement :: forall e. Eff (dom :: DOM | e) (Tuple ElementId Element)
+createInnerElement = createInnerElementP Tuple
 
 -- | Set the inner HTML of the specified element to the given value.
 foreign import renderString :: forall e. ElementId
@@ -438,6 +445,22 @@ flareWith controls handler (UI setupUI) = do
   removeChildren controls
   traverse_ (appendComponent controls) components
   handler signal
+
+-- | Renders an UI with access to the current value.
+innerFlare :: forall e a b. UI e a
+           -> (a -> UI e b)
+           -> UI e (Maybe b)
+innerFlare (UI setupUI) innerUI = UI $ do
+  (Flare components signal) <- setupUI
+  Tuple innerHostId innerHost <- createInnerElement
+  -- FIXME: there's no way to create a channel without a value, and no way to
+  -- get the current value out of signal, thus Maybe in the type
+  --
+  -- innerResult <- channel $ innerUI $ get signal
+  innerResult <- channel Nothing
+  let setupInner = innerUI >>> flareWith innerHostId (map (Just >>> send innerResult) >>> S.runSignal)
+  S.runSignal $ setupInner <$> signal
+  pure $ Flare (components <> [innerHost]) (subscribe innerResult)
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
