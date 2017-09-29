@@ -2,43 +2,34 @@ module Test.Main where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
 import Control.Apply (lift2)
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Timer (TIMER)
+import DOM (DOM)
 import Data.Array (cons, (..), length, zipWith)
-import Data.NonEmpty ((:|))
-import Data.Maybe (maybe, fromMaybe)
-import Data.Monoid (mempty)
+import Data.Date (canonicalDate, diff)
 import Data.Enum (toEnum)
 import Data.Foldable (foldMap, sum, traverse_)
 import Data.Int (toNumber, round)
 import Data.List (List(..), (:))
-import Data.Traversable (traverse)
-import Data.Date (canonicalDate, diff)
-import Data.Time.Duration (Days(..))
-import Data.String (take)
+import Data.Maybe (maybe, fromMaybe)
+import Data.Monoid (mempty)
 import Data.Newtype (un)
-import Math (pow, sin, cos, pi, abs)
-
-import DOM (DOM)
-import Signal.Channel (CHANNEL)
+import Data.NonEmpty ((:|))
+import Data.String (take)
+import Data.Time.Duration (Days(..))
+import Data.Traversable (traverse)
+import Flare (UI, runFlareShow, runFlare, button, liftSF, buttons, foldp, select, intSlider, numberSlider, string, innerFlare, intSlider_, boolean_, lift, color, number_, int_, string_, number, (<**>), date, resizableList)
+import Flare.Drawing (Color, Drawing, runFlareDrawing, rgb, hsl, cssStringHSLA, path, lineWidth, black, outlineColor, outlined, fillColor, filled, circle)
+import Flare.Smolder (runFlareHTML)
 import Graphics.Canvas (CANVAS)
-import Control.Monad.Eff.Timer (TIMER)
-
+import Math (pow, sin, cos, pi, abs)
+import Signal.Channel (CHANNEL)
 import Signal.DOM (animationFrame)
 import Signal.Time (since)
-
 import Text.Smolder.HTML (div, li, ul, table, td, tr) as H
-import Text.Smolder.Markup (Markup, with, text) as H
 import Text.Smolder.HTML.Attributes as A
-
-import Flare (UI, runFlareShow, runFlareWith, runFlare, button, liftSF, buttons,
-              foldp, select, intSlider, numberSlider, string, intSlider_,
-              boolean_, lift, color, number_, int_, string_, number, (<**>),
-              date, resizableList)
-import Flare.Drawing (Color, Drawing, runFlareDrawing, rgb, hsl, cssStringHSLA,
-                      path, lineWidth, black, outlineColor, outlined, fillColor,
-                      filled, circle)
-import Flare.Smolder (runFlareHTML)
+import Text.Smolder.Markup (Markup, with, text) as H
 
 -- Example 1
 
@@ -192,8 +183,9 @@ uiColor RGB = rgb <$> is "Red"   200
 inner :: forall e. Domain -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
 inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
 
-ui14 :: forall e. UI e Domain
-ui14 = select "Color domain" (HSL :| [RGB]) showDomain
+ui14 :: forall e m. UI e (H.Markup m)
+ui14 = traverse_ toHTML <$>
+       select "Color domain" (HSL :| [RGB]) showDomain `innerFlare` uiColor
 
 -- Example 15
 
@@ -260,7 +252,7 @@ main = do
   runFlareHTML    "controls12"  "output12" ui12
   runFlareShow    "controls11"  "output11" ui11
   runFlareHTML    "controls13"  "output13" ui13
-  runFlareWith    "controls14a"     inner  ui14
+  runFlareHTML    "controls14"  "output14" ui14
   runFlareShow    "controls15"  "output15" ui15
   runFlareHTML    "controls16"  "output16" ui16
   runFlare        "controls17"  "output17" ui17
