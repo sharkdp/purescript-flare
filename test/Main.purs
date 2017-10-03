@@ -180,9 +180,6 @@ uiColor RGB = rgb <$> is "Red"   200
                   <*> is "Green"   0
                   <*> is "Blue"  100
 
-inner :: forall e. Domain -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
-inner = runFlareHTML "controls14b" "output14" <<< map toHTML <<< uiColor
-
 ui14 :: forall e m. UI e (H.Markup m)
 ui14 = traverse_ toHTML <$>
        select "Color domain" (HSL :| [RGB]) showDomain `innerFlare` uiColor
