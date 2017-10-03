@@ -181,7 +181,7 @@ uiColor RGB = rgb <$> is "Red"   200
                   <*> is "Blue"  100
 
 ui14 :: forall e m. UI e (H.Markup m)
-ui14 = traverse_ toHTML <$>
+ui14 = toHTML <$>
        select "Color domain" (HSL :| [RGB]) showDomain `innerFlare` uiColor
 
 -- Example 15
