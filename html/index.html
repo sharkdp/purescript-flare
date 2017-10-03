@@ -175,7 +175,7 @@ uiColor RGB = rgb <$> is "Red"   200
                   <*> is "Green"   0
                   <*> is "Blue"  100
 
-ui = traverse_ toHTML <$>
+ui = toHTML <$>
      select "Color domain" (HSL :| [RGB]) showDomain `innerFlare` uiColor
 </pre>
         <div id="controls14"></div>

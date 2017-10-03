@@ -449,18 +449,23 @@ flareWith controls handler (UI setupUI) = do
 -- | Renders an UI with access to the current value.
 innerFlare :: forall e a b. UI e a
            -> (a -> UI e b)
-           -> UI e (Maybe b)
+           -> UI e b
 innerFlare (UI setupUI) innerUI = UI $ do
   (Flare components signal) <- setupUI
+  -- Get the initial value for the resulting signal
+  UI setupInnerUI <- innerUI <$> get signal
+  (Flare _ innerSignal) <- setupInnerUI
+  initialInner <- get innerSignal
+  innerResult <- channel initialInner
+  -- Set up the inner UI
   Tuple innerHostId innerHost <- createInnerElement
-  -- FIXME: there's no way to create a channel without a value, and no way to
-  -- get the current value out of signal, thus Maybe in the type
-  --
-  -- innerResult <- channel $ innerUI $ get signal
-  innerResult <- channel Nothing
-  let setupInner = innerUI >>> flareWith innerHostId (map (Just >>> send innerResult) >>> S.runSignal)
+  let setupInner = innerUI >>> flareWith innerHostId (map (send innerResult) >>> S.runSignal)
   S.runSignal $ setupInner <$> signal
   pure $ Flare (components <> [innerHost]) (subscribe innerResult)
+
+-- | Get the current value of a signal. Should be in purescript-signal, pending
+-- https://github.com/bodil/purescript-signal/pull/60
+foreign import get :: forall e a. S.Signal a -> Eff e a
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
