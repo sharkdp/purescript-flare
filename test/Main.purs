@@ -3,9 +3,6 @@ module Test.Main where
 import Prelude
 
 import Control.Apply (lift2)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Timer (TIMER)
-import DOM (DOM)
 import Data.Array (cons, (..), length, zipWith)
 import Data.Date (canonicalDate, diff)
 import Data.Enum (toEnum)
@@ -13,18 +10,16 @@ import Data.Foldable (foldMap, sum, traverse_)
 import Data.Int (toNumber, round)
 import Data.List (List(..), (:))
 import Data.Maybe (maybe, fromMaybe)
-import Data.Monoid (mempty)
 import Data.Newtype (un)
 import Data.NonEmpty ((:|))
 import Data.String (take)
 import Data.Time.Duration (Days(..))
 import Data.Traversable (traverse)
+import Effect (Effect)
 import Flare (UI, runFlareShow, runFlare, button, liftSF, buttons, foldp, select, intSlider, numberSlider, string, innerFlare, intSlider_, boolean_, lift, color, number_, int_, string_, number, (<**>), date, resizableList)
 import Flare.Drawing (Color, Drawing, runFlareDrawing, rgb, hsl, cssStringHSLA, path, lineWidth, black, outlineColor, outlined, fillColor, filled, circle)
 import Flare.Smolder (runFlareHTML)
-import Graphics.Canvas (CANVAS)
 import Math (pow, sin, cos, pi, abs)
-import Signal.Channel (CHANNEL)
 import Signal.DOM (animationFrame)
 import Signal.Time (since)
 import Text.Smolder.HTML (div, li, ul, table, td, tr) as H
@@ -99,7 +94,7 @@ plot m n1 s col time =
                     first = pow (abs (cos (m * phi / 4.0))) n2
                     second = pow (abs (sin (m * phi / 4.0))) n3
 
-ui7 :: forall e. UI (timer :: TIMER | e) Drawing
+ui7 :: forall e. UI e Drawing
 ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0  7.0)
            <*> (numberSlider "n1" 1.0 10.0 0.1  4.0)
            <*> (numberSlider "s"  4.0 16.0 0.1 14.0)
@@ -149,7 +144,7 @@ actions :: forall e. UI e (Array String -> Array String)
 actions = string "Add item:" "Orange" <**> button "Add" (flip const) cons
 
 list :: forall e. UI e (Array String)
-list = foldp id ["Apple", "Banana"] actions
+list = foldp identity ["Apple", "Banana"] actions
 
 ui13 :: forall e e'. UI e (H.Markup e')
 ui13 = (H.ul <<< traverse_ (H.li <<< H.text)) <$> list
@@ -201,7 +196,7 @@ perform Negate    = negate
 perform Reset     = const 0
 
 ui15 :: forall e. UI e Int
-ui15 = foldp (maybe id perform) 0 $
+ui15 = foldp (maybe identity perform) 0 $
          buttons [Increment, Decrement, Negate, Reset] label
 
 -- Example 16
@@ -234,7 +229,7 @@ ui18 = acronym <$> resizableList "Words" string_ "Really" defaultList
 
 -- Render everything to the DOM
 
-main :: Eff (dom :: DOM, channel :: CHANNEL, canvas :: CANVAS, timer :: TIMER) Unit
+main :: Effect Unit
 main = do
   runFlareShow     "controls1"   "output1"  ui1
   runFlare         "controls2"   "output2"  ui2

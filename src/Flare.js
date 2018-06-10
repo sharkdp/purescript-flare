@@ -35,12 +35,6 @@ exports.createInnerElementP = function(tuple) {
   };
 };
 
-exports.get = function (sig) {
-  return function () {
-    return sig.get();
-  };
-};
-
 exports.appendComponent = function(target) {
   return function(el) {
     return function() {

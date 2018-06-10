@@ -56,31 +56,25 @@ module Flare
 
 import Prelude
 
+import Color (Color, toHexString, fromHexString)
+import Control.Apply (lift2)
 import Data.Array (fromFoldable)
-import Data.Newtype (unwrap)
-import Data.NonEmpty (NonEmpty, (:|))
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Maybe.First (First(..))
-import Data.Monoid (class Monoid, mempty)
-import Data.Foldable (class Foldable, traverse_, foldMap)
-import Data.Traversable (class Traversable, traverse)
-import Data.Enum (toEnum, fromEnum)
 import Data.Date (Date, exactDate)
 import Data.Date as Date
+import Data.Enum (toEnum, fromEnum)
+import Data.Foldable (class Foldable, traverse_, foldMap)
 import Data.List (List(..), (:))
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe.First (First(..))
+import Data.Newtype (unwrap)
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Time (Time(..))
+import Data.Traversable (class Traversable, traverse)
 import Data.Tuple (Tuple(..))
-
-import Control.Apply (lift2)
-import Control.Monad.Eff (Eff)
-
-import Color (Color, toHexString, fromHexString)
-
-import DOM (DOM)
-import DOM.Node.Types (Element())
-
+import Effect (Effect)
 import Signal as S
-import Signal.Channel (CHANNEL, subscribe, send, channel)
+import Signal.Channel (subscribe, send, channel)
+import Web.DOM (Element)
 
 type ElementId = String
 type Label = String
@@ -98,10 +92,10 @@ instance applyFlare :: Apply Flare where
 instance applicativeFlare :: Applicative Flare where
   pure x = Flare [] (pure x)
 
--- | The main data type for a Flare UI. It encapsulates the `Eff` action
+-- | The main data type for a Flare UI. It encapsulates the `Effect` action
 -- | which is to be run when setting up the input elements and corresponding
 -- | signals.
-newtype UI e a = UI (Eff (dom :: DOM, channel :: CHANNEL | e) (Flare a))
+newtype UI e a = UI (Effect (Flare a))
 
 instance functorUI :: Functor (UI e) where
   map f (UI a) = UI $ map (map f) a
@@ -119,27 +113,23 @@ instance monoidUI :: (Monoid a) => Monoid (UI e a) where
   mempty = pure mempty
 
 -- | Remove all children from a given parent element.
-foreign import removeChildren :: forall e. ElementId
-                              -> Eff (dom :: DOM | e) Unit
+foreign import removeChildren :: ElementId -> Effect Unit
 
 -- | Append a child element to the parent with the specified ID.
-foreign import appendComponent :: forall e. ElementId
-                               -> Element -> Eff (dom :: DOM | e) Unit
+foreign import appendComponent :: ElementId -> Element -> Effect Unit
 
-foreign import createInnerElementP :: forall a e. (ElementId -> Element -> a) -> Eff (dom :: DOM | e) a
+foreign import createInnerElementP :: forall a. (ElementId -> Element -> a) -> Effect a
 
-createInnerElement :: forall e. Eff (dom :: DOM | e) (Tuple ElementId Element)
+createInnerElement :: Effect (Tuple ElementId Element)
 createInnerElement = createInnerElementP Tuple
 
 -- | Set the inner HTML of the specified element to the given value.
-foreign import renderString :: forall e. ElementId
-                            -> String
-                            -> Eff (dom :: DOM | e) Unit
+foreign import renderString :: ElementId -> String -> Effect Unit
 
-type CreateComponent a = forall e. Label
+type CreateComponent a = Label
                          -> a
-                         -> (a -> Eff (channel :: CHANNEL) Unit)
-                         -> Eff (dom :: DOM, channel :: CHANNEL | e) Element
+                         -> (a -> Effect Unit)
+                         -> Effect Element
 
 foreign import cNumber :: CreateComponent Number
 foreign import cNumberRange :: String -> Number -> Number -> Number -> CreateComponent Number
@@ -398,7 +388,7 @@ wrap :: forall e a. (S.Signal a) -> UI e a
 wrap sig = UI $ pure $ Flare [] sig
 
 -- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
-lift :: forall e a. Eff (channel :: CHANNEL, dom :: DOM | e) (S.Signal a) -> UI e a
+lift :: forall e a. Effect (S.Signal a) -> UI e a
 lift msig = UI $ do
   sig <- msig
   pure $ Flare [] sig
@@ -426,9 +416,8 @@ foldp f x0 = liftSF (S.foldp f x0)
 -- | Low level function to get direct access to the HTML elements and the
 -- | `Signal` inside a Flare UI.
 setupFlare :: forall e a. UI e a
-            -> Eff (channel :: CHANNEL, dom :: DOM | e)
-                   { components :: Array Element
-                   , signal :: S.Signal a }
+            -> Effect { components :: Array Element
+                      , signal :: S.Signal a }
 setupFlare (UI setupUI) = do
   (Flare components signal) <- setupUI
   pure { components, signal }
@@ -437,9 +426,9 @@ setupFlare (UI setupUI) = do
 -- | specifies the HTML element to which the controls are attached. The
 -- | handler function argument handles the `Signal` inside the `Flare`.
 flareWith :: forall e a. ElementId
-          -> (S.Signal a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit)
+          -> (S.Signal a -> Effect Unit)
           -> UI e a
-          -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
+          -> Effect Unit
 flareWith controls handler (UI setupUI) = do
   (Flare components signal) <- setupUI
   removeChildren controls
@@ -453,9 +442,9 @@ innerFlare :: forall e a b. UI e a
 innerFlare (UI setupUI) innerUI = UI $ do
   (Flare components signal) <- setupUI
   -- Get the initial value for the resulting signal
-  UI setupInnerUI <- innerUI <$> get signal
+  UI setupInnerUI <- innerUI <$> S.get signal
   (Flare _ innerSignal) <- setupInnerUI
-  initialInner <- get innerSignal
+  initialInner <- S.get innerSignal
   innerResult <- channel initialInner
   -- Set up the inner UI
   Tuple innerHostId innerHost <- createInnerElement
@@ -463,17 +452,13 @@ innerFlare (UI setupUI) innerUI = UI $ do
   S.runSignal $ setupInner <$> signal
   pure $ Flare (components <> [innerHost]) (subscribe innerResult)
 
--- | Get the current value of a signal. Should be in purescript-signal, pending
--- https://github.com/bodil/purescript-signal/pull/60
-foreign import get :: forall e a. S.Signal a -> Eff e a
-
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
 -- | function argument will be mapped over the `Signal` inside the `Flare`.
 runFlareWith :: forall e a. ElementId
-             -> (a -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit)
+             -> (a -> Effect Unit)
              -> UI e a
-             -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
+             -> Effect Unit
 runFlareWith controls handler ui = flareWith controls (S.runSignal <<< map handler) ui
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
@@ -483,7 +468,7 @@ runFlare :: forall e.
             ElementId
          -> ElementId
          -> UI e String
-         -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
+         -> Effect Unit
 runFlare controls target = runFlareWith controls (renderString target)
 
 -- | Like `runFlare` but uses `show` to convert the contained value to a
@@ -492,5 +477,5 @@ runFlareShow :: forall e a. (Show a)
              => ElementId
              -> ElementId
              -> UI e a
-             -> Eff (dom :: DOM, channel :: CHANNEL | e) Unit
+             -> Effect Unit
 runFlareShow controls target ui = runFlare controls target (show <$> ui)
