@@ -1,0 +1,17 @@
+{
+  "name": "purescript-flare",
+  "set": "psc-0.12.0",
+  "source": "https://github.com/purescript/package-sets.git",
+  "depends": [
+      "canvas",
+      "datetime",
+      "drawing",
+      "foldable-traversable",
+      "nonempty",
+      "prelude",
+      "signal",
+      "smolder",
+      "tuples",
+      "web-dom"
+  ]
+}
