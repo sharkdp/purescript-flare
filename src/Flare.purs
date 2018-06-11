@@ -95,21 +95,21 @@ instance applicativeFlare :: Applicative Flare where
 -- | The main data type for a Flare UI. It encapsulates the `Effect` action
 -- | which is to be run when setting up the input elements and corresponding
 -- | signals.
-newtype UI e a = UI (Effect (Flare a))
+newtype UI a = UI (Effect (Flare a))
 
-instance functorUI :: Functor (UI e) where
+instance functorUI :: Functor UI where
   map f (UI a) = UI $ map (map f) a
 
-instance applyUI :: Apply (UI e) where
+instance applyUI :: Apply UI where
   apply (UI a1) (UI a2) = UI $ lift2 apply a1 a2
 
-instance applicativeUI :: Applicative (UI e) where
+instance applicativeUI :: Applicative UI where
   pure x = UI $ pure (pure x)
 
-instance semigroupUI :: (Semigroup a) => Semigroup (UI e a) where
+instance semigroupUI :: (Semigroup a) => Semigroup (UI a) where
   append = lift2 append
 
-instance monoidUI :: (Monoid a) => Monoid (UI e a) where
+instance monoidUI :: (Monoid a) => Monoid (UI a) where
   mempty = pure mempty
 
 -- | Remove all children from a given parent element.
@@ -151,7 +151,7 @@ foreign import cTime :: CreateComponent TimeRec
 
 -- | Set up the HTML element for a given component and create the corresponding
 -- | signal channel.
-createUI :: forall e a. (CreateComponent a) -> Label -> a -> UI e a
+createUI :: forall a. (CreateComponent a) -> Label -> a -> UI a
 createUI createComp label default = UI $ do
   chan <- channel default
   comp <- createComp label default (send chan)
@@ -160,155 +160,155 @@ createUI createComp label default = UI $ do
 
 -- | Creates an input field for a `Number` from a given label and default
 -- | value.
-number :: forall e. Label -> Number -> UI e Number
+number :: Label -> Number -> UI Number
 number = createUI cNumber
 
 -- | Like `number`, but without a label.
-number_ :: forall e. Number -> UI e Number
+number_ :: Number -> UI Number
 number_ = number ""
 
 -- | Creates an input field for a `Number` from a given label,
 -- | minimum value, maximum value, step size as well as default value.
 -- | The returned value is guaranteed to be within the given range.
-numberRange :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
+numberRange :: Label -> Number -> Number -> Number -> Number -> UI Number
 numberRange label min max step default = createUI (cNumberRange "number" min max step) label default
 
 -- | Like `numberRange`, but without a label.
-numberRange_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
+numberRange_ :: Number -> Number -> Number -> Number -> UI Number
 numberRange_ = numberRange ""
 
 -- | Creates a slider for a `Number` input from a given label,
 -- | minimum value, maximum value, step size as well as default value.
-numberSlider :: forall e. Label -> Number -> Number -> Number -> Number -> UI e Number
+numberSlider :: Label -> Number -> Number -> Number -> Number -> UI Number
 numberSlider label min max step default = createUI (cNumberRange "range" min max step) label default
 
 -- | Like `numberSlider`, but without a label.
-numberSlider_ :: forall e. Number -> Number -> Number -> Number -> UI e Number
+numberSlider_ :: Number -> Number -> Number -> Number -> UI Number
 numberSlider_ = numberSlider ""
 
 -- | Creates an input field for an `Int` from a given label and default
 -- | value. The returned value is guaranteed to be within the allowed integer
 -- | range.
-int :: forall e. Label -> Int -> UI e Int
+int :: Label -> Int -> UI Int
 int label = createUI (cIntRange "number" bottom top) label
 
 -- | Like `int`, but without a label.
-int_ :: forall e. Int -> UI e Int
+int_ :: Int -> UI Int
 int_ = int ""
 
 -- | Creates an input field for an `Int` from a given label, minimum and
 -- | maximum values as well as a default value. The returned value is
 -- | guaranteed to be within the given range.
-intRange :: forall e. Label -> Int -> Int -> Int -> UI e Int
+intRange :: Label -> Int -> Int -> Int -> UI Int
 intRange label min max default = createUI (cIntRange "number" min max) label default
 
 -- | Like `intRange`, but without a label.
-intRange_ :: forall e. Int -> Int -> Int -> UI e Int
+intRange_ :: Int -> Int -> Int -> UI Int
 intRange_ = intRange ""
 
 -- | Creates a slider for an `Int` input from a given label, minimum and
 -- | maximum values as well as a default value.
-intSlider :: forall e. Label -> Int -> Int -> Int -> UI e Int
+intSlider :: Label -> Int -> Int -> Int -> UI Int
 intSlider label min max default = createUI (cIntRange "range" min max) label default
 
 -- | Like `intSlider`, but without a label.
-intSlider_ :: forall e. Int -> Int -> Int -> UI e Int
+intSlider_ :: Int -> Int -> Int -> UI Int
 intSlider_ = intSlider ""
 
 -- | Creates a text field for a `String` input from a given label and default
 -- | value.
-string :: forall e. Label -> String -> UI e String
+string :: Label -> String -> UI String
 string = createUI cString
 
 -- | Like `string`, but without a label.
-string_ :: forall e. String -> UI e String
+string_ :: String -> UI String
 string_ = string ""
 
 -- | Creates a text field for a `String` input from a given label, validation
 -- | pattern (HTML5 `pattern` attribute), and a default value.
-stringPattern :: forall e. Label -> String -> String -> UI e String
+stringPattern :: Label -> String -> String -> UI String
 stringPattern label pattern default = createUI (cStringPattern pattern) label default
 
 -- | Like `stringPattern`, but without a label.
-stringPattern_ :: forall e. String -> String -> UI e String
+stringPattern_ :: String -> String -> UI String
 stringPattern_ = stringPattern ""
 
 -- | Creates a checkbox for a `Boolean` input from a given label and default
 -- | value.
-boolean :: forall e. Label -> Boolean -> UI e Boolean
+boolean :: Label -> Boolean -> UI Boolean
 boolean = createUI cBoolean
 
 -- | Like `boolean`, but without a label.
-boolean_ :: forall e. Boolean -> UI e Boolean
+boolean_ :: Boolean -> UI Boolean
 boolean_ = boolean ""
 
 -- | Creates a checkbox that returns `Just x` if enabled and `Nothing` if
 -- | disabled. Takes a label, the initial state (enabled or disabled) and
 -- | the default value `x`.
-optional :: forall a e. Label -> Boolean -> a -> UI e (Maybe a)
+optional :: forall a. Label -> Boolean -> a -> UI (Maybe a)
 optional label enabled x = ret <$> boolean label enabled
   where ret true = (Just x)
         ret false = Nothing
 
 -- | Like `optional`, but without a label.
-optional_ :: forall a e. Boolean -> a -> UI e (Maybe a)
+optional_ :: forall a. Boolean -> a -> UI (Maybe a)
 optional_ = optional ""
 
 -- | Creates a button which yields the first value in the default state and
 -- | the second value when it is pressed.
-button :: forall a e. Label -> a -> a -> UI e a
+button :: forall a. Label -> a -> a -> UI a
 button label vDefault vPressed = createUI (cButton vPressed) label vDefault
 
 -- | Create a button for each element of the given container. The whole
 -- | component returns `Nothing` if none of the buttons is pressed and `Just x`
 -- | if the button corresponding to the element `x` is pressed.
-buttons :: forall f a e. Traversable f => f a -> (a -> String) -> UI e (Maybe a)
+buttons :: forall f a. Traversable f => f a -> (a -> String) -> UI (Maybe a)
 buttons xs toString =  (unwrap <<< foldMap First) <$> traverse toButton xs
   where
-    toButton :: forall eff. a -> UI eff (Maybe a)
+    toButton :: a -> UI (Maybe a)
     toButton x = button (toString x) Nothing (Just x)
 
 -- | Creates a select box to choose from a list of options. The first option
 -- | is selected by default. The rest of the options is given as an array.
-select :: forall e f a. Foldable f => Label -> NonEmpty f a -> (a -> String) -> UI e a
+select :: forall f a. Foldable f => Label -> NonEmpty f a -> (a -> String) -> UI a
 select label (default :| xs) toString =
   createUI (cSelect (fromFoldable xs) toString) label default
 
 -- | Like `select`, but without a label.
-select_ :: forall e f a. Foldable f => NonEmpty f a -> (a -> String) -> UI e a
+select_ :: forall f a. Foldable f => NonEmpty f a -> (a -> String) -> UI a
 select_ = select ""
 
 -- | Creates a group of radio buttons to choose from a list of options. The
 -- | first option is selected by default. The rest of the options is given as
 -- | an array.
-radioGroup :: forall e f a. Foldable f => Label -> NonEmpty f a -> (a -> String) -> UI e a
+radioGroup :: forall f a. Foldable f => Label -> NonEmpty f a -> (a -> String) -> UI a
 radioGroup label (default :| xs) toString =
   createUI (cRadioGroup (fromFoldable xs) toString) label default
 
 -- | Like `radioGroup`, but without a label.
-radioGroup_ :: forall e f a. Foldable f => NonEmpty f a -> (a -> String) -> UI e a
+radioGroup_ :: forall f a. Foldable f => NonEmpty f a -> (a -> String) -> UI a
 radioGroup_ = radioGroup ""
 
 -- | Creates a textarea field for a `String` input from a given label and
 -- | default value.
-textarea :: forall e. Label -> String -> UI e String
+textarea :: Label -> String -> UI String
 textarea = createUI cTextarea
 
 -- | Like `textarea`, but without a label.
-textarea_ :: forall e. String -> UI e String
+textarea_ :: String -> UI String
 textarea_ = textarea ""
 
 -- | Creates a color picker input field from a label and default `Color`.
-color :: forall e. Label -> Color -> UI e Color
+color :: Label -> Color -> UI Color
 color label default = (fromMaybe default <<< fromHexString) <$>
                         createUI cColor label (toHexString default)
 
 -- | Like `color`, but without a label.
-color_ :: forall e. Color -> UI e Color
+color_ :: Color -> UI Color
 color_ = color ""
 
 -- | Creates a date input field from a label and default `Date`.
-date :: forall e. Label -> Date -> UI e Date
+date :: Label -> Date -> UI Date
 date label default = (fromMaybe default <<< toDate) <$>
                         createUI cDate label { year: fromEnum (Date.year default)
                                              , month: fromEnum (Date.month default)
@@ -323,11 +323,11 @@ date label default = (fromMaybe default <<< toDate) <$>
       exactDate y m d
 
 -- | Like `date`, but without a label.
-date_ :: forall e. Date -> UI e Date
+date_ :: Date -> UI Date
 date_ = date ""
 
 -- | Creates a time input field from a label and default `Time`.
-time :: forall e. Label -> Time -> UI e Time
+time :: Label -> Time -> UI Time
 time label default = (fromMaybe default <<< toTime) <$>
                        createUI cTime label { hours: 0, minutes: 30 }
   where
@@ -338,28 +338,28 @@ time label default = (fromMaybe default <<< toTime) <$>
                                      <*> toEnum 0
 
 -- | Like `time`, but without a label.
-time_ :: forall e. Time -> UI e Time
+time_ :: Time -> UI Time
 time_ = time ""
 
 foreign import toFieldset :: Label -> Array Element -> Element
 
 -- | Group the components of a UI inside a fieldset element with a given title.
-fieldset :: forall e a. Label -> UI e a -> UI e a
+fieldset :: forall a. Label -> UI a -> UI a
 fieldset label (UI setup) = UI $ do
   (Flare cs sig) <- setup
   pure $ Flare [toFieldset label cs] sig
 
-foreign import cResizableList :: forall e a. (List a -> List a) ->
-                                 (List a -> UI e (List a)) ->
-                                 CreateComponent (List a)
+foreign import cResizableList :: forall a. (List a -> List a)
+                              -> (List a -> UI (List a))
+                              -> CreateComponent (List a)
 
 -- | Creates a resizable `List a` input given a way to construct `a` UIs, a
 -- | default `a`, and a default `List a`.
-resizableList :: forall e a. Label ->
-                 (a -> UI e a) ->
+resizableList :: forall a. Label ->
+                 (a -> UI a) ->
                  a ->
                  List a ->
-                 UI e (List a)
+                 UI (List a)
 resizableList label aUi defaultA defaultList =
   createUI (cResizableList prependDefault listUi) label defaultList where
     prependDefault = Cons defaultA
@@ -370,12 +370,12 @@ resizableList label aUi defaultA defaultList =
                       <*> resizableList "" aUi defaultA tl
 
 -- | Like `resizableList`, but without a label.
-resizableList_ :: forall e a. (a -> UI e a) -> a -> List a -> UI e (List a)
+resizableList_ :: forall a. (a -> UI a) -> a -> List a -> UI (List a)
 resizableList_ = resizableList ""
 
 -- | A flipped version of `<*>` for `UI` that arranges the components in the
 -- | order of appearance.
-applyUIFlipped :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+applyUIFlipped :: forall a b. UI a -> UI (a -> b) -> UI b
 applyUIFlipped (UI setup1) (UI setup2) = UI $ do
   (Flare cs1 sig1) <- setup1
   (Flare cs2 sig2) <- setup2
@@ -384,25 +384,25 @@ applyUIFlipped (UI setup1) (UI setup2) = UI $ do
 infixl 4 applyUIFlipped as <**>
 
 -- | Encapsulate a `Signal` within a `UI` component.
-wrap :: forall e a. (S.Signal a) -> UI e a
+wrap :: forall a. (S.Signal a) -> UI a
 wrap sig = UI $ pure $ Flare [] sig
 
 -- | Lift a `Signal` inside the `Eff` monad to a `UI` component.
-lift :: forall e a. Effect (S.Signal a) -> UI e a
+lift :: forall a. Effect (S.Signal a) -> UI a
 lift msig = UI $ do
   sig <- msig
   pure $ Flare [] sig
 
 -- | Lift a function from `Signal a` to `Signal b` to a function from
--- | `UI e a` to `UI e b` without affecting the components. For example:
+-- | `UI a` to `UI b` without affecting the components. For example:
 -- |
 -- | ``` purescript
--- | dropRepeats :: forall e a. (Eq a) => UI e a -> UI e a
+-- | dropRepeats :: forall a. (Eq a) => UI a -> UI a
 -- | dropRepeats = liftSF S.dropRepeats
 -- | ```
-liftSF :: forall e a b. (S.Signal a -> S.Signal b)
-       -> UI e a
-       -> UI e b
+liftSF :: forall a b. (S.Signal a -> S.Signal b)
+       -> UI a
+       -> UI b
 liftSF f (UI setup) = UI do
   (Flare comp sig) <- setup
   pure $ Flare comp (f sig)
@@ -410,12 +410,12 @@ liftSF f (UI setup) = UI do
 -- | Create a past dependent component. The fold-function takes the current
 -- | value of the component and the previous value of the output to produce
 -- | the new value of the output.
-foldp :: forall a b e. (a -> b -> b) -> b -> UI e a -> UI e b
+foldp :: forall a b. (a -> b -> b) -> b -> UI a -> UI b
 foldp f x0 = liftSF (S.foldp f x0)
 
 -- | Low level function to get direct access to the HTML elements and the
 -- | `Signal` inside a Flare UI.
-setupFlare :: forall e a. UI e a
+setupFlare :: forall a. UI a
             -> Effect { components :: Array Element
                       , signal :: S.Signal a }
 setupFlare (UI setupUI) = do
@@ -425,9 +425,9 @@ setupFlare (UI setupUI) = do
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
 -- | handler function argument handles the `Signal` inside the `Flare`.
-flareWith :: forall e a. ElementId
+flareWith :: forall a. ElementId
           -> (S.Signal a -> Effect Unit)
-          -> UI e a
+          -> UI a
           -> Effect Unit
 flareWith controls handler (UI setupUI) = do
   (Flare components signal) <- setupUI
@@ -436,9 +436,9 @@ flareWith controls handler (UI setupUI) = do
   handler signal
 
 -- | Renders an UI with access to the current value.
-innerFlare :: forall e a b. UI e a
-           -> (a -> UI e b)
-           -> UI e b
+innerFlare :: forall a b. UI a
+           -> (a -> UI b)
+           -> UI b
 innerFlare (UI setupUI) innerUI = UI $ do
   (Flare components signal) <- setupUI
   -- Get the initial value for the resulting signal
@@ -455,27 +455,26 @@ innerFlare (UI setupUI) innerUI = UI $ do
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The ID
 -- | specifies the HTML element to which the controls are attached. The
 -- | function argument will be mapped over the `Signal` inside the `Flare`.
-runFlareWith :: forall e a. ElementId
+runFlareWith :: forall a. ElementId
              -> (a -> Effect Unit)
-             -> UI e a
+             -> UI a
              -> Effect Unit
 runFlareWith controls handler ui = flareWith controls (S.runSignal <<< map handler) ui
 
 -- | Renders a Flare UI to the DOM and sets up all event handlers. The two IDs
 -- | specify the DOM elements to which the controls and the output will be
 -- | attached, respectively.
-runFlare :: forall e.
-            ElementId
+runFlare :: ElementId
          -> ElementId
-         -> UI e String
+         -> UI String
          -> Effect Unit
 runFlare controls target = runFlareWith controls (renderString target)
 
 -- | Like `runFlare` but uses `show` to convert the contained value to a
 -- | `String` before rendering to the DOM (useful for testing).
-runFlareShow :: forall e a. (Show a)
+runFlareShow :: forall a. (Show a)
              => ElementId
              -> ElementId
-             -> UI e a
+             -> UI a
              -> Effect Unit
 runFlareShow controls target ui = runFlare controls target (show <$> ui)

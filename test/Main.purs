@@ -28,23 +28,23 @@ import Text.Smolder.Markup (Markup, with, text) as H
 
 -- Example 1
 
-ui1 :: forall e. UI e Number
+ui1 :: UI Number
 ui1 = pow <$> number "Base" 2.0
           <*> number "Exponent" 10.0
 
 -- Example 2
 
-ui2 :: forall e. UI e String
+ui2 :: UI String
 ui2 = string_ "Hello" <> pure " " <> string_ "World"
 
 -- Example 3
 
-ui3 :: forall e. UI e Int
+ui3 :: UI Int
 ui3 = sum <$> traverse int_ [2, 13, 27, 42]
 
 -- Example 4
 
-ui4 :: forall e. UI e Number
+ui4 :: UI Number
 ui4 = lift2 (/) (number_ 5.0) (number_ 2.0)
 
 -- Example 5
@@ -53,7 +53,7 @@ coloredCircle :: Number -> Number -> Drawing
 coloredCircle hue radius =
   filled (fillColor (hsl hue 0.8 0.4)) (circle 50.0 50.0 radius)
 
-ui5 :: forall e. UI e Drawing
+ui5 :: UI Drawing
 ui5 = coloredCircle <$> (numberSlider "Hue"    0.0 360.0 1.0 140.0)
                     <*> (numberSlider "Radius" 2.0  45.0 0.1  25.0)
 
@@ -71,7 +71,7 @@ greet English = "Hello"
 greet French  = "Salut"
 greet German  = "Hallo"
 
-ui6 :: forall e. UI e String
+ui6 :: UI String
 ui6 = (greet <$> (select "Language" (English :| [French, German]) toString))
       <> pure " " <> string "Name" "Pierre" <> pure "!"
 
@@ -94,7 +94,7 @@ plot m n1 s col time =
                     first = pow (abs (cos (m * phi / 4.0))) n2
                     second = pow (abs (sin (m * phi / 4.0))) n3
 
-ui7 :: forall e. UI e Drawing
+ui7 :: UI Drawing
 ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0  7.0)
            <*> (numberSlider "n1" 1.0 10.0 0.1  4.0)
            <*> (numberSlider "s"  4.0 16.0 0.1 14.0)
@@ -103,12 +103,12 @@ ui7 = plot <$> (numberSlider "m"  0.0 10.0 1.0  7.0)
 
 -- Example 8
 
-ui8 :: forall e. UI e (Array Int)
+ui8 :: UI (Array Int)
 ui8 = traverse (intSlider_ 1 5) (1..5)
 
 -- Example 9
 
-ui9 :: forall e. UI e Boolean
+ui9 :: UI Boolean
 ui9 = lift2 (&&) (boolean_ false) (boolean_ true)
 
 -- Example 10
@@ -119,34 +119,34 @@ graph xs width = outlined (outlineColor black <> lineWidth width)
     where points = zipWith point xs (1 .. length xs)
           point x y = { x, y: toNumber y }
 
-ui10 :: forall e. UI e Drawing
+ui10 :: UI Drawing
 ui10 = graph <$> foldp cons [] (numberSlider "Position" 0.0 150.0 1.0 75.0)
              <*> numberSlider "Width" 1.0 5.0 0.1 1.0
 
 -- Example 11
 
-ui11 :: forall e. UI e Int
+ui11 :: UI Int
 ui11 = foldp (+) 0 (button "Increment" 0 1)
 
 -- Example 12
 
-table :: forall e. Int -> Int -> H.Markup e
+table :: forall m. Int -> Int -> H.Markup m
 table h w = H.table $ traverse_ row (0 .. h)
   where row i = H.tr $ traverse_ (cell i) (0 .. w)
         cell i j = H.td (H.text (show i <> "," <> show j))
 
-ui12 :: forall e e'. UI e (H.Markup e')
+ui12 :: forall m. UI (H.Markup m)
 ui12 = table <$> intSlider_ 0 9 5 <*> intSlider_ 0 9 5
 
 -- Example 13
 
-actions :: forall e. UI e (Array String -> Array String)
+actions :: UI (Array String -> Array String)
 actions = string "Add item:" "Orange" <**> button "Add" (flip const) cons
 
-list :: forall e. UI e (Array String)
+list :: UI (Array String)
 list = foldp identity ["Apple", "Banana"] actions
 
-ui13 :: forall e e'. UI e (H.Markup e')
+ui13 :: forall m. UI (H.Markup m)
 ui13 = (H.ul <<< traverse_ (H.li <<< H.text)) <$> list
 
 -- Example 14
@@ -157,17 +157,17 @@ showDomain :: Domain -> String
 showDomain HSL = "HSL"
 showDomain RGB = "RGB"
 
-toHTML :: forall e. Color -> H.Markup e
+toHTML :: forall m. Color -> H.Markup m
 toHTML c = H.div `H.with` (A.style $ "background-color:" <> hex) $ H.text hex
   where hex = cssStringHSLA c
 
-ns :: forall e. String -> Number -> Number -> Number -> UI e Number
+ns :: String -> Number -> Number -> Number -> UI Number
 ns l = numberSlider l 0.0
 
-is :: forall e. String -> Int -> UI e Int
+is :: String -> Int -> UI Int
 is l = intSlider l 0 255
 
-uiColor :: forall e. Domain -> UI e Color
+uiColor :: Domain -> UI Color
 uiColor HSL = hsl <$> ns "Hue"        360.0  1.0 180.0
                   <*> ns "Saturation"   1.0 0.01   0.5
                   <*> ns "Lightness"    1.0 0.01   0.5
@@ -175,7 +175,7 @@ uiColor RGB = rgb <$> is "Red"   200
                   <*> is "Green"   0
                   <*> is "Blue"  100
 
-ui14 :: forall e m. UI e (H.Markup m)
+ui14 :: forall m. UI (H.Markup m)
 ui14 = toHTML <$>
        select "Color domain" (HSL :| [RGB]) showDomain `innerFlare` uiColor
 
@@ -195,23 +195,23 @@ perform Decrement = flip sub 1
 perform Negate    = negate
 perform Reset     = const 0
 
-ui15 :: forall e. UI e Int
+ui15 :: UI Int
 ui15 = foldp (maybe identity perform) 0 $
          buttons [Increment, Decrement, Negate, Reset] label
 
 -- Example 16
 
-light :: forall e. Boolean -> H.Markup e
+light :: forall m. Boolean -> H.Markup m
 light on = H.with H.div arg (H.text "")
   where arg | on = A.className "on"
             | otherwise = mempty
 
-ui16 :: forall e e'. UI e (H.Markup e')
+ui16 :: forall m. UI (H.Markup m)
 ui16 = light <$> liftSF (since 1000.0) (button "Switch on" unit unit)
 
 -- Example 17
 
-ui17 :: forall e. UI e String
+ui17 :: UI String
 ui17 = showDiff <$> date "Date 1" (fromMaybe bottom date1)
                 <*> date "Date 2" (fromMaybe bottom date2)
   where
@@ -221,7 +221,7 @@ ui17 = showDiff <$> date "Date 1" (fromMaybe bottom date1)
 
 -- Example 18
 
-ui18 :: forall e. UI e String
+ui18 :: UI String
 ui18 = acronym <$> resizableList "Words" string_ "Really" defaultList
   where
     defaultList = "Don't" : "Repeat" : "Yourself" : Nil
