@@ -15,9 +15,9 @@ import Prelude (Unit, bind)
 -- | Renders a Flare UI with a `Drawing` as output. The first ID specifies
 -- | the DOM element for the controls while the second ID specifies the
 -- | canvas for rendering.
-runFlareDrawing :: forall e. ElementId
+runFlareDrawing :: ElementId
                 -> ElementId
-                -> UI e Drawing
+                -> UI Drawing
                 -> Effect Unit
 runFlareDrawing controls canvasID ui = do
   mcanvas <- getCanvasElementById canvasID
