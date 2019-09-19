@@ -47,6 +47,7 @@ module Flare
   , lift
   , liftSF
   , foldp
+  , foldEffect
   , setupFlare
   , flareWith
   , runFlareWith
@@ -74,6 +75,7 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Signal as S
 import Signal.Channel (subscribe, send, channel)
+import Signal.Effect as SE
 import Web.DOM (Element)
 
 type ElementId = String
@@ -412,6 +414,15 @@ liftSF f (UI setup) = UI do
 -- | the new value of the output.
 foldp :: forall a b. (a -> b -> b) -> b -> UI a -> UI b
 foldp f x0 = liftSF (S.foldp f x0)
+
+-- | Creates a past dependent component with an effectful computation.
+-- | The function argument takes the value of the input component, and
+-- | the previous value of the output component, to produce the new value
+-- | of the output component wraped inside an Effect action.
+foldEffect :: forall a b. (a -> b -> Effect b) -> b -> UI a -> UI b
+foldEffect f b (UI eff) = lift $ do
+    (Flare _ signal) <- eff
+    SE.foldEffect f b signal
 
 -- | Low level function to get direct access to the HTML elements and the
 -- | `Signal` inside a Flare UI.
