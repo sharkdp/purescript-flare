@@ -418,7 +418,7 @@ foldp f x0 = liftSF (S.foldp f x0)
 -- | Creates a past dependent component with an effectful computation.
 -- | The function argument takes the value of the input component, and
 -- | the previous value of the output component, to produce the new value
--- | of the output component wraped inside an Effect action.
+-- | of the output component wrapped inside an Effect action.
 foldEffect :: forall a b. (a -> b -> Effect b) -> b -> UI a -> UI b
 foldEffect f b (UI eff) = lift $ do
     (Flare _ signal) <- eff
