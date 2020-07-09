@@ -30,7 +30,7 @@ exports.createInnerElementP = function(tuple) {
     el.id = uid;
     // append element to body so it can be found by getElementById.
     // It will be moved to the right place later when rendering
-    document.body.append(el);
+    document.body.appendChild(el);
     return tuple(uid)(el);
   };
 };
